@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="APTS_CustomPricingCallBackHelper_Ultra.cs" />
+    <Compile Remove="APTS_CustomPricingCallBack_Switch.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="APTS_CustomPricingCallBackHelper_Ultra.cs" />
+    <None Include="APTS_CustomPricingCallBack_Switch.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Apttus.Lightsaber.Extensibility" Version="2001.0.1.12" />
+    <PackageReference Include="Apttus.Lightsaber.Pricing.Common" Version="2001.0.0.177" />
+  </ItemGroup>
+
+</Project>
