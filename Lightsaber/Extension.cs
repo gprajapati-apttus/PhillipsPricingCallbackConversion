@@ -8,7 +8,7 @@ namespace PhillipsConversion.Lightsaber
 {
     public static class Extension
     {
-        public static decimal GetOrDefault(this LineItemModel lineItemModel, string fieldName, decimal defaultValue)
+        public static decimal GetValuetOrDefault(this LineItemModel lineItemModel, string fieldName, decimal defaultValue)
         {
             var fieldValue = lineItemModel.Get<decimal?>(fieldName);
 
