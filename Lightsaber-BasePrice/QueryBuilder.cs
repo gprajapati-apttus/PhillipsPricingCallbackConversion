@@ -2,6 +2,7 @@
 using Apttus.Lightsaber.Extensibility.Framework.Library.Implementation;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace PhillipsConversion.Lightsaber

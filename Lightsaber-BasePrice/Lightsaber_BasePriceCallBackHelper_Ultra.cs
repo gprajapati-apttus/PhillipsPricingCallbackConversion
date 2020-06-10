@@ -13,12 +13,12 @@ using System.Linq;
 
 namespace PhillipsConversion
 {
-    public class Lightsaber_CustomPricingCallBackHelper_Ultra
+    public class Lightsaber_BasePriceCallBackHelper_Ultra
     {
         private Dictionary<string, object> proposal;
         private IDBHelper dBHelper = null;
 
-        public Lightsaber_CustomPricingCallBackHelper_Ultra(Dictionary<string, object> proposal, IDBHelper dBHelper)
+        public Lightsaber_BasePriceCallBackHelper_Ultra(Dictionary<string, object> proposal, IDBHelper dBHelper)
         {
             this.proposal = proposal;
             this.dBHelper = dBHelper;
@@ -355,7 +355,8 @@ namespace PhillipsConversion
 
         public decimal formatPrecisionCeiling(decimal fieldValue)
         {
-            return PricingHelper.Ceiling(fieldValue, 2);
+            var result = PricingHelper.ApplyRounding(fieldValue, 2, RoundingMode.UP);
+            return result.Value;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace PhillipsConversion
 {
     public class Phillips_BasePricingCallback : CodeExtensibilityFramework, IPricingBasePriceCallback
     {
-        private Lightsaber_CustomPricingCallBackHelper_Ultra pcbHelper_Ultra = null;
+        private Lightsaber_BasePriceCallBackHelper_Ultra pcbHelper_Ultra = null;
         private List<LineItemModel> batchLineItems = null;
 
         public async Task BeforePricingBatchAsync(BatchPriceRequest batchPriceRequest)
@@ -22,7 +22,7 @@ namespace PhillipsConversion
             batchLineItems = batchPriceRequest.LineItems.SelectMany(x => x.ChargeLines).ToList();
 
             var proposalSO = batchPriceRequest.Cart.Get<Dictionary<string, object>>("Apttus_Proposal__Proposal__c");
-            pcbHelper_Ultra = new Lightsaber_CustomPricingCallBackHelper_Ultra(proposalSO, GetDBHelper());
+            pcbHelper_Ultra = new Lightsaber_BasePriceCallBackHelper_Ultra(proposalSO, GetDBHelper());
 
             await pcbHelper_Ultra.populateExtendedQuantity(batchLineItems);
         }
