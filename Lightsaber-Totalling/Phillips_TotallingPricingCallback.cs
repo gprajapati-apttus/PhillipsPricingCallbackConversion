@@ -31,22 +31,15 @@ namespace PhillipsConversion.Totalling
 
         public async Task AfterPricingCartAdjustmentAsync(AggregateCartRequest aggregateCartRequest)
         {
-            foreach (var cartLineItem in cartLineItems)
-            {
-                cartLineItem.Entity.NetPrice = cartLineItem.GetLineType() == LineType.ProductService 
-                                                    ? cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Solution_Offered_Price__c) 
-                                                    : cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Offered_Price_c__c);
-            }
-
-            await pcbHelper_Ultra.computeNetAdjustment(cartLineItems);
-            //await pcbHelper_Ultra.populateCustomFields(allLines);
-            //await pcbHelper_Ultra.calculatePricePointsForBundle(allLines);
+            await pcbHelper_Ultra.computeNetPriceAndNetAdjustment(cartLineItems);
+            await pcbHelper_Ultra.calculatePricePointsForBundle(allLines);
 
             await Task.CompletedTask;
         }
 
         public async Task FinishAsync(AggregateCartRequest aggregateCartRequest)
         {
+            //await pcbHelper_Ultra.populateCustomFields(allLines);
             await Task.CompletedTask;
         }
     }

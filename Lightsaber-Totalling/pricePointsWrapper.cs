@@ -36,22 +36,7 @@ namespace PhillipsConversion.Totalling
         {
             listPrice = 0;
             solutionUnitIncentiveAmount = 0;
-            
-            if (lineItemModel.Entity.Frequency != null && lineItemModel.Entity.Frequency != Totalling.Constants.ONE_TIME)
-            {
-                if (lineItemModel.Entity.StartDate != null && lineItemModel.Entity.EndDate != null)
-                {
-                    lineItemModel.Entity.SellingTerm = PricingHelper.ComputeTerm(lineItemModel.Entity.Frequency, lineItemModel.Entity.StartDate, lineItemModel.Entity.EndDate);
-                }
-
-                sellingTerm = lineItemModel.GetValuetOrDefault(LineItem.PropertyNames.SellingTerm, 1);
-            }
-            else
-            {
-                lineItemModel.Entity.SellingTerm = 1;
-                sellingTerm = 1;
-            }
-
+            sellingTerm = lineItemModel.GetValuetOrDefault(LineItem.PropertyNames.SellingTerm, 1);
             preEscalationPrice = 0;
             targetPrice = 0;
             minPrice = 0;

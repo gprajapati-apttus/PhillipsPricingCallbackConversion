@@ -15,8 +15,9 @@ namespace PhillipsConversion
 {
     public class Lightsaber_BasePriceCallBackHelper_Ultra
     {
-        private Dictionary<string, object> proposal;
-        private IDBHelper dBHelper = null;
+        private readonly Dictionary<string, object> proposal = null;
+        HashSet<decimal> lineNumWithLocalBundleSet = new HashSet<decimal>();
+        private readonly IDBHelper dBHelper = null;
 
         public Lightsaber_BasePriceCallBackHelper_Ultra(Dictionary<string, object> proposal, IDBHelper dBHelper)
         {
@@ -34,14 +35,14 @@ namespace PhillipsConversion
                 decimal extendedQuantity = batchLineItem.GetQuantity();
                 decimal quantity = batchLineItem.GetQuantity();
 
-                if (batchLineItem.GetLineType() == LineType.Option)
+                if (batchLineItem.IsOptionLine())
                 {
-                    ProductLineItemModel productLineItemModel = batchLineItem.GetRootParentLineItem();
-                    decimal bundleQuantity = productLineItemModel.GetPrimaryLineItem().GetQuantity();
+                    LineItemModel rootBundleLineItemModel = batchLineItem.GetRootParentLineItem().GetPrimaryLineItem();
+                    decimal bundleQuantity = rootBundleLineItemModel.GetQuantity();
                     quantity = bundleQuantity;
                     extendedQuantity = bundleQuantity * batchLineItem.GetQuantity();
 
-                    batchLineItem.Entity.IsOptional = productLineItemModel.GetPrimaryLineItem().IsOptional();
+                    batchLineItem.Entity.IsOptional = rootBundleLineItemModel.IsOptional();
                 }
 
                 batchLineItem.Set(LineItemCustomField.APTS_Extended_Quantity__c, extendedQuantity);
@@ -76,18 +77,17 @@ namespace PhillipsConversion
             return pliSPOODictionary;
         }
 
-        public async Task<Dictionary<string, LocalBundleHeaderQueryModel>> queryAndPopulateNAMBundleDictionary(List<LineItemModel> batchLineItems)
+        public async Task<Dictionary<string, LocalBundleHeaderQueryModel>> queryAndPopulateNAMBundleDictionary(List<LineItemModel> cartLineItems)
         {
             HashSet<string> localBundleOptionSet = new HashSet<string>();
-            HashSet<decimal> lineNumWithLocalBundleSet = new HashSet<decimal>();
             Dictionary<string, LocalBundleHeaderQueryModel> namBundleDictionary = new Dictionary<string, LocalBundleHeaderQueryModel>();
 
-            foreach (LineItemModel batchLineItem in batchLineItems)
+            foreach (LineItemModel cartLineItem in cartLineItems)
             {
-                if (batchLineItem.IsOptionLine() && batchLineItem.Get<bool>(LineItemCustomField.Apttus_Config2__OptionId__r_APTS_Local_Bundle__c))
+                if (cartLineItem.IsOptionLine() && cartLineItem.Get<bool>(LineItemCustomField.Apttus_Config2__OptionId__r_APTS_Local_Bundle__c))
                 {
-                    lineNumWithLocalBundleSet.Add(batchLineItem.GetLineNumber());
-                    localBundleOptionSet.Add(batchLineItem.Entity.ProductId + batchLineItem.Entity.OptionId);
+                    lineNumWithLocalBundleSet.Add(cartLineItem.GetLineNumber());
+                    localBundleOptionSet.Add(cartLineItem.Entity.ProductId + cartLineItem.Entity.OptionId);
                 }
             }
 
@@ -99,28 +99,37 @@ namespace PhillipsConversion
                 namBundleDictionary.Add(namBundleItem.APTS_Component__c + namBundleItem.APTS_Local_Bundle_Header__r.APTS_Parent_Bundle__c, namBundleItem);
             }
 
-            //for (Apttus_Config2.LineItem lineItemMO : allLines)
-            //{
-            //    Apttus_Config2__LineItem__c liSO = lineItemMO.getLineItemSO();
-            //    if (liSO.Apttus_Config2__OptionId__c != null && liSO.Apttus_Config2__OptionId__r.APTS_Local_Bundle__c)
-            //    {
-            //        lineNumWithLocalBundleSet.add(liSO.Apttus_Config2__LineNumber__c);
-            //        localBundleOptionSet.add(liSO.Apttus_Config2__ProductId__c + '' + liSO.Apttus_Config2__OptionId__c);
-            //    }
-            //}
-
-            //List<APTS_Local_Bundle_Header__c> localBundleHeaderSOList = [select id, APTS_Local_Bundle__c, APTS_Parent_Bundle__c, APTS_Parent_Local_Bundle__c, (select id, APTS_Component__c, APTS_Local_Bundle_Header__c from Local_Bundle_Components__r where APTS_Active__c = TRUE) from APTS_Local_Bundle_Header__c where APTS_Active__c = TRUE AND APTS_Parent_Local_Bundle__c IN: localBundleOptionSet];
-
-            //for (APTS_Local_Bundle_Header__c localBundleHeaderSO : localBundleHeaderSOList)
-            //{
-            //    List<APTS_Local_Bundle_Component__c> componentSOList = localBundleHeaderSO.Local_Bundle_Components__r;
-            //    for (APTS_Local_Bundle_Component__c componentSO : componentSOList)
-            //    {
-            //        componentSOMap.put(componentSO.APTS_Component__c + '' + localBundleHeaderSO.APTS_Parent_Bundle__c, componentSO);
-            //    }
-            //}
-
             return namBundleDictionary;
+        }
+
+        public async Task UpdateNAMBundleOptions(LineItemModel batchLineItem, Dictionary<string, LocalBundleHeaderQueryModel> namBundleDictionary)
+        {
+            if (batchLineItem.IsOptionLine() && !batchLineItem.Get<bool>(LineItemCustomField.Apttus_Config2__OptionId__r_APTS_Local_Bundle__c) && lineNumWithLocalBundleSet.Contains(batchLineItem.GetLineNumber()))
+            {
+                var namBundleOptionKey = batchLineItem.Entity.OptionId + batchLineItem.Entity.ProductId;
+                var priceListItemEntity = batchLineItem.GetPriceListItem().Entity;
+                LocalBundleHeaderQueryModel componentSO = namBundleDictionary[namBundleOptionKey];
+
+                if (componentSO != null)
+                {
+                    batchLineItem.Set(LineItemCustomField.APTS_Local_Bundle_Header__c, componentSO.APTS_Local_Bundle_Header__r.Id);
+                    batchLineItem.Set(LineItemCustomField.APTS_Local_Bundle_Component__c, componentSO.Id);
+                    batchLineItem.Entity.IsQuantityModifiable = false;
+                    batchLineItem.Set(LineItemCustomField.APTS_Local_Bundle_Component_Flag__c, true);
+
+                    priceListItemEntity.AllowManualAdjustment = false;
+                    priceListItemEntity.AllocateGroupAdjustment = false;
+                    priceListItemEntity.ListPrice = 0;
+                    priceListItemEntity.MinPrice = 0;
+
+                    batchLineItem.Set(LineItemCustomField.APTS_ContractDiscount__c, null);
+                    batchLineItem.Entity.MinPrice = 0;
+                    batchLineItem.Set(LineItemCustomField.APTS_Extended_List_Price__c, 0);
+                    batchLineItem.Set(LineItemCustomField.APTS_Option_Unit_Price__c, 0);
+                }
+            }
+
+            await Task.CompletedTask;
         }
 
         public async Task calculateSPOOPricing(LineItemModel batchLineItem, Dictionary<string, PriceListItemQueryModel>  pliSPOODictionary)
