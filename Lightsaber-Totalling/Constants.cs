@@ -13,5 +13,7 @@ namespace PhillipsConversion.Totalling
         public const string CONFIGURATIONTYPE_BUNDLE = "Bundle";
         public const string CONFIGURATIONTYPE_OPTION = "Option";
         public const string  SOLUTION_SUBSCRIPTION = "Solution Subscription";
+
+        public static readonly List<string> listTradeSpoo = new List<string> { "Trade-In", "Trade-In PO", "Trade-In Return" };
     }
 }

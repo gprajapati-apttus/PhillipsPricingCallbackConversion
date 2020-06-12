@@ -12,7 +12,6 @@ namespace PhillipsConversion.Totalling
         public const string APTS_Solution_Offered_Price__c = "APTS_Solution_Offered_Price__c";
         public const string APTS_Offered_Price_c__c = "APTS_Offered_Price_c__c";
         public const string APTS_ContractDiscount__c = "APTS_ContractDiscount__c";
-        public const string Apttus_Config2__PriceListItemId__r_APTS_Country_Pricelist_List_Price__c = "Apttus_Config2__PriceListItemId__r.APTS_Country_Pricelist_List_Price__c";
         public const string APTS_Item_List_Price__c = "APTS_Item_List_Price__c";
         public const string APTS_Solution_list_Price_c__c = "APTS_Solution_list_Price_c__c";
         public const string APTS_Philips_List_Price__c = "APTS_Philips_List_Price__c";
@@ -28,19 +27,44 @@ namespace PhillipsConversion.Totalling
         public const string APTS_Minimum_Price__c = "APTS_Minimum_Price__c";
         public const string APTS_Escalation_Price__c = "APTS_Escalation_Price__c";
         public const string APTS_Contract_Net_Price__c = "APTS_Contract_Net_Price__c";
-        //public const string APTS_Minimum_Price_Service__c = "APTS_Minimum_Price_Service__c";
-        //public const string APTS_Cost_Service__c = "APTS_Cost_Service__c";
-        //public const string APTS_VolumeTier__c = "APTS_VolumeTier__c";
-        //public const string APTS_ContractDiscount__c = "APTS_ContractDiscount__c";
-        //public const string Apttus_Config2__OptionId__r_APTS_Local_Bundle__c = "Apttus_Config2__OptionId__r.APTS_Local_Bundle__c";
+        public const string APTS_Escalation_Price_Attainment_c__c = "APTS_Escalation_Price_Attainment_c__c";
+        public const string APTS_Target_Price_Attainment__c = "APTS_Target_Price_Attainment__c";
+        public const string APTS_Minimum_Price_Attainment_c__c = "APTS_Minimum_Price_Attainment_c__c";
+        public const string APTS_Price_Attainment_Color__c = "APTS_Price_Attainment_Color__c";
         public const string APTS_Local_Bundle_Component_Flag__c = "APTS_Local_Bundle_Component_Flag__c";
+        public const string APTS_Minimum_Price_Bundle__c = "APTS_Minimum_Price_Bundle__c";
+        public const string APTS_Escalation_Price_Bundle__c = "APTS_Escalation_Price_Bundle__c";
+        public const string APTS_Country_Target_Price__c = "APTS_Country_Target_Price__c";
+        public const string APTS_Target_Price_Bundle__c = "APTS_Target_Price_Bundle__c";
+        public const string APTS_Option_List_Price__c = "APTS_Option_List_Price__c";
+        public const string APTS_Solution_Contract_Discount_Amount__c = "APTS_Solution_Contract_Discount_Amount__c";
+        public const string APTS_Incentive_Adjustment_Amount_Bundle__c = "APTS_Incentive_Adjustment_Amount_Bundle__c";
+        public const string APTS_Solution_Unit_Incentive_Adj_Amount__c = "APTS_Solution_Unit_Incentive_Adj_Amount__c";
+        public const string APTS_Solution_Offered_Price_c__c = "APTS_Solution_Offered_Price_c__c";
+        public const string APTS_Solution_List_Price_c__c = "APTS_Solution_List_Price_c__c";
+        public const string APTS_Total_Resulting_Discount_Amount__c = "APTS_Total_Resulting_Discount_Amount__c";
+        public const string APTS_Solution_Price_Attainment_Color__c = "APTS_Solution_Price_Attainment_Color__c";
+        public const string APTS_Payment_Term__c = "APTS_Payment_Term__c";
+        public const string APTS_Inco_Term__c = "APTS_Inco_Term__c";
+        public const string APTS_Escalation_Price_Attainment__c = "APTS_Escalation_Price_Attainment__c";
+        public const string APTS_Minimum_Price_Attainment__c = "APTS_Minimum_Price_Attainment__c";
+        public const string APTS_MAG__c = "APTS_MAG__c";
+        public const string APTS_Business_Unit__c = "APTS_Business_Unit__c";
+        public const string APTS_Is_Escalation_Price_Attained__c = "APTS_Is_Escalation_Price_Attained__c";
+        public const string APTS_Is_Minimum_Price_Attained__c = "APTS_Is_Minimum_Price_Attained__c";
+        public const string APTS_Procurement_approval_needed__c = "APTS_Procurement_approval_needed__c";
     }
 
     public class LineItemStandardRelationshipField
     {
-        public const string Apttus_Config2__PriceListId__r_Apttus_Config2__ContractNumber__c = "Apttus_Config2__PriceListId__r.Apttus_Config2__ContractNumber__c";
-        public const string Apttus_Config2__PriceListItemId__r_Apttus_Config2__ListPrice__c = "Apttus_Config2__PriceListItemId__r.Apttus_Config2__ListPrice__c";
         public const string Apttus_Config2__OptionId__r_Apttus_Config2__ConfigurationType__c = "Apttus_Config2__OptionId__r.Apttus_Config2__ConfigurationType__c";
         public const string Apttus_Config2__ProductId__r_Apttus_Config2__ProductType__c = "Apttus_Config2__ProductId__r.Apttus_Config2__ProductType__c";
+        public const string Apttus_Config2__OptionId__r_Main_Article_Group_ID__c = "Apttus_Config2__OptionId__r.Main_Article_Group_ID__c";
+        public const string Apttus_Config2__OptionId__r_Business_Unit_ID__c = "Apttus_Config2__OptionId__r.Business_Unit_ID__c";
+        public const string Apttus_Config2__ProductId__r_Main_Article_Group_ID__c = "Apttus_Config2__ProductId__r.Main_Article_Group_ID__c";
+        public const string Apttus_Config2__ProductId__r_Business_Unit_ID__c = "Apttus_Config2__ProductId__r.Business_Unit_ID__c";
+        public const string Apttus_Config2__ProductId__r_APTS_SPOO_Type__c = "Apttus_Config2__ProductId__r.APTS_SPOO_Type__c";
+        public const string Apttus_Config2__ProductId__r_APTS_Type__c = "Apttus_Config2__ProductId__r.APTS_Type__c";
+        public const string Apttus_Config2__ProductId__r_APTS_CLOGS__c = "Apttus_Config2__ProductId__r.APTS_CLOGS__c";
     }
 }

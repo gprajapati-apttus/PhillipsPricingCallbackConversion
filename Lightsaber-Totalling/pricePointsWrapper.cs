@@ -32,8 +32,10 @@ namespace PhillipsConversion.Totalling
         public decimal? contractDiscountAmount;
         public decimal? solutionContractDiscountAmount;
 
-        public pricePointsWrapper(LineItemModel lineItemModel)
+        public pricePointsWrapper(LineItemModel lineItemModel, PriceListItemQueryModel pliQueryModel)
         {
+            var priceListItem = lineItemModel.GetPriceListItem();
+
             listPrice = 0;
             solutionUnitIncentiveAmount = 0;
             sellingTerm = lineItemModel.GetValuetOrDefault(LineItem.PropertyNames.SellingTerm, 1);
@@ -41,24 +43,24 @@ namespace PhillipsConversion.Totalling
             targetPrice = 0;
             minPrice = 0;
 
-            if (!string.IsNullOrWhiteSpace(lineItemModel.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__PriceListId__r_Apttus_Config2__ContractNumber__c)))
+            if (!string.IsNullOrWhiteSpace(pliQueryModel.Apttus_Config2__PriceListId__r.Apttus_Config2__ContractNumber__c))
             {
                 contractDiscountAmount = lineItemModel.Get<decimal?>(LineItemCustomField.APTS_ContractDiscount__c).HasValue 
-                    && lineItemModel.Get<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__PriceListItemId__r_Apttus_Config2__ListPrice__c).HasValue 
-                    && lineItemModel.Get<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__PriceListItemId__r_Apttus_Config2__ListPrice__c).Value != 0
-                        ? (lineItemModel.Get<decimal?>(LineItemCustomField.APTS_ContractDiscount__c).Value / 100) * lineItemModel.Get<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__PriceListItemId__r_Apttus_Config2__ListPrice__c).Value * lineItemModel.GetQuantity() 
+                    && priceListItem.Entity.ListPrice.HasValue 
+                    && priceListItem.Entity.ListPrice.Value != 0
+                        ? (lineItemModel.Get<decimal?>(LineItemCustomField.APTS_ContractDiscount__c).Value / 100) * priceListItem.Entity.ListPrice.Value * lineItemModel.GetQuantity() 
                         : 0;
 
                 solutionContractDiscountAmount = !lineItemModel.IsOptional() 
                     && lineItemModel.Get<decimal?>(LineItemCustomField.APTS_ContractDiscount__c).HasValue 
-                    && lineItemModel.Get<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__PriceListItemId__r_Apttus_Config2__ListPrice__c).HasValue 
-                        ? (lineItemModel.Get<decimal?>(LineItemCustomField.APTS_ContractDiscount__c).Value / 100) * lineItemModel.Get<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__PriceListItemId__r_Apttus_Config2__ListPrice__c).Value * lineItemModel.GetQuantity() 
+                    && priceListItem.Entity.ListPrice.HasValue 
+                        ? (lineItemModel.Get<decimal?>(LineItemCustomField.APTS_ContractDiscount__c).Value / 100) * priceListItem.Entity.ListPrice.Value * lineItemModel.GetQuantity() 
                         : 0;
             }
 
-            pliCountryPriceListPrice = lineItemModel.Get<decimal?>(LineItemCustomField.Apttus_Config2__PriceListItemId__r_APTS_Country_Pricelist_List_Price__c).HasValue 
-                && lineItemModel.Get<decimal?>(LineItemCustomField.Apttus_Config2__PriceListItemId__r_APTS_Country_Pricelist_List_Price__c).Value > 0 
-                ? lineItemModel.Get<decimal?>(LineItemCustomField.Apttus_Config2__PriceListItemId__r_APTS_Country_Pricelist_List_Price__c).Value 
+            pliCountryPriceListPrice = pliQueryModel.APTS_Country_Pricelist_List_Price__c.HasValue
+                && pliQueryModel.APTS_Country_Pricelist_List_Price__c.Value > 0 
+                ? pliQueryModel.APTS_Country_Pricelist_List_Price__c.Value 
                 : 0;
             
             philipsListPrice = lineItemModel.Get<decimal?>(LineItemCustomField.APTS_Item_List_Price__c).HasValue ? PricingHelper.ApplyRounding(lineItemModel.Get<decimal?>(LineItemCustomField.APTS_Item_List_Price__c).Value, 2, RoundingMode.UP) : 0;

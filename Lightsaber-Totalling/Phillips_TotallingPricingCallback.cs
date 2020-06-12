@@ -25,22 +25,19 @@ namespace PhillipsConversion.Totalling
 
             await pcbHelper_Ultra.incentiveAdjustmentUnitRounding(cartLineItems);
             await pcbHelper_Ultra.setDiscountWithAdjustmentSpread(cartLineItems);
-
-            await Task.CompletedTask;
         }
 
         public async Task AfterPricingCartAdjustmentAsync(AggregateCartRequest aggregateCartRequest)
         {
+            await pcbHelper_Ultra.populatePLICustomFields(cartLineItems);
             await pcbHelper_Ultra.computeNetPriceAndNetAdjustment(cartLineItems);
-            await pcbHelper_Ultra.calculatePricePointsForBundle(allLines);
-
-            await Task.CompletedTask;
+            await pcbHelper_Ultra.calculatePricePointsForBundle(cartLineItems);
         }
 
         public async Task FinishAsync(AggregateCartRequest aggregateCartRequest)
         {
-            //await pcbHelper_Ultra.populateCustomFields(allLines);
-            await Task.CompletedTask;
+            await pcbHelper_Ultra.populateCustomFields(cartLineItems);
+            await pcbHelper_Ultra.SetRollupsAndThresholdFlags(aggregateCartRequest.Cart, cartLineItems);
         }
     }
 }
