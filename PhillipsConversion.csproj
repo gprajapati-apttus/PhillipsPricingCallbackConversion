@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="APTS_CustomPricingCallBackHelper_Ultra.cs" />
-    <None Include="APTS_CustomPricingCallBack_Switch.cs" />
+    <None Include="SFDC\APTS_CustomPricingCallBackHelper_Ultra.cs" />
+    <None Include="SFDC\APTS_CustomPricingCallBack_Switch.cs" />
   </ItemGroup>
 
   <ItemGroup>
