@@ -1,16 +1,10 @@
 ﻿using Apttus.Lightsaber.Pricing.Common.Constants;
 using Apttus.Lightsaber.Pricing.Common.Entities;
 using Apttus.Lightsaber.Pricing.Common.Models;
-using PhillipsConversion.Lightsaber;
-using PhillipsConversion.Totalling;
-using System;
-using System.Collections.Generic;
-using System.Reflection.Metadata;
-using System.Text;
 
-namespace PhillipsConversion.Totalling
+namespace Apttus.Lightsaber.Phillips.Totalling
 {
-    public class pricePointsWrapper
+    public class PricePointsWrapper
     {
         public decimal? targetPrice;
         public decimal? minPrice;
@@ -32,7 +26,7 @@ namespace PhillipsConversion.Totalling
         public decimal? contractDiscountAmount;
         public decimal? solutionContractDiscountAmount;
 
-        public pricePointsWrapper(LineItemModel lineItemModel, PriceListItemQueryModel pliQueryModel)
+        public PricePointsWrapper(LineItemModel lineItemModel, PriceListItemQueryModel pliQueryModel)
         {
             var priceListItem = lineItemModel.GetPriceListItem();
 

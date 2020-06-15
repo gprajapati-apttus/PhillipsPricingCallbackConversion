@@ -1,7 +1,7 @@
 ﻿using Apttus.Lightsaber.Pricing.Common.Constants;
 using System;
 
-namespace Apttus.Lightsaber.Phillips.Pricing
+namespace Apttus.Lightsaber.Phillips.Totalling
 {
     public class PricingHelper
     {

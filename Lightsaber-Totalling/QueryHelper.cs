@@ -1,9 +1,7 @@
 ﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Common;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace PhillipsConversion.Totalling
+namespace Apttus.Lightsaber.Phillips.Totalling
 {
     public class QueryHelper
     {

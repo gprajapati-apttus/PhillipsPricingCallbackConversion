@@ -1,10 +1,6 @@
-﻿using Apttus.Lightsaber.Pricing.Common.Messages.Cart;
-using Apttus.Lightsaber.Pricing.Common.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Apttus.Lightsaber.Pricing.Common.Models;
 
-namespace PhillipsConversion.Totalling
+namespace Apttus.Lightsaber.Phillips.Totalling
 {
     public static class Extension
     {

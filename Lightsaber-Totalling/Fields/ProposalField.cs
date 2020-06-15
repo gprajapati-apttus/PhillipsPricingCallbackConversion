@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PhillipsConversion.Totalling
+﻿namespace Apttus.Lightsaber.Phillips.Totalling
 {
     public class ProposalField
     {

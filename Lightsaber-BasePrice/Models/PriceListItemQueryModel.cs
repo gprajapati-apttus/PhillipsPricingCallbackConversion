@@ -1,4 +1,4 @@
-﻿namespace PhillipsConversion
+﻿namespace Apttus.Lightsaber.Phillips.Pricing
 {
     public class PriceListItemQueryModel
     {
@@ -55,34 +55,5 @@
         {
             return APTS_Minimum_Price_Multiplier__c.HasValue ? APTS_Minimum_Price_Multiplier__c.Value : 1;
         }
-    }
-
-    public class PriceListQueryModel
-    {
-        public string APTS_Related_Agreement__c { get; set; }
-    }
-
-    public class AccountContracttQueryModel
-    {
-        public string Id { get; set; }
-
-        public string APTS_Agreement_Group__c { get; set; }
-
-        public string APTS_Volume_Tier__c { get; set; }
-    }
-
-    public class LocalBundleHeaderQueryModel
-    {
-        public string Id { get; set; }
-        public string APTS_Component__c { get; set; }
-        public LocalBundleComponentQueryModel APTS_Local_Bundle_Header__r { get; set; }
-    }
-
-    public class LocalBundleComponentQueryModel
-    {
-        public string Id { get; set; }
-        public string APTS_Local_Bundle__c { get; set; }
-        public string APTS_Parent_Bundle__c { get; set; }
-        public string APTS_Parent_Local_Bundle__c { get; set; }
     }
 }

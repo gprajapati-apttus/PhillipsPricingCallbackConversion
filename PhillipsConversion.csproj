@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Apttus.Lightsaber.Extensibility" Version="2001.0.1.12" />
-    <PackageReference Include="Apttus.Lightsaber.Pricing.Common" Version="2001.0.0.177" />
+    <PackageReference Include="Apttus.Lightsaber.Pricing.Common" Version="2001.0.0.186" />
   </ItemGroup>
 
 </Project>

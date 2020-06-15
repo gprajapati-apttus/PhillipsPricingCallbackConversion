@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace PhillipsConversion.Lightsaber
+namespace Apttus.Lightsaber.Phillips.Pricing
 {
     class Constants
     {
+        public const string PROPOSAL = "Apttus_Proposal__Proposal__c";
+
         public const string SYSTEM_TYPE_DEMO = "Demo";
         public const string SYSTEM_TYPE_3RD_PARTY = "3rd Party";
         public const string SYSTEM_TYPE_PHILIPS = "Philips";

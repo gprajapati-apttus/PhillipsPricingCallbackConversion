@@ -1,31 +1,26 @@
-﻿using Apttus.Lightsaber.Pricing.Common.Models;
+﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
 using Apttus.Lightsaber.Pricing.Common.Constants;
-using System;
-using System.Collections.Generic;
-using Apttus.Lightsaber.Pricing.Common.Messages;
-using System.Threading.Tasks;
-using Apttus.Lightsaber.Extensibility.Framework.Library.Implementation;
-using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
 using Apttus.Lightsaber.Pricing.Common.Entities;
-using Apttus.Lightsaber.Extensibility.Framework.Library.Common;
-using PhillipsConversion.Lightsaber;
+using Apttus.Lightsaber.Pricing.Common.Models;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
-namespace PhillipsConversion
+namespace Apttus.Lightsaber.Phillips.Pricing
 {
-    public class Lightsaber_BasePriceCallBackHelper_Ultra
+    public class PricingBasePriceCallbackHelper
     {
         private readonly Dictionary<string, object> proposal = null;
         HashSet<decimal> lineNumWithLocalBundleSet = new HashSet<decimal>();
         private readonly IDBHelper dBHelper = null;
 
-        public Lightsaber_BasePriceCallBackHelper_Ultra(Dictionary<string, object> proposal, IDBHelper dBHelper)
+        public PricingBasePriceCallbackHelper(Dictionary<string, object> proposal, IDBHelper dBHelper)
         {
             this.proposal = proposal;
             this.dBHelper = dBHelper;
         }
 
-        internal async Task populateExtendedQuantity(List<LineItemModel> batchLineItems)
+        internal async Task PopulateExtendedQuantity(List<LineItemModel> batchLineItems)
         {
             foreach (LineItemModel batchLineItem in batchLineItems)
             {
@@ -52,14 +47,14 @@ namespace PhillipsConversion
             await Task.CompletedTask;
         }
 
-        internal async Task<Dictionary<string, PriceListItemQueryModel>> populateSPOOPLIDictionary(List<LineItemModel> batchLineItems)
+        internal async Task<Dictionary<string, PriceListItemQueryModel>> PopulateSPOOPLIDictionary(List<LineItemModel> batchLineItems)
         {
             HashSet<string> spooProdIds = new HashSet<string>();
             Dictionary<string, PriceListItemQueryModel>  pliSPOODictionary = new Dictionary<string, PriceListItemQueryModel>();
 
             foreach (LineItemModel batchLineItem in batchLineItems)
             {
-                if (!string.IsNullOrWhiteSpace(batchLineItem.Get<string>(LineItemCustomField.Apttus_Config2__ProductId__r_APTS_SPOO_Type__c)))
+                if (!string.IsNullOrWhiteSpace(batchLineItem.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_APTS_SPOO_Type__c)))
                     spooProdIds.Add(batchLineItem.GetProductOrOptionId());
             }
 
@@ -77,14 +72,14 @@ namespace PhillipsConversion
             return pliSPOODictionary;
         }
 
-        public async Task<Dictionary<string, LocalBundleHeaderQueryModel>> queryAndPopulateNAMBundleDictionary(List<LineItemModel> cartLineItems)
+        public async Task<Dictionary<string, LocalBundleHeaderQueryModel>> QueryAndPopulateNAMBundleDictionary(List<LineItemModel> cartLineItems)
         {
             HashSet<string> localBundleOptionSet = new HashSet<string>();
             Dictionary<string, LocalBundleHeaderQueryModel> namBundleDictionary = new Dictionary<string, LocalBundleHeaderQueryModel>();
 
             foreach (LineItemModel cartLineItem in cartLineItems)
             {
-                if (cartLineItem.IsOptionLine() && cartLineItem.Get<bool>(LineItemCustomField.Apttus_Config2__OptionId__r_APTS_Local_Bundle__c))
+                if (cartLineItem.IsOptionLine() && cartLineItem.GetLookupValue<bool>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_APTS_Local_Bundle__c))
                 {
                     lineNumWithLocalBundleSet.Add(cartLineItem.GetLineNumber());
                     localBundleOptionSet.Add(cartLineItem.Entity.ProductId + cartLineItem.Entity.OptionId);
@@ -104,7 +99,7 @@ namespace PhillipsConversion
 
         public async Task UpdateNAMBundleOptions(LineItemModel batchLineItem, Dictionary<string, LocalBundleHeaderQueryModel> namBundleDictionary)
         {
-            if (batchLineItem.IsOptionLine() && !batchLineItem.Get<bool>(LineItemCustomField.Apttus_Config2__OptionId__r_APTS_Local_Bundle__c) && lineNumWithLocalBundleSet.Contains(batchLineItem.GetLineNumber()))
+            if (batchLineItem.IsOptionLine() && !batchLineItem.GetLookupValue<bool>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_APTS_Local_Bundle__c) && lineNumWithLocalBundleSet.Contains(batchLineItem.GetLineNumber()))
             {
                 var namBundleOptionKey = batchLineItem.Entity.OptionId + batchLineItem.Entity.ProductId;
                 var priceListItemEntity = batchLineItem.GetPriceListItem().Entity;
@@ -132,11 +127,11 @@ namespace PhillipsConversion
             await Task.CompletedTask;
         }
 
-        public async Task calculateSPOOPricing(LineItemModel batchLineItem, Dictionary<string, PriceListItemQueryModel>  pliSPOODictionary)
+        public async Task CalculateSPOOPricing(LineItemModel batchLineItem, Dictionary<string, PriceListItemQueryModel>  pliSPOODictionary)
         {
             PriceListItemModel priceListItemModel = batchLineItem.GetPriceListItem();
             PriceListItem priceListItemEntity = priceListItemModel.Entity;
-            string lineItemSPOOType = batchLineItem.Get<string>(LineItemCustomField.Apttus_Config2__ProductId__r_APTS_SPOO_Type__c);
+            string lineItemSPOOType = batchLineItem.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_APTS_SPOO_Type__c);
 
             if (!string.IsNullOrWhiteSpace(lineItemSPOOType))
             {
@@ -148,21 +143,21 @@ namespace PhillipsConversion
                 targetPriceMultiplier = pliSPOODictionary[priceListItemEntity.Id].GetTargetPriceMultipler();
                 escPriceMultiplier = pliSPOODictionary[priceListItemEntity.Id].GetEscalationPriceMultiplier();
 
-                costPrice = batchLineItem.GetValuetOrDefault(LineItemCustomField.Apttus_Config2__AttributeValueId__r_APTS_Cost_Price__c, 0);
-                fairMarketValue = batchLineItem.GetValuetOrDefault(LineItemCustomField.Apttus_Config2__AttributeValueId__r_APTS_Fair_Market_Value__c, 0);
-                listPrice = batchLineItem.GetValuetOrDefault(LineItemCustomField.Apttus_Config2__AttributeValueId__r_APTS_List_Price__c, 0);
+                costPrice = batchLineItem.GetValuetOrDefault(LineItemStandardRelationshipField.Apttus_Config2__AttributeValueId__r_APTS_Cost_Price__c, 0);
+                fairMarketValue = batchLineItem.GetValuetOrDefault(LineItemStandardRelationshipField.Apttus_Config2__AttributeValueId__r_APTS_Fair_Market_Value__c, 0);
+                listPrice = batchLineItem.GetValuetOrDefault(LineItemStandardRelationshipField.Apttus_Config2__AttributeValueId__r_APTS_List_Price__c, 0);
 
                 if (lineItemSPOOType == Constants.SYSTEM_TYPE_SERVICE)
                 {
-                    description = batchLineItem.Get<string>(LineItemCustomField.Apttus_Config2__AttributeValueId__r_APTS_Service_Plan_Name__c);
+                    description = batchLineItem.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__AttributeValueId__r_APTS_Service_Plan_Name__c);
                 }
                 else
                 {
-                    description = batchLineItem.Get<string>(LineItemCustomField.Apttus_Config2__AttributeValueId__r_APTS_Product_Name__c);
+                    description = batchLineItem.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__AttributeValueId__r_APTS_Product_Name__c);
                 }
 
-                spooCategory = batchLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_ProductCode);
-                valuationClass = batchLineItem.Get<string>(LineItemCustomField.Apttus_Config2__ProductId__r_APTS_Valuation_Class__c);
+                spooCategory = batchLineItem.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_ProductCode);
+                valuationClass = batchLineItem.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_APTS_Valuation_Class__c);
 
                 if (lineItemSPOOType == Constants.SYSTEM_TYPE_3RD_PARTY || lineItemSPOOType == Constants.SYSTEM_TYPE_PHILIPS || lineItemSPOOType == Constants.SYSTEM_TYPE_DEMO)
                 {
@@ -179,10 +174,10 @@ namespace PhillipsConversion
 
                 decimal sellingTerm = batchLineItem.GetValuetOrDefault(LineItem.PropertyNames.SellingTerm, 1);
                 decimal? extendedListPrice = priceListItemEntity.ListPrice.HasValue
-                                                ? formatPrecisionCeiling(priceListItemEntity.ListPrice.Value) * batchLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_Quantity__c) * sellingTerm
+                                                ? FormatPrecisionCeiling(priceListItemEntity.ListPrice.Value) * batchLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_Quantity__c) * sellingTerm
                                                 : 0;
                 decimal? optionUnitPrice = priceListItemEntity.ListPrice.HasValue
-                                                ? (formatPrecisionCeiling(priceListItemEntity.ListPrice.Value) * batchLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_Quantity__c)) / batchLineItem.GetQuantity() * sellingTerm
+                                                ? (FormatPrecisionCeiling(priceListItemEntity.ListPrice.Value) * batchLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_Quantity__c)) / batchLineItem.GetQuantity() * sellingTerm
                                                 : 0;
 
                 batchLineItem.Set(LineItemCustomField.APTS_Extended_List_Price__c, extendedListPrice);
@@ -220,9 +215,9 @@ namespace PhillipsConversion
             }
             else
             {
-                string valuationClass = batchLineItem.IsOptionLine() && !string.IsNullOrWhiteSpace(batchLineItem.Get<string>(LineItemCustomField.Apttus_Config2__OptionId__r_APTS_Valuation_Class__c))
-                    ? batchLineItem.Get<string>(LineItemCustomField.Apttus_Config2__OptionId__r_APTS_Valuation_Class__c)
-                    : batchLineItem.Get<string>(LineItemCustomField.Apttus_Config2__ProductId__r_APTS_Valuation_Class__c);
+                string valuationClass = batchLineItem.IsOptionLine() && !string.IsNullOrWhiteSpace(batchLineItem.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_APTS_Valuation_Class__c))
+                    ? batchLineItem.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_APTS_Valuation_Class__c)
+                    : batchLineItem.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_APTS_Valuation_Class__c);
 
                 batchLineItem.Set(LineItemCustomField.APTS_Valuation_Class__c, valuationClass);
             }
@@ -230,12 +225,12 @@ namespace PhillipsConversion
             await Task.CompletedTask;
         }
 
-        public async Task calculateExtendedListPriceAndOptionUnitPrice(LineItemModel batchLineItem)
+        public async Task CalculateExtendedListPriceAndOptionUnitPrice(LineItemModel batchLineItem)
         {
             PriceListItemModel priceListItemModel = batchLineItem.GetPriceListItem();
             PriceListItem priceListItemEntity = priceListItemModel.Entity;
 
-            if (batchLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_Apttus_Config2__ProductType__c) == Constants.SYSTEM_TYPE_SERVICE)
+            if (batchLineItem.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_Apttus_Config2__ProductType__c) == Constants.SYSTEM_TYPE_SERVICE)
             {
                 var serviceListPrice = batchLineItem.Get<decimal?>(LineItemCustomField.APTS_Service_List_Price__c);
                 var minimumServicePrice = batchLineItem.Get<decimal?>(LineItemCustomField.APTS_Minimum_Price_Service__c);
@@ -282,7 +277,7 @@ namespace PhillipsConversion
             await Task.CompletedTask;
         }
 
-        public async Task populateTier(LineItemModel batchLineItem, Dictionary<string, PriceListItemQueryModel> pliDictionary, Dictionary<string, string> agreementTierDictionary)
+        public async Task PopulateTier(LineItemModel batchLineItem, Dictionary<string, PriceListItemQueryModel> pliDictionary, Dictionary<string, string> agreementTierDictionary)
         
         {
             PriceListItemModel priceListItemModel = batchLineItem.GetPriceListItem();
@@ -320,14 +315,14 @@ namespace PhillipsConversion
             await Task.CompletedTask;
         }
 
-        public async Task<Dictionary<string, PriceListItemQueryModel>> queryAndPopulatePliCustomFields(List<LineItemModel> lineItems)
+        public async Task<Dictionary<string, PriceListItemQueryModel>> QueryAndPopulatePliCustomFields(List<LineItemModel> lineItems)
         {
             Dictionary<string, PriceListItemQueryModel> pliDictionary = new Dictionary<string, PriceListItemQueryModel>();
             HashSet<string> prodIds = new HashSet<string>();
             HashSet<string> contractNumberSet = new HashSet<string>();
             var priceListItemIdSet = lineItems.Select(li => li.GetPriceListItem().Entity.Id).ToHashSet();
 
-            if (proposal["Account_Sold_to__c"] != null)
+            if (proposal[ProposalField.Account_Sold_to__c] != null)
             {
                 var pliTierQuery = QueryHelper.GetPLITierQuery(priceListItemIdSet);
 
@@ -341,18 +336,16 @@ namespace PhillipsConversion
             return pliDictionary;
         }
 
-        public async Task<Dictionary<string, string>> queryAndPopulateAgreementTiers(Dictionary<string, PriceListItemQueryModel> pliDictionary)
+        public async Task<Dictionary<string, string>> QueryAndPopulateAgreementTiers(Dictionary<string, PriceListItemQueryModel> pliDictionary)
         {
             Dictionary<string, string> agreementTierDictionary = new Dictionary<string, string>();
             
-            if (proposal["Account_Sold_to__c"] != null)
+            if (proposal[ProposalField.Account_Sold_to__c] != null)
             {
                 HashSet<string> pliRelatedAgreementSet = pliDictionary.Values.Where(pli => pli.Apttus_Config2__PriceListId__r.APTS_Related_Agreement__c != null).
                                                         Select(pli => pli.Apttus_Config2__PriceListId__r.APTS_Related_Agreement__c).ToHashSet();
 
-                var agreementTierQuery = QueryHelper.GetAgreementTierQuery(pliRelatedAgreementSet, proposal["Account_Sold_to__c"] as string);
-
-                List<AccountContracttQueryModel> agreementTierDetails = await dBHelper.FindAsync<AccountContracttQueryModel>(agreementTierQuery);
+                List<AccountContractQueryModel> agreementTierDetails = await QueryHelper.ExecuteAgreementTierQuery(dBHelper, pliRelatedAgreementSet, proposal[ProposalField.Account_Sold_to__c] as string);
                 foreach (var agreementTierDetail in agreementTierDetails)
                 {
                     agreementTierDictionary.Add(agreementTierDetail.APTS_Agreement_Group__c, agreementTierDetail.APTS_Volume_Tier__c);
@@ -362,7 +355,7 @@ namespace PhillipsConversion
             return agreementTierDictionary;
         }
 
-        public decimal formatPrecisionCeiling(decimal fieldValue)
+        private decimal FormatPrecisionCeiling(decimal fieldValue)
         {
             var result = PricingHelper.ApplyRounding(fieldValue, 2, RoundingMode.UP);
             return result.Value;

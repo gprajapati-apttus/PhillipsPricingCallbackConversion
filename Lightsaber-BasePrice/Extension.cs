@@ -1,19 +1,26 @@
-﻿using Apttus.Lightsaber.Pricing.Common.Messages.Cart;
-using Apttus.Lightsaber.Pricing.Common.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Apttus.Lightsaber.Pricing.Common.Models;
 
-namespace PhillipsConversion.Lightsaber
+namespace Apttus.Lightsaber.Phillips.Pricing
 {
     public static class Extension
     {
         public static decimal GetValuetOrDefault(this LineItemModel lineItemModel, string fieldName, decimal defaultValue)
         {
-            var fieldValue = lineItemModel.Get<decimal?>(fieldName);
+            decimal? fieldValue;
+
+            if (!fieldName.Contains("."))
+            {
+                fieldValue = lineItemModel.Get<decimal?>(fieldName);
+            }
+            else
+            {
+                fieldValue = lineItemModel.GetLookupValue<decimal?>(fieldName);
+            }
 
             if (fieldValue != null)
+            {
                 return fieldValue.Value;
+            }
 
             return defaultValue;
         }
