@@ -1,4 +1,6 @@
-﻿using Apttus.Lightsaber.Pricing.Common.Constants;
+﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Implementation;
+using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
+using Apttus.Lightsaber.Pricing.Common.Constants;
 using Apttus.Lightsaber.Pricing.Common.Entities;
 using Apttus.Lightsaber.Pricing.Common.Models;
 
@@ -26,7 +28,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
         public decimal? contractDiscountAmount;
         public decimal? solutionContractDiscountAmount;
 
-        public PricePointsWrapper(LineItemModel lineItemModel, PriceListItemQueryModel pliQueryModel)
+        public PricePointsWrapper(LineItemModel lineItemModel, PriceListItemQueryModel pliQueryModel, IPricingHelper pricingHelper)
         {
             var priceListItem = lineItemModel.GetPriceListItem();
 
@@ -57,24 +59,24 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                 ? pliQueryModel.APTS_Country_Pricelist_List_Price__c.Value 
                 : 0;
             
-            philipsListPrice = lineItemModel.Get<decimal?>(LineItemCustomField.APTS_Item_List_Price__c).HasValue ? PricingHelper.ApplyRounding(lineItemModel.Get<decimal?>(LineItemCustomField.APTS_Item_List_Price__c).Value, 2, RoundingMode.UP) : 0;
+            philipsListPrice = lineItemModel.Get<decimal?>(LineItemCustomField.APTS_Item_List_Price__c).HasValue ? pricingHelper.ApplyRounding(lineItemModel.Get<decimal?>(LineItemCustomField.APTS_Item_List_Price__c).Value, 2, RoundingMode.UP) : 0;
             sapListPrice = philipsListPrice;
             qty = lineItemModel.GetQuantity();
             
             if (philipsListPrice != null && (pliCountryPriceListPrice != null && pliCountryPriceListPrice > 0))
-                contractNetPrice = lineItemModel.Entity.ListPrice.HasValue ? qty * PricingHelper.ApplyRounding(lineItemModel.Entity.ListPrice.Value, 2, RoundingMode.UP) : 0;
+                contractNetPrice = lineItemModel.Entity.ListPrice.HasValue ? qty * pricingHelper.ApplyRounding(lineItemModel.Entity.ListPrice.Value, 2, RoundingMode.UP) : 0;
             else
                 contractNetPrice = 0;
 
             optionPrice = 0;
             offeredPrice = 0;
-            bundleBaseExtendedPrice = lineItemModel.Entity.BasePrice.HasValue ? PricingHelper.ApplyRounding(lineItemModel.Entity.BasePrice.Value, 2, RoundingMode.UP) * qty * sellingTerm : 0;
+            bundleBaseExtendedPrice = lineItemModel.Entity.BasePrice.HasValue ? pricingHelper.ApplyRounding(lineItemModel.Entity.BasePrice.Value, 2, RoundingMode.UP) * qty * sellingTerm : 0;
 
             bundleExtendedPrice = bundleBaseExtendedPrice;
 
             if (solutionContractDiscountAmount == null) solutionContractDiscountAmount = 0;
             incentiveAdjAmount = lineItemModel.Entity.IncentiveAdjustmentAmount.HasValue && !lineItemModel.IsOptional() 
-                                            ? PricingHelper.ApplyRounding(lineItemModel.Entity.IncentiveAdjustmentAmount.Value, 2, RoundingMode.UP) * -1 
+                                            ? pricingHelper.ApplyRounding(lineItemModel.Entity.IncentiveAdjustmentAmount.Value, 2, RoundingMode.UP) * -1 
                                             : 0;
 
             if (incentiveAdjAmount < 0)

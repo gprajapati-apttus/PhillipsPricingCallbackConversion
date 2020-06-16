@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Apttus.Lightsaber.Phillips.Pricing
 {
-    public class PricingBasePriceCallback : CodeExtensibilityFramework, IPricingBasePriceCallback
+    public class PricingBasePriceCallback : CodeExtensibility, IPricingBasePriceCallback
     {
         private PricingBasePriceCallbackHelper pcbHelper = null;
         private List<LineItemModel> batchLineItems = null;
@@ -19,7 +19,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
             batchLineItems = batchPriceRequest.LineItems.SelectMany(x => x.ChargeLines).ToList();
 
             var proposalSO = batchPriceRequest.Cart.Get<Dictionary<string, object>>(Constants.PROPOSAL);
-            pcbHelper = new PricingBasePriceCallbackHelper(proposalSO, GetDBHelper());
+            pcbHelper = new PricingBasePriceCallbackHelper(proposalSO, GetDBHelper(), GetPricingHelper());
 
             await pcbHelper.PopulateExtendedQuantity(batchLineItems);
         }

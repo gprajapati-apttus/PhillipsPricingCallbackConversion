@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Apttus.Lightsaber.Phillips.Totalling
 {
-    public class PricingTotallingCallback : CodeExtensibilityFramework, IPricingTotallingCallback
+    public class PricingTotallingCallback : CodeExtensibility, IPricingTotallingCallback
     {
         private PricingTotallingCallbackHelper pcbHelper = null;
         private List<LineItemModel> cartLineItems = null;
@@ -17,7 +17,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
         {
             cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).ToList();
             var proposalSO = aggregateCartRequest.Cart.Get<Dictionary<string, object>>(Constants.PROPOSAL);
-            pcbHelper = new PricingTotallingCallbackHelper(proposalSO, GetDBHelper());
+            pcbHelper = new PricingTotallingCallbackHelper(proposalSO, GetDBHelper(), GetPricingHelper());
 
             await pcbHelper.IncentiveAdjustmentUnitRounding(cartLineItems);
             await pcbHelper.SetDiscountWithAdjustmentSpread(cartLineItems);

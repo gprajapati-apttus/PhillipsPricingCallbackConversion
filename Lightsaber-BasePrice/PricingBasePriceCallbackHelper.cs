@@ -1,4 +1,5 @@
-﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
+﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Implementation;
+using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
 using Apttus.Lightsaber.Pricing.Common.Constants;
 using Apttus.Lightsaber.Pricing.Common.Entities;
 using Apttus.Lightsaber.Pricing.Common.Models;
@@ -13,11 +14,13 @@ namespace Apttus.Lightsaber.Phillips.Pricing
         private readonly Dictionary<string, object> proposal = null;
         HashSet<decimal> lineNumWithLocalBundleSet = new HashSet<decimal>();
         private readonly IDBHelper dBHelper = null;
+        private readonly IPricingHelper pricingHelper = null;
 
-        public PricingBasePriceCallbackHelper(Dictionary<string, object> proposal, IDBHelper dBHelper)
+        public PricingBasePriceCallbackHelper(Dictionary<string, object> proposal, IDBHelper dBHelper, IPricingHelper pricingHelper)
         {
             this.proposal = proposal;
             this.dBHelper = dBHelper;
+            this.pricingHelper = pricingHelper;
         }
 
         internal async Task PopulateExtendedQuantity(List<LineItemModel> batchLineItems)
@@ -357,7 +360,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
 
         private decimal FormatPrecisionCeiling(decimal fieldValue)
         {
-            var result = PricingHelper.ApplyRounding(fieldValue, 2, RoundingMode.UP);
+            var result = pricingHelper.ApplyRounding(fieldValue, 2, RoundingMode.UP);
             return result.Value;
         }
     }

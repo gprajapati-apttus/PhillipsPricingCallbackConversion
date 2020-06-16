@@ -1,4 +1,5 @@
-﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
+﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Implementation;
+using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
 using Apttus.Lightsaber.Pricing.Common.Constants;
 using Apttus.Lightsaber.Pricing.Common.Entities;
 using Apttus.Lightsaber.Pricing.Common.Models;
@@ -13,11 +14,13 @@ namespace Apttus.Lightsaber.Phillips.Totalling
         private Dictionary<string, object> proposal;
         private Dictionary<string, PriceListItemQueryModel> pliDictionary;
         private IDBHelper dBHelper = null;
+        private IPricingHelper pricingHelper = null;
 
-        public PricingTotallingCallbackHelper(Dictionary<string, object> proposal, IDBHelper dBHelper)
+        public PricingTotallingCallbackHelper(Dictionary<string, object> proposal, IDBHelper dBHelper, IPricingHelper pricingHelper)
         {
             this.proposal = proposal;
             this.dBHelper = dBHelper;
+            this.pricingHelper = pricingHelper;
         }
 
         public async Task IncentiveAdjustmentUnitRounding(List<LineItemModel> cartLineItems)
@@ -32,7 +35,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                     decimal lineItemQ = cartLineItem.GetQuantity();
 
                     decimal? unitIncentiveAmount = cartLineItemEntity.BasePrice - cartLineItemEntity.IncentiveBasePrice;
-                    unitIncentiveAmount = unitIncentiveAmount.HasValue ? PricingHelper.ApplyRounding(unitIncentiveAmount.Value, 2, RoundingMode.HALF_EVEN) : unitIncentiveAmount;
+                    unitIncentiveAmount = unitIncentiveAmount.HasValue ? pricingHelper.ApplyRounding(unitIncentiveAmount.Value, 2, RoundingMode.HALF_EVEN) : unitIncentiveAmount;
 
                     cartLineItem.Set(LineItemCustomField.APTS_Unit_Incentive_Adj_Amount__c, unitIncentiveAmount);
                     cartLineItemEntity.IncentiveBasePrice = cartLineItemEntity.BasePrice - unitIncentiveAmount;
@@ -111,7 +114,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                 {
                     if (!mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.PrimaryLineNumber))
                     {
-                        mapPricePoints.Add(uniqIdentifier, new PricePointsWrapper(cartLineItem, pliDictionary.GetValueOrDefault(cartLineItemEntity.PriceListItemId)));
+                        mapPricePoints.Add(uniqIdentifier, new PricePointsWrapper(cartLineItem, pliDictionary.GetValueOrDefault(cartLineItemEntity.PriceListItemId), pricingHelper));
                     }
                 }
                 else if (cartLineItemEntity.OptionId != null && cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_Apttus_Config2__ConfigurationType__c) 
@@ -119,7 +122,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                 {
                     if (!mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.PrimaryLineNumber))
                     {
-                        mapPricePoints.Add(uniqIdentifier + cartLineItemEntity.PrimaryLineNumber, new PricePointsWrapper(cartLineItem, pliDictionary.GetValueOrDefault(cartLineItemEntity.PriceListItemId)));
+                        mapPricePoints.Add(uniqIdentifier + cartLineItemEntity.PrimaryLineNumber, new PricePointsWrapper(cartLineItem, pliDictionary.GetValueOrDefault(cartLineItemEntity.PriceListItemId), pricingHelper));
                     }
                 }
                 else
@@ -241,7 +244,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                 {
                     if (!mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.PrimaryLineNumber))
                     {
-                        mapPricePoints.Add(uniqIdentifier, new PricePointsWrapper(cartLineItem, pliDictionary.GetValueOrDefault(cartLineItemEntity.PriceListItemId)));
+                        mapPricePoints.Add(uniqIdentifier, new PricePointsWrapper(cartLineItem, pliDictionary.GetValueOrDefault(cartLineItemEntity.PriceListItemId), pricingHelper));
                     }
 
                     mapBundleAdjustment.Add(uniqIdentifier_li, cartLineItemEntity.AdjustmentType);
@@ -251,7 +254,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                     if (!mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.PrimaryLineNumber))
                     {
                         mapPricePoints.Add(uniqIdentifier + cartLineItemEntity.PrimaryLineNumber, 
-                            new PricePointsWrapper(cartLineItem, pliDictionary.GetValueOrDefault(cartLineItemEntity.PriceListItemId)));
+                            new PricePointsWrapper(cartLineItem, pliDictionary.GetValueOrDefault(cartLineItemEntity.PriceListItemId), pricingHelper));
                     }
 
                     mapBundleAdjustment.Add(uniqIdentifier_li, cartLineItemEntity.AdjustmentType);
@@ -301,12 +304,12 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                             if (cartLineItem.Get<string>(LineItemCustomField.APTS_Billing_Plan__c) != null 
                                 && cartLineItem.Get<string>(LineItemCustomField.APTS_Billing_Plan__c) == Constants.BILLING_PLAN_ANNUAL)
                             {
-                                var roundedUnitStrategicDisount = PricingHelper.ApplyRounding(unitStrategicDiscountAmount * 12, 2, RoundingMode.HALF_EVEN);
+                                var roundedUnitStrategicDisount = pricingHelper.ApplyRounding(unitStrategicDiscountAmount * 12, 2, RoundingMode.HALF_EVEN);
                                 cartLineItem.Set(LineItemCustomField.APTS_Unit_Strategic_Discount_Amount__c, roundedUnitStrategicDisount);
                             }
                             else
                             {
-                                var roundedUnitStrategicDisount = PricingHelper.ApplyRounding(unitStrategicDiscountAmount, 2, RoundingMode.HALF_EVEN);
+                                var roundedUnitStrategicDisount = pricingHelper.ApplyRounding(unitStrategicDiscountAmount, 2, RoundingMode.HALF_EVEN);
                                 cartLineItem.Set(LineItemCustomField.APTS_Unit_Strategic_Discount_Amount__c, roundedUnitStrategicDisount);
                             }
                         }
@@ -317,7 +320,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                         }
                         else
                         {
-                            var roundedUnitStrategicDisount = PricingHelper.ApplyRounding(unitStrategicDiscountAmount, 2, RoundingMode.HALF_EVEN);
+                            var roundedUnitStrategicDisount = pricingHelper.ApplyRounding(unitStrategicDiscountAmount, 2, RoundingMode.HALF_EVEN);
                             cartLineItem.Set(LineItemCustomField.APTS_Unit_Strategic_Discount_Amount__c, roundedUnitStrategicDisount);
 
                             cartLineItem.Set(LineItemCustomField.APTS_Strategic_Discount_Amount_c__c, roundedUnitStrategicDisount * sellingTerm * extQty);
@@ -586,7 +589,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                         {
                             decimal contractDiscount = cartLineItem.Get<decimal?>(LineItemCustomField.APTS_ContractDiscount__c).Value;
                             unitContractAmt = ((bundleOfferedPrice / extQty / sellingTerm) * contractDiscount / 100);
-                            unitContractAmt = PricingHelper.ApplyRounding(unitContractAmt, 2, RoundingMode.HALF_EVEN);
+                            unitContractAmt = pricingHelper.ApplyRounding(unitContractAmt, 2, RoundingMode.HALF_EVEN);
                             contractAmt = unitContractAmt * extQty * sellingTerm;
                             totalDiscounts = totalDiscounts - contractAmt;
                         }
@@ -609,9 +612,9 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                             }
                             else
                             {
-                                cartLineItem.Set(LineItemCustomField.APTS_Unit_Strategic_Discount_Amount__c, PricingHelper.ApplyRounding(unitStrategicDiscountAmount, 2, RoundingMode.HALF_EVEN));
-                                cartLineItem.Set(LineItemCustomField.APTS_Strategic_Discount_Amount_c__c, 
-                                    PricingHelper.ApplyRounding(unitStrategicDiscountAmount, 2, RoundingMode.HALF_EVEN) * sellingTerm * extQty);
+                                cartLineItem.Set(LineItemCustomField.APTS_Unit_Strategic_Discount_Amount__c, pricingHelper.ApplyRounding(unitStrategicDiscountAmount, 2, RoundingMode.HALF_EVEN));
+                                cartLineItem.Set(LineItemCustomField.APTS_Strategic_Discount_Amount_c__c,
+                                    pricingHelper.ApplyRounding(unitStrategicDiscountAmount, 2, RoundingMode.HALF_EVEN) * sellingTerm * extQty);
                             }
 
                             totalDiscounts = totalDiscounts - cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Strategic_Discount_Amount_c__c);
@@ -936,7 +939,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
 
         private decimal FormatPrecisionCeiling(decimal? fieldValue)
         {
-            var result = PricingHelper.ApplyRounding(fieldValue, 2, RoundingMode.UP);
+            var result = pricingHelper.ApplyRounding(fieldValue, 2, RoundingMode.UP);
             return result.Value;
         }
     }
