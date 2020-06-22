@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Apttus.Lightsaber.Nokia.Pricing
+namespace Apttus.Lightsaber.Nokia.Totalling
 {
     public class Proposal
     {

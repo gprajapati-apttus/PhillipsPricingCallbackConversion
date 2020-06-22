@@ -36,6 +36,66 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             return query;
         }
 
+        //GP: Result of this query can cached to improve callback performance.
+        public static Query GetDirectPortfolioGeneralSettingQuery(string portfolio)
+        {
+            Query query = new Query();
+            query.EntityName = "Direct_Portfolio_General_Setting__mdt";
+            query.Conditions = new List<FilterCondition>()
+                {
+                        new FilterCondition() { FieldName = "Portfolio__c", Value = portfolio, ComparisonOperator = ConditionOperator.EqualTo}
+                };
+            query.Fields = new string[] { "Id", "Portfolio__c", "Cost_Calculation_In_PCB__c" };
+            query.Limit = 1;
+
+            return query;
+        }
+
+        //GP: Result of this query can cached to improve callback performance.
+        public static Query GetDirectCareCostPercentageQuery(string accountMarket)
+        {
+            Query query = new Query();
+            query.EntityName = "Direct_Care_Cost_Percentage__mdt";
+            query.Conditions = new List<FilterCondition>()
+                {
+                        new FilterCondition() { FieldName = "Market__c", Value = accountMarket, ComparisonOperator = ConditionOperator.EqualTo}
+                };
+            query.Fields = new string[] { "Id", "Market__c", "Care_Cost__c" };
+
+            return query;
+        }
+
+        public static Query GetShippingLocationForDirectQuoteQuery(string portfolio, string maintainanceType)
+        {
+            Query query = new Query();
+            query.EntityName = "Shipping_Location__c";
+            query.Conditions = new List<FilterCondition>()
+                {
+                        new FilterCondition() { FieldName = "Maintenance_Type__c", Value = maintainanceType, ComparisonOperator = ConditionOperator.EqualTo},
+                        new FilterCondition() { FieldName = "Portfolio__c", Value = portfolio, ComparisonOperator = ConditionOperator.EqualTo}
+                };
+            query.Fields = new string[] { "Id", "Min_Maint_EUR__c", "Min_Maint_USD__c", "Quote_Type__c", "Maintenance_Type__c", "Portfolio__c" };
+            query.Limit = 1;
+
+
+            return query;
+        }
+
+        public static Query GetShippingLocationForIndirectQuoteQuery(string portfolio, string pricingCluster)
+        {
+            Query query = new Query();
+            query.EntityName = "Shipping_Location__c";
+            query.Conditions = new List<FilterCondition>()
+                {
+                        new FilterCondition() { FieldName = "Pricing_Cluster__c", Value = pricingCluster, ComparisonOperator = ConditionOperator.EqualTo},
+                        new FilterCondition() { FieldName = "Portfolio__c", Value = portfolio, ComparisonOperator = ConditionOperator.EqualTo}
+                };
+            query.Fields = new string[] { "Id", "Min_Maint_EUR__c", "LEO_Mini_Maint_EUR__c", "LEO_Mini_Maint_USD__c", "Min_Maint_USD__c", "Portfolio__c", "Pricing_Cluster__c" };
+            query.Limit = 1;
+
+            return query;
+        }
+
         //public static Query GetPLIPriceMultiplierQuery(IEnumerable<string> spooProdIds)
         //{
         //    Query query = new Query();
