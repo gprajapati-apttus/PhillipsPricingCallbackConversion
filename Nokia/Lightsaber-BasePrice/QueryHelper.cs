@@ -168,6 +168,51 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             return query;
         }
 
+        public static Query GetTierDiscountDetailQuery(string partnerProgram, string partnerType)
+        {
+            Query query = new Query();
+            query.EntityName = "Tier_Discount_Detail__c";
+            query.Conditions = new List<FilterCondition>()
+                {
+                        new FilterCondition() { FieldName = "Nokia_CPQ_Partner_Program__c", Value = partnerProgram, ComparisonOperator = ConditionOperator.EqualTo},
+                        new FilterCondition() { FieldName = "NokiaCPQ_Partner_Type__c", Value = partnerType, ComparisonOperator = ConditionOperator.EqualTo}
+                };
+            query.Fields = new string[] { "Id", "NokiaCPQ_Tier_Type__c", "NokiaCPQ_Partner_Type__c", "NokiaCPQ_Pricing_Tier__c", "NokiaCPQ_Tier_Discount__c", "Nokia_CPQ_Partner_Program__c" };
+
+            return query;
+        }
+
+        public static Query GetSSPSRSDefaultValuesQuery(string portfolio)
+        {
+            Query query = new Query();
+            query.EntityName = "Nokia_CPQ_SSP_SRS_Default_Values__mdt";
+            query.Conditions = new List<FilterCondition>()
+                {
+                        new FilterCondition() { FieldName = "Portfolio__c", Value = portfolio, ComparisonOperator = ConditionOperator.EqualTo}
+                };
+            query.Fields = new string[] { "Id", "Portfolio__c", "SSP_Visible__c", "SRS_Visible__c", "SRS_Percentage__c", "Tier_Discount_Applicable__c", "AccountLevel_Discount_Applicable__c", 
+                "Multi_Year_Discount_Applicable__c" }; 
+            query.Limit = 1;
+
+            return query;
+        }
+
+        public static Query GetIndirectMarketPriceListQuery()
+        {
+            Query query = new Query();
+            query.EntityName = "Apttus_Config2__PriceList__c";
+            query.Conditions = new List<FilterCondition>()
+                {
+                        new FilterCondition() { FieldName = "PriceList_Type__c", Value = "Indirect Market", ComparisonOperator = ConditionOperator.EqualTo}
+                };
+            query.Fields = new string[] { "Id", "PriceList_Type__c" };
+
+            return query;
+        }
+
+        //[Select Portfolio__c, SSP_Visible__c, SRS_Visible__c, SRS_Percentage__c, Tier_Discount_Applicable__c, AccountLevel_Discount_Applicable__c, Multi_Year_Discount_Applicable__c 
+        //From Nokia_CPQ_SSP_SRS_Default_Values__mdt where Portfolio__c =: this.proposalSO.NokiaCPQ_Portfolio__c LIMIT 1];
+
         //public static Query GetPLITierQuery(HashSet<string> priceListItemIdSet)
         //{
         //    Query query = new Query();

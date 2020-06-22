@@ -557,5 +557,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
         public const string NokiaCPQShareProposalsWithOTM = "NokiaCPQShareProposalsWithOTM";
         public const string unshareProposalRecordAfterOTMTriggerDelete = "unshareProposalRecordAfterOTMTriggerDelete";
         public const string CUSTPROD001 = "CUSTPROD001";
+
+        public static List<string> pdcList = new List<string>() { "NFM - P IPR", "5620 SAM IPR" };
     }
 }

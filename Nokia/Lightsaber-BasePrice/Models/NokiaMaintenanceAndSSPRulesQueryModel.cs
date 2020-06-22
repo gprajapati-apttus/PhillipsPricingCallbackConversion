@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PhillipsConversion.Nokia.Lightsaber_BasePrice.Models
+namespace Apttus.Lightsaber.Nokia.Pricing
 {
     public class NokiaMaintenanceAndSSPRulesQueryModel
     {

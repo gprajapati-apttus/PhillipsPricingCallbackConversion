@@ -57,6 +57,9 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             List<DirectPortfolioGeneralSettingQueryModel> portfolioSettingList = new List<DirectPortfolioGeneralSettingQueryModel>();
             Dictionary<string, MaintenanceAndSSPRuleQueryModel> maintenanceSSPRuleMap_EP = new Dictionary<string, MaintenanceAndSSPRuleQueryModel>();
             Dictionary<string, List<NokiaMaintenanceAndSSPRulesQueryModel>> maintenanceSSPRuleMap = new Dictionary<string, List<NokiaMaintenanceAndSSPRulesQueryModel>>();
+            Dictionary<string, List<decimal?>> tierDiscountRuleMap = new Dictionary<string, List<decimal?>>();
+            List<SSPSRSDefaultValuesQueryModel> sspSRSDefaultsList = new List<SSPSRSDefaultValuesQueryModel>();
+            Dictionary<string, string> mapPliType = new Dictionary<string, string>();
 
             foreach (var batchLineItem in batchLineItems)
             {
@@ -136,6 +139,43 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                         {
                             maintenanceSSPRuleMap.Add(key, new List<NokiaMaintenanceAndSSPRulesQueryModel> { nokiaMaintenanceSSPRule });
                         }
+                    }
+                }
+
+                var tierDiscountDetailQuery = QueryHelper.GetTierDiscountDetailQuery(proposal.Get<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_Partner_Program__c),
+                    proposal.Get<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_Partner_Type__c));
+
+                var tierDiscountDetailQueryModels = await dBHelper.FindAsync<TierDiscountDetailQueryModel>(tierDiscountDetailQuery);
+
+                foreach(var tierDiscountDetailQueryModel in tierDiscountDetailQueryModels)
+                {
+                    var key = tierDiscountDetailQueryModel.NokiaCPQ_Tier_Type__c + Constants.NOKIA_STRING_APPENDER +
+                        tierDiscountDetailQueryModel.NokiaCPQ_Partner_Type__c + Constants.NOKIA_STRING_APPENDER +
+                        tierDiscountDetailQueryModel.NokiaCPQ_Pricing_Tier__c + Constants.NOKIA_STRING_APPENDER +
+                        tierDiscountDetailQueryModel.Nokia_CPQ_Partner_Program__c;
+
+                    List<decimal?> tierDiscountRuleList = new List<decimal?>();
+                    tierDiscountRuleList.Add(tierDiscountDetailQueryModel.NokiaCPQ_Tier_Discount__c);
+
+                    tierDiscountRuleMap.Add(key, tierDiscountRuleList);
+                }
+
+                var sspSRSDefaultValuesQuery = QueryHelper.GetSSPSRSDefaultValuesQuery(proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c));
+                sspSRSDefaultsList = await dBHelper.FindAsync<SSPSRSDefaultValuesQueryModel>(sspSRSDefaultValuesQuery);
+
+                var portfolio = proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c);
+
+                if ((portfolio.equalsIgnoreCase(Constants.NOKIA_FIXED_ACCESS_POL) ||
+                    portfolio.equalsIgnoreCase(Constants.NOKIA_FIXED_ACCESS_FBA)) ||
+                    portfolio.equalsIgnoreCase(Constants.Nokia_FASTMILE))
+                {
+
+                    var indirectMarketPriceListQuery = QueryHelper.GetIndirectMarketPriceListQuery();
+                    var priceListCollection = await dBHelper.FindAsync<PriceListQueryModel>(indirectMarketPriceListQuery);
+
+                    foreach(var priceList in priceListCollection)
+                    {
+                        mapPliType.Add(priceList.Id, priceList.PriceList_Type__c);
                     }
                 }
             }
