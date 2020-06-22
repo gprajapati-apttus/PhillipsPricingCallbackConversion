@@ -33,7 +33,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 PriceListItemModel priceListItemModel = cartLineItem.GetPriceListItem();
                 PriceListItem priceListItemEntity = priceListItemModel.Entity;
 
-                if (string.Compare(proposal.Get<string>(ProposalField.Quote_Type__c), Constants.QUOTE_TYPE_DIRECTCPQ, true) == 0)
+                if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Get<string>(ProposalField.Quote_Type__c)))
                 {
 
                 }
@@ -89,7 +89,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                     productExtensitonMap.Add(Prod_ext.Product__c, Prod_ext);
                 }
 
-                if (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c) == Constants.AIRSCALE_WIFI_STRING)
+                if (Constants.AIRSCALE_WIFI_STRING.equalsIgnoreCase(proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c)))
                 {
                     var mnDirectProductMapQuery = QueryHelper.GetMNDirectProductMapQuery();
                     MN_Direct_Products_List = await dBHelper.FindAsync<MNDirectProductMapQueryModel>(productExtensionsQuery);
@@ -98,7 +98,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 var directPortfolioGeneralSettingQuery = QueryHelper.GetDirectPortfolioGeneralSettingQuery(proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c));
                 portfolioSettingList = await dBHelper.FindAsync<DirectPortfolioGeneralSettingQueryModel>(directPortfolioGeneralSettingQuery);
 
-                if (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c) ==  Constants.NOKIA_IP_ROUTING && !proposal.Get<bool>(ProposalField.Is_List_Price_Only__c))
+                if (Constants.NOKIA_IP_ROUTING.equalsIgnoreCase(proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c)) && !proposal.Get<bool>(ProposalField.Is_List_Price_Only__c))
                 {
                     var maintenanceAndSSPRuleQuery = QueryHelper.GetMaintenanceAndSSPRuleQuery(
                         proposal.Get<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_GEOLevel1ID__c), proposal.Get<string>(ProposalField.NokiaCPQ_Maintenance_Type__c));
