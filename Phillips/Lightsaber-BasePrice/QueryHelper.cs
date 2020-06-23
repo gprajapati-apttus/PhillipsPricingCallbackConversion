@@ -70,7 +70,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
         public static Query GetNAMBundleQuery(HashSet<string> localBundleOptionSet)
         {
             Query query = new Query();
-            query.EntityName = "APTS_Account_Contract__c";
+            query.EntityName = "APTS_Local_Bundle_Component__c";
             query.Conditions = new List<FilterCondition>()
                 {
                         new FilterCondition() { FieldName = "APTS_Local_Bundle_Header__r.APTS_Active__c", Value = true, ComparisonOperator = ConditionOperator.EqualTo},

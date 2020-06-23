@@ -15,5 +15,8 @@
         public const string Apttus_Config2__OptionId__r_NokiaCPQ_License_Usage__c = "Apttus_Config2__OptionId__r.NokiaCPQ_License_Usage__c";
         public const string Apttus_Config2__ProductId__r_Id = "Apttus_Config2__ProductId__r.Id";
         public const string Apttus_Config2__OptionId__r_Id = "Apttus_Config2__OptionId__r.Id";
+
+        public const string Apttus_Config2__ProductId__r_ProductCode = "Apttus_Config2__ProductId__r.ProductCode";
+        public const string Apttus_Config2__OptionId__r_ProductCode = "Apttus_Config2__OptionId__r.ProductCode";
     }
 }

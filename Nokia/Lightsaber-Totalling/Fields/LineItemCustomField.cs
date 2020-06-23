@@ -2,6 +2,7 @@
 {
     public class LineItemCustomField
     {
+        public const string Is_Contract_Pricing_2__c = "Is_Contract_Pricing_2__c";
         public const string CustomProductValue__c = "CustomProductValue__c";
         public const string NokiaCPQ_Is_SI__c = "NokiaCPQ_Is_SI__c";
         public const string Source__c = "Source__c";
@@ -35,5 +36,8 @@
         public const string NokiaCPQ_Light_Color__c = "NokiaCPQ_Light_Color__c";
         public const string NokiaCPQ_Maximum_IRP_Discount__c = "NokiaCPQ_Maximum_IRP_Discount__c";
         public const string NokiaCPQ_IRP_Discount__c = "NokiaCPQ_IRP_Discount__c";
+        //GP: This field is also available on proposal, sometimes why are we accessing this from line item object.
+        public const string Is_List_Price_Only__c = "Is_List_Price_Only__c";
+        public const string Custom_Product_Code__c = "Custom_Product_Code__c";
     }
 }

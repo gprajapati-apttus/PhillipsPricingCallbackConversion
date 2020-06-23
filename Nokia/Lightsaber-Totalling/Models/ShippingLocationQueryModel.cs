@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PhillipsConversion.Nokia.Lightsaber_Totalling.Models
+namespace Apttus.Lightsaber.Nokia.Totalling
 {
     public class ShippingLocationQueryModel
     {

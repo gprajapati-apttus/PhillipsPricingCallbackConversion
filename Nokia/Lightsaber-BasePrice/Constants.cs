@@ -557,7 +557,13 @@ namespace Apttus.Lightsaber.Nokia.Pricing
         public const string NokiaCPQShareProposalsWithOTM = "NokiaCPQShareProposalsWithOTM";
         public const string unshareProposalRecordAfterOTMTriggerDelete = "unshareProposalRecordAfterOTMTriggerDelete";
         public const string CUSTPROD001 = "CUSTPROD001";
+    }
 
-        public static List<string> pdcList = new List<string>() { "NFM - P IPR", "5620 SAM IPR" };
+    class Labels
+    {
+        public static List<string> SRSPDC = new List<string>() { "NFM - P IPR", "5620 SAM IPR" };
+        public static List<string> FN_SSP_Product = new List<string>() { "301049607", "3FE30998BA" };
+        public static List<string> NokiaCPQ_Care_Proactive = new List<string>() { "785500098210", "784600098210", "784800098210" };
+        public static List<string> NokiaCPQ_Care_Advance = new List<string>() { "785500098209", "784600098209", "784800098209" };
     }
 }

@@ -15,5 +15,9 @@
         public const string Apttus_Config2__OptionId__r_NokiaCPQ_License_Usage__c = "Apttus_Config2__OptionId__r.NokiaCPQ_License_Usage__c";
         public const string Apttus_Config2__ProductId__r_Id = "Apttus_Config2__ProductId__r.Id";
         public const string Apttus_Config2__OptionId__r_Id = "Apttus_Config2__OptionId__r.Id";
+        public const string Apttus_Config2__PriceListItemId__r_Partner_Price__c = "Apttus_Config2__PriceListItemId__r.Partner_Price__c";
+        public const string Apttus_Config2__PriceListItemId__r_Apttus_Config2__PriceListId__c = "Apttus_Config2__PriceListItemId__r.Apttus_Config2__PriceListId__c";
+        public const string Apttus_Config2__ProductId__r_ProductCode = "Apttus_Config2__ProductId__r.ProductCode";
+        public const string Apttus_Config2__OptionId__r_ProductCode = "Apttus_Config2__OptionId__r.ProductCode";
     }
 }

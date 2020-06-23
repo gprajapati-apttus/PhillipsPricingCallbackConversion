@@ -6,7 +6,6 @@ using Apttus.Lightsaber.Pricing.Common.Entities;
 using Apttus.Lightsaber.Pricing.Common.Formula;
 using Apttus.Lightsaber.Pricing.Common.Messages;
 using Apttus.Lightsaber.Pricing.Common.Models;
-using PhillipsConversion.Nokia.Lightsaber_BasePrice.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,6 +18,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
         private List<LineItemModel> cartLineItems = null;
         private Proposal proposal = null;
         private IDBHelper dBHelper = null;
+        private IPricingHelper pricingHelper = null;
 
         public async Task BeforePricingBatchAsync(BatchPriceRequest batchPriceRequest)
         {
@@ -27,6 +27,40 @@ namespace Apttus.Lightsaber.Nokia.Pricing
 
             proposal = new Proposal(batchPriceRequest.Cart.Get<Dictionary<string, object>>(Constants.PROPOSAL));
             dBHelper = GetDBHelper();
+            pricingHelper = GetPricingHelper();
+
+            if (Constants.QUOTE_TYPE_INDIRECTCPQ.equalsIgnoreCase(proposal.Get<string>(ProposalField.Quote_Type__c)))
+            {
+                foreach (var batchLineItem in batchLineItems)
+                {
+                    if (batchLineItem.Entity.BasePrice.HasValue && batchLineItem.Entity.PriceIncludedInBundle == false &&
+                        batchLineItem.Entity.BasePrice.Value != pricingHelper.ApplyRounding(batchLineItem.Entity.BasePrice.Value, 2, RoundingMode.HALF_UP))
+                    {
+                        //First Time
+                        batchLineItem.Entity.BasePriceOverride = pricingHelper.ApplyRounding(batchLineItem.Entity.BasePrice.Value, 2, RoundingMode.HALF_UP);
+                        batchLineItem.Entity.BasePrice = pricingHelper.ApplyRounding(batchLineItem.Entity.BasePrice.Value, 2, RoundingMode.HALF_UP);
+                    }
+
+                    string partNumber = getPartNumber(batchLineItem);
+
+                    if (partNumber != null && partNumber.equalsIgnoreCase(Constants.MAINTY2CODE))
+                    {
+                        batchLineItem.Entity.LineSequence = 997;
+                    }
+                    else if (partNumber != null && partNumber.equalsIgnoreCase(Constants.MAINTY1CODE))
+                    {
+                        batchLineItem.Entity.LineSequence = 996;
+                    }
+                    else if (partNumber != null && partNumber.equalsIgnoreCase(Constants.SSPCODE))
+                    {
+                        batchLineItem.Entity.LineSequence = 998;
+                    }
+                    else if (partNumber != null && partNumber.equalsIgnoreCase(Constants.SRS))
+                    {
+                        batchLineItem.Entity.LineSequence = 999;
+                    }
+                }
+            }
 
             foreach (var cartLineItem in cartLineItems)
             {
@@ -70,9 +104,9 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 {
                     productList.Add(batchLineItem.GetProductOrOptionId());
 
-                    if (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c) == Constants.QTC
-                        || (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c) == Constants.NOKIA_IP_ROUTING
-                        && proposal.Get<bool>(ProposalField.Is_List_Price_Only__c) == false))
+                    if (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c) == Constants.QTC || 
+                        (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c) == Constants.NOKIA_IP_ROUTING && 
+                        proposal.Get<bool>(ProposalField.Is_List_Price_Only__c) == false))
                     {
                         ProductId_set.Add(batchLineItem.GetProductOrOptionId());
                     }
@@ -206,6 +240,28 @@ namespace Apttus.Lightsaber.Nokia.Pricing
         {
             return Constants.QUOTE_TYPE_INDIRECTCPQ.equalsIgnoreCase(proposal.Get<string>(ProposalField.Quote_Type__c))
                 && Constants.NOKIA_1YEAR.equalsIgnoreCase(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c));
+        }
+
+        private string getPartNumber(LineItemModel lineItemModel)
+        {
+            string partNumber = string.Empty;
+            if (lineItemModel.Get<bool?>(LineItemCustomField.is_Custom_Product__c) ==  true)
+            {
+                partNumber = lineItemModel.Get<string>(LineItemCustomField.Custom_Product_Code__c);
+            }
+            else
+            {
+                if (lineItemModel.GetLineType() == LineType.ProductService)
+                {
+                    partNumber = lineItemModel.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_ProductCode);
+                }
+                else
+                {
+                    partNumber = lineItemModel.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_ProductCode);
+                }
+            }
+
+            return partNumber;
         }
     }
 }

@@ -21,7 +21,11 @@
         public const string exchange_rate__c = "exchange_rate__c";
         public const string NokiaCPQ_SRS_Per__c = "NokiaCPQ_SRS_Per__c";
         public const string NokiaCPQ_OpportunityLeadBG__c = "NokiaCPQ_OpportunityLeadBG__c";
-        public const string Account_Market__c = "Account_Market__c"; 
+        public const string Account_Market__c = "Account_Market__c";
+        public const string Maintenance_Y1__c = "Maintenance_Y1__c";
+        public const string Maintenance_Y2__c = "Maintenance_Y2__c";
+        public const string SSP__c = "SSP__c";
+        public const string SRS__c = "SRS__c";
     }
 
     public class ProposalRelationshipField

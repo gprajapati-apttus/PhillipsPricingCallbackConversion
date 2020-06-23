@@ -2,6 +2,8 @@
 {
     public class LineItemCustomField
     {
+        public const string Custom_Product_Code__c = "Custom_Product_Code__c";
+
         public const string CustomProductValue__c = "CustomProductValue__c";
         public const string NokiaCPQ_Is_SI__c = "NokiaCPQ_Is_SI__c";
         public const string Source__c = "Source__c";
