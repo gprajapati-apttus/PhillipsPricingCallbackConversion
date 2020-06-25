@@ -38,5 +38,18 @@
         public const string NokiaCPQ_Maximum_IRP_Discount__c = "NokiaCPQ_Maximum_IRP_Discount__c";
         public const string NokiaCPQ_IRP_Discount__c = "NokiaCPQ_IRP_Discount__c";
         public const string NokiaCPQ_Account_Region__c = "NokiaCPQ_Account_Region__c";
+
+        public const string NokiaCPQ_Org__c = "NokiaCPQ_Org__c";
+        public const string NokiaCPQ_BU__c = "NokiaCPQ_BU__c";
+        public const string NokiaCPQ_BG__c = "NokiaCPQ_BG__c";
+        public const string NokiaCPQ_Floor_Price__c = "NokiaCPQ_Floor_Price__c";
+        public const string NokiaCPQ_Market_Price__c = "NokiaCPQ_Market_Price__c";
+
+        public const string NokiaCPQ_Custom_Bid__c = "NokiaCPQ_Custom_Bid__c";
+        public const string Product_Extension__c = "Product_Extension__c";
+
+        public const string Is_List_Price_Only__c = "Is_List_Price_Only__c";
+
+        
     }
 }

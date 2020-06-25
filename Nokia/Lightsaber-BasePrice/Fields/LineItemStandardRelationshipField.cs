@@ -18,5 +18,8 @@
 
         public const string Apttus_Config2__ProductId__r_ProductCode = "Apttus_Config2__ProductId__r.ProductCode";
         public const string Apttus_Config2__OptionId__r_ProductCode = "Apttus_Config2__OptionId__r.ProductCode";
+        public const string Apttus_Config2__ProductId__r_Family = "Apttus_Config2__ProductId__r.Family";
+
+        
     }
 }

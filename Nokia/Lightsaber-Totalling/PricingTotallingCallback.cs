@@ -53,9 +53,9 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 var defaultExchangeRateQuery = QueryHelper.GetDefaultExchangeRateQuery(proposal.Get<string>(ProposalField.CurrencyIsoCode));
                 conversionRate = (await dBHelper.FindAsync<CurrencyTypeQueryModel>(defaultExchangeRateQuery)).FirstOrDefault()?.ConversionRate;
 
-                if (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c) == Constants.NOKIA_IP_ROUTING && !proposal.Get<bool>(ProposalField.Is_List_Price_Only__c))
+                if (proposal.NokiaCPQ_Portfolio__c == Constants.NOKIA_IP_ROUTING && !proposal.Get<bool>(ProposalField.Is_List_Price_Only__c))
                 {
-                    var shippingLocationQuery = QueryHelper.GetShippingLocationForDirectQuoteQuery(proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c), proposal.Get<string>(ProposalField.NokiaCPQ_Maintenance_Type__c));
+                    var shippingLocationQuery = QueryHelper.GetShippingLocationForDirectQuoteQuery(proposal.NokiaCPQ_Portfolio__c, proposal.Get<string>(ProposalField.NokiaCPQ_Maintenance_Type__c));
                     var shippingLocations = await dBHelper.FindAsync<ShippingLocationQueryModel>(shippingLocationQuery);
 
                     if (shippingLocations != null && shippingLocations.Count != 0)
@@ -223,7 +223,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
                         //Replace item.Portfolio_from_Quote_Line_Item__c formula field with 'this.proposalSO.NokiaCPQ_Portfolio__c', NokiaCPQ_Product_Discount_Category__c with value fetched from method
                         if (((productDiscountCat != null && !pdcList.isEmpty() && pdcList.Contains(productDiscountCat)) ||
-                        (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c).equalsIgnoreCase(Constants.NOKIA_NUAGE) &&
+                        (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_NUAGE) &&
                         Constants.PRODUCTITEMTYPESOFTWARE.equalsIgnoreCase(cartLineItem.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_NokiaCPQ_Item_Type__c)))) || cartLineItem.Get<bool?>(LineItemCustomField.is_Custom_Product__c) == true)
                         {
                             if (cartLineItem.Get<decimal?>(LineItemCustomField.Nokia_SRS_Base_Extended_Price__c) != null)
@@ -242,11 +242,11 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         }
                     }
 
-                    if (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c).equalsIgnoreCase("Fixed Access - POL") && cartLineItem.Get<decimal?>(LineItemCustomField.Total_ONT_Quantity__c) != null)
+                    if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase("Fixed Access - POL") && cartLineItem.Get<decimal?>(LineItemCustomField.Total_ONT_Quantity__c) != null)
                     {
                         totalOntQuantity = totalOntQuantity + cartLineItem.Get<decimal?>(LineItemCustomField.Total_ONT_Quantity__c).Value;
                     }
-                    if (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c).equalsIgnoreCase("Fixed Access - FBA"))
+                    if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase("Fixed Access - FBA"))
                     {
                         if (cartLineItem.Get<decimal?>(LineItemCustomField.Total_ONT_Quantity_FBA__c) != null)
                         {
@@ -365,13 +365,13 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         isUpdate = true;
                     }
 
-                    if (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c).equalsIgnoreCase("Fixed Access - POL") && sspFNSet.Contains(partNumber))
+                    if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase("Fixed Access - POL") && sspFNSet.Contains(partNumber))
                     {
                         cartLineItem.Entity.Quantity = Convert.ToInt32(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * totalOntQuantity;
                         isUpdate = true;
                     }
 
-                    if (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c).equalsIgnoreCase("Fixed Access - FBA") && sspFNSet.Contains(partNumber))
+                    if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase("Fixed Access - FBA") && sspFNSet.Contains(partNumber))
                     {
                         cartLineItem.Entity.Quantity = Convert.ToInt32(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * totalFBAONTQty +
                             Convert.ToInt32(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * totalFBAP2PQty;
@@ -404,15 +404,15 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     string partNumber = getPartNumber(cartLineItem);
 
                     //Logic from Workflow: Enable Manual Adjustment For Options
-                    if ((proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c).equalsIgnoreCase(Constants.NOKIA_SOFTWARE) || 
-                        (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c).equalsIgnoreCase(Constants.NOKIA_IP_ROUTING) && 
+                    if ((proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_SOFTWARE) || 
+                        (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_IP_ROUTING) && 
                         proposal.Get<bool?>(ProposalField.Is_List_Price_Only__c) == false)) && !cartLineItem.Entity.ChargeType.equalsIgnoreCase(Constants.STANDARD))
                     {
                         cartLineItem.Entity.AllowManualAdjustment = false;
                     }
                     if (cartLineItem.Entity.BasePrice != null && cartLineItem.Entity.BasePrice > 0 && cartLineItem.Entity.ChargeType != null 
                         && cartLineItem.Entity.ChargeType.equalsIgnoreCase("Standard Price") && !(cartLineItem.Get<string>(LineItemCustomField.Source__c) == "BOMXAE" &&
-                        proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c) == "QTC"))
+                        proposal.NokiaCPQ_Portfolio__c == "QTC"))
                     {
 
                         decimal? convertedBasePriceTwoDecimal = pricingHelper.ApplyRounding((cartLineItem.Entity.BasePrice / conversionRate) * (proposal.Get<decimal?>(ProposalField.exchange_rate__c)), 2, RoundingMode.HALF_UP);
@@ -439,7 +439,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         linenumberQuantity.Add(cartLineItem.GetLineNumber(), cartLineItem.GetQuantity());
                     }
                     //Map of Airscale wifi Maintenance lines
-                    if (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c).equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING))
+                    if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING))
                     {
                         if (partNumber != null && partNumber.Contains(Constants.MAINTY1CODE))
                         {
@@ -465,7 +465,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 }
 
                 //R-6508
-                if (Constants.NOKIA_IP_ROUTING.equalsIgnoreCase(proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c)) && proposal.Get<bool?>(ProposalField.Is_List_Price_Only__c) == false)
+                if (Constants.NOKIA_IP_ROUTING.equalsIgnoreCase(proposal.NokiaCPQ_Portfolio__c) && proposal.Get<bool?>(ProposalField.Is_List_Price_Only__c) == false)
                 {
                     foreach (var cartLineItem in cartLineItems)
                     {
@@ -554,7 +554,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
                 //Piyush Tawari Req 6229 Airscale Wifi Direct
                 //Copy Discounts from Groups to SIs
-                if (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c).equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING))
+                if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING))
                 {
                     foreach (var cartLineItem in cartLineItems)
                     {
@@ -678,7 +678,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
                     //Calculate MaintY1 & MaintY2 for MN Direct(Airscale wifi)
                     LineItemModel lineItemVarSO;
-                    if (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c).equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING) && maintenanceLinesMap.Count > 0)
+                    if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING) && maintenanceLinesMap.Count > 0)
                     {
                         if (maintenanceLinesMap.ContainsKey("Year1"))
                         {
@@ -727,7 +727,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 Dictionary<decimal?, List<decimal?>> BundleCareSRSPriceMap = new Dictionary<decimal?, List<decimal?>>();
                 List<decimal?> careSRSList = new List<decimal?>();
 
-                if (!proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c).equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING))
+                if (!proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING))
                 {
                     foreach (var item in productServiceMap.Values)
                     {
@@ -739,7 +739,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                             }
                         }
                         //Care & SRS calculation for NSW
-                        if (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c).equalsIgnoreCase("Nokia Software"))
+                        if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase("Nokia Software"))
                         {
                             if (item.Entity.ChargeType.equalsIgnoreCase(Constants.STANDARD) && lineItemIRPMapDirect.ContainsKey(item.GetLineNumber() + "_" + item.Entity.ChargeType))
                             {
@@ -760,7 +760,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 HashSet<string> careProactiveSet = new HashSet<string>(careProActiveList);
                 HashSet<string> careAdvanceSet = new HashSet<string>(careAdvanceList);
 
-                if (proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c).equalsIgnoreCase("Nokia Software"))
+                if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase("Nokia Software"))
                 {
                     foreach (var item in careSRSOptionMap.Values)
                     {
@@ -826,13 +826,13 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
             if (UsePricingGuidanceSettingThresold())
             {
-                var pricingGuidanceSettingQuery = QueryHelper.GetPricingGuidanceSettingQuery(proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c));
+                var pricingGuidanceSettingQuery = QueryHelper.GetPricingGuidanceSettingQuery(proposal.NokiaCPQ_Portfolio__c);
                 pricingGuidanceSettingThresold = (await dBHelper.FindAsync<PricingGuidanceSettingQueryModel>(pricingGuidanceSettingQuery)).FirstOrDefault()?.Threshold__c;
             }
 
             if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Get<string>(ProposalField.Quote_Type__c)))
             {
-                var directPortfolioGeneralSettingQuery = QueryHelper.GetDirectPortfolioGeneralSettingQuery(proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c));
+                var directPortfolioGeneralSettingQuery = QueryHelper.GetDirectPortfolioGeneralSettingQuery(proposal.NokiaCPQ_Portfolio__c);
                 portfolioSettingList = await dBHelper.FindAsync<DirectPortfolioGeneralSettingQueryModel>(directPortfolioGeneralSettingQuery);
 
                 var directCareCostPercentageQuery = QueryHelper.GetDirectCareCostPercentageQuery(proposal.Get<string>(ProposalField.Account_Market__c));
@@ -852,8 +852,8 @@ namespace Apttus.Lightsaber.Nokia.Totalling
         private bool UsePricingGuidanceSettingThresold()
         {
             return string.Compare(proposal.Get<string>(ProposalField.Quote_Type__c), Constants.QUOTE_TYPE_DIRECTCPQ, true) == 0 &&
-                    (string.Compare(proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c), Constants.QTC, true) == 0 ||
-                    (string.Compare(proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c), Constants.NOKIA_IP_ROUTING, true) == 0 &&
+                    (string.Compare(proposal.NokiaCPQ_Portfolio__c, Constants.QTC, true) == 0 ||
+                    (string.Compare(proposal.NokiaCPQ_Portfolio__c, Constants.NOKIA_IP_ROUTING, true) == 0 &&
                     proposal.Get<bool>(ProposalField.Is_List_Price_Only__c) == false));
         }
 
