@@ -48,23 +48,23 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 }
             }
 
-            if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Get<string>(ProposalField.Quote_Type__c)))
+            if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
             {
-                var defaultExchangeRateQuery = QueryHelper.GetDefaultExchangeRateQuery(proposal.Get<string>(ProposalField.CurrencyIsoCode));
+                var defaultExchangeRateQuery = QueryHelper.GetDefaultExchangeRateQuery(proposal.CurrencyIsoCode);
                 conversionRate = (await dBHelper.FindAsync<CurrencyTypeQueryModel>(defaultExchangeRateQuery)).FirstOrDefault()?.ConversionRate;
 
-                if (proposal.NokiaCPQ_Portfolio__c == Constants.NOKIA_IP_ROUTING && !proposal.Get<bool>(ProposalField.Is_List_Price_Only__c))
+                if (proposal.NokiaCPQ_Portfolio__c == Constants.NOKIA_IP_ROUTING && proposal.Is_List_Price_Only__c == false)
                 {
-                    var shippingLocationQuery = QueryHelper.GetShippingLocationForDirectQuoteQuery(proposal.NokiaCPQ_Portfolio__c, proposal.Get<string>(ProposalField.NokiaCPQ_Maintenance_Type__c));
+                    var shippingLocationQuery = QueryHelper.GetShippingLocationForDirectQuoteQuery(proposal.NokiaCPQ_Portfolio__c, proposal.NokiaCPQ_Maintenance_Type__c);
                     var shippingLocations = await dBHelper.FindAsync<ShippingLocationQueryModel>(shippingLocationQuery);
 
                     if (shippingLocations != null && shippingLocations.Count != 0)
                     {
-                        if (proposal.Get<string>(ProposalField.CurrencyIsoCode) == Constants.USDCURRENCY)
+                        if (proposal.CurrencyIsoCode == Constants.USDCURRENCY)
                         {
                             minMaintPrice_EP = shippingLocations[0].Min_Maint_USD__c;
                         }
-                        else if (proposal.Get<string>(ProposalField.CurrencyIsoCode) == Constants.EUR_CURR)
+                        else if (proposal.CurrencyIsoCode == Constants.EUR_CURR)
                         {
                             minMaintPrice_EP = shippingLocations[0].Min_Maint_EUR__c;
                         }
@@ -77,18 +77,18 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 }
             }
 
-            if (Constants.QUOTE_TYPE_INDIRECTCPQ.equalsIgnoreCase(proposal.Get<string>(ProposalField.Quote_Type__c)))
+            if (Constants.QUOTE_TYPE_INDIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
             {
                 var shippingLocationQuery = QueryHelper.GetShippingLocationForIndirectQuoteQuery(proposal.Get<string>(ProposalRelationshipField.NokiaCPQ_Maintenance_Accreditation__r_Portfolio__c),
-                    proposal.Get<string>(ProposalRelationshipField.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Cluster__c));
+                    proposal.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Cluster__c);
 
                 var shippingLocations = await dBHelper.FindAsync<ShippingLocationQueryModel>(shippingLocationQuery);
 
                 if (shippingLocations != null && shippingLocations.Count != 0)
                 {
-                    if (proposal.Get<string>(ProposalField.CurrencyIsoCode) == Constants.USDCURRENCY)
+                    if (proposal.CurrencyIsoCode == Constants.USDCURRENCY)
                     {
-                        if (proposal.Get<bool>(ProposalField.NokiaCPQ_LEO_Discount__c))
+                        if (proposal.NokiaCPQ_LEO_Discount__c == true)
                         {
                             minMaintPrice = shippingLocations[0].LEO_Mini_Maint_USD__c;
                         }
@@ -99,7 +99,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     }
                     else
                     {
-                        if (proposal.Get<bool>(ProposalField.NokiaCPQ_LEO_Discount__c))
+                        if (proposal.NokiaCPQ_LEO_Discount__c == true)
                         {
                             minMaintPrice = shippingLocations[0].LEO_Mini_Maint_EUR__c;
                         }
@@ -118,7 +118,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 PriceListItemModel priceListItemModel = cartLineItem.GetPriceListItem();
                 PriceListItem priceListItemEntity = priceListItemModel.Entity;
 
-                if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Get<string>(ProposalField.Quote_Type__c)))
+                if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
                 {
                     string configType = GetConfigType(cartLineItem);
                     string irpMapKey = cartLineItem.GetLineNumber() + Constants.NOKIA_UNDERSCORE + cartLineItem.Entity.ChargeType;
@@ -162,7 +162,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
             List<string> pdcList = new List<string>(Labels.SRSPDC);
 
-            if (Constants.QUOTE_TYPE_INDIRECTCPQ.equalsIgnoreCase(proposal.Get<string>(ProposalField.Quote_Type__c)))
+            if (Constants.QUOTE_TYPE_INDIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
             {
                 decimal? totalExtendedMaintY1Price = 0;
                 decimal? totalExtendedMaintY2Price = 0;
@@ -367,14 +367,14 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
                     if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase("Fixed Access - POL") && sspFNSet.Contains(partNumber))
                     {
-                        cartLineItem.Entity.Quantity = Convert.ToInt32(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * totalOntQuantity;
+                        cartLineItem.Entity.Quantity = Convert.ToInt32(proposal.NokiaCPQ_No_of_Years__c) * totalOntQuantity;
                         isUpdate = true;
                     }
 
                     if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase("Fixed Access - FBA") && sspFNSet.Contains(partNumber))
                     {
-                        cartLineItem.Entity.Quantity = Convert.ToInt32(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * totalFBAONTQty +
-                            Convert.ToInt32(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * totalFBAP2PQty;
+                        cartLineItem.Entity.Quantity = Convert.ToInt32(proposal.NokiaCPQ_No_of_Years__c) * totalFBAONTQty +
+                            Convert.ToInt32(proposal.NokiaCPQ_No_of_Years__c) * totalFBAP2PQty;
 
                         isUpdate = true;
                     }
@@ -386,7 +386,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 }
             }
 
-            if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Get<string>(ProposalField.Quote_Type__c)))
+            if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
             {
                 //initialize the maintenance price
                 decimal? totalExtendedMaintY1Price = 0;
@@ -406,7 +406,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     //Logic from Workflow: Enable Manual Adjustment For Options
                     if ((proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_SOFTWARE) || 
                         (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_IP_ROUTING) && 
-                        proposal.Get<bool?>(ProposalField.Is_List_Price_Only__c) == false)) && !cartLineItem.Entity.ChargeType.equalsIgnoreCase(Constants.STANDARD))
+                        proposal.Is_List_Price_Only__c == false)) && !cartLineItem.Entity.ChargeType.equalsIgnoreCase(Constants.STANDARD))
                     {
                         cartLineItem.Entity.AllowManualAdjustment = false;
                     }
@@ -415,8 +415,8 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         proposal.NokiaCPQ_Portfolio__c == "QTC"))
                     {
 
-                        decimal? convertedBasePriceTwoDecimal = pricingHelper.ApplyRounding((cartLineItem.Entity.BasePrice / conversionRate) * (proposal.Get<decimal?>(ProposalField.exchange_rate__c)), 2, RoundingMode.HALF_UP);
-                        decimal? convertedBasePriceFiveDecimal = pricingHelper.ApplyRounding((cartLineItem.Entity.BasePrice / conversionRate) * (proposal.Get<decimal?>(ProposalField.exchange_rate__c)), 5, RoundingMode.HALF_UP);
+                        decimal? convertedBasePriceTwoDecimal = pricingHelper.ApplyRounding((cartLineItem.Entity.BasePrice / conversionRate) * (proposal.exchange_rate__c), 2, RoundingMode.HALF_UP);
+                        decimal? convertedBasePriceFiveDecimal = pricingHelper.ApplyRounding((cartLineItem.Entity.BasePrice / conversionRate) * (proposal.exchange_rate__c), 5, RoundingMode.HALF_UP);
 
                         if (cartLineItem.Entity.PriceListId == cartLineItem.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__PriceListItemId__r_Apttus_Config2__PriceListId__c) &&
                             cartLineItem.Entity.BasePriceOverride != convertedBasePriceTwoDecimal)
@@ -465,7 +465,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 }
 
                 //R-6508
-                if (Constants.NOKIA_IP_ROUTING.equalsIgnoreCase(proposal.NokiaCPQ_Portfolio__c) && proposal.Get<bool?>(ProposalField.Is_List_Price_Only__c) == false)
+                if (Constants.NOKIA_IP_ROUTING.equalsIgnoreCase(proposal.NokiaCPQ_Portfolio__c) && proposal.Is_List_Price_Only__c == false)
                 {
                     foreach (var cartLineItem in cartLineItems)
                     {
@@ -701,7 +701,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         {
                             lineItemVarSO = maintenanceLinesMap["Year2"];
 
-                            if (!string.IsNullOrWhiteSpace(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) && Convert.ToDecimal(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) > 1)
+                            if (!string.IsNullOrWhiteSpace(proposal.NokiaCPQ_No_of_Years__c) && Convert.ToDecimal(proposal.NokiaCPQ_No_of_Years__c) > 1)
                             {
                                 if (lineItemVarSO.Entity.PriceListId == lineItemVarSO.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__PriceListItemId__r_Apttus_Config2__PriceListId__c))
                                 {
@@ -830,7 +830,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 pricingGuidanceSettingThresold = (await dBHelper.FindAsync<PricingGuidanceSettingQueryModel>(pricingGuidanceSettingQuery)).FirstOrDefault()?.Threshold__c;
             }
 
-            if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Get<string>(ProposalField.Quote_Type__c)))
+            if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
             {
                 var directPortfolioGeneralSettingQuery = QueryHelper.GetDirectPortfolioGeneralSettingQuery(proposal.NokiaCPQ_Portfolio__c);
                 portfolioSettingList = await dBHelper.FindAsync<DirectPortfolioGeneralSettingQueryModel>(directPortfolioGeneralSettingQuery);
@@ -844,17 +844,17 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
         private bool IsLeo()
         {
-            return string.Compare(proposal.Get<string>(ProposalField.Quote_Type__c), Constants.QUOTE_TYPE_INDIRECTCPQ, true) == 0
-                && string.Compare(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c), Constants.NOKIA_1YEAR, true) == 0
-                && proposal.Get<bool>(ProposalField.NokiaCPQ_LEO_Discount__c) == true;
+            return string.Compare(proposal.Quote_Type__c, Constants.QUOTE_TYPE_INDIRECTCPQ, true) == 0
+                && string.Compare(proposal.NokiaCPQ_No_of_Years__c, Constants.NOKIA_1YEAR, true) == 0
+                && proposal.NokiaCPQ_LEO_Discount__c == true;
         }
 
         private bool UsePricingGuidanceSettingThresold()
         {
-            return string.Compare(proposal.Get<string>(ProposalField.Quote_Type__c), Constants.QUOTE_TYPE_DIRECTCPQ, true) == 0 &&
+            return string.Compare(proposal.Quote_Type__c, Constants.QUOTE_TYPE_DIRECTCPQ, true) == 0 &&
                     (string.Compare(proposal.NokiaCPQ_Portfolio__c, Constants.QTC, true) == 0 ||
                     (string.Compare(proposal.NokiaCPQ_Portfolio__c, Constants.NOKIA_IP_ROUTING, true) == 0 &&
-                    proposal.Get<bool>(ProposalField.Is_List_Price_Only__c) == false));
+                    proposal.Is_List_Price_Only__c == false));
         }
 
         private string GetConfigType(LineItemModel lineItemModel)
@@ -1026,7 +1026,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         //Software Maintenance Enhanced Emergency = Software Maintenance Enhanced + 25%
                         //multiplication by no of years
 
-                        if (proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c) != null && proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c).equalsIgnoreCase("1"))
+                        if (proposal.NokiaCPQ_No_of_Years__c != null && proposal.NokiaCPQ_No_of_Years__c.equalsIgnoreCase("1"))
                         {
                             basicYear1 = pricingHelper.ApplyRounding((item.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_IRP__c) * 0.25m), 2, RoundingMode.HALF_UP);
                             basicYear2 = 0;
@@ -1036,37 +1036,37 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                             enhanceEmergencyYear2 = 0;
                         }
 
-                        if (proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c) != null && (proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c).equalsIgnoreCase("2") || proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c).equalsIgnoreCase("3")))
+                        if (proposal.NokiaCPQ_No_of_Years__c != null && (proposal.NokiaCPQ_No_of_Years__c.equalsIgnoreCase("2") || proposal.NokiaCPQ_No_of_Years__c.equalsIgnoreCase("3")))
                         {
                             basicYear1 = pricingHelper.ApplyRounding((item.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_IRP__c) * 0.25m), 2, RoundingMode.HALF_UP);
-                            basicYear2 = pricingHelper.ApplyRounding(((basicYear1 * (Convert.ToDecimal(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * 0.85m)) - basicYear1), 2, RoundingMode.HALF_UP);
+                            basicYear2 = pricingHelper.ApplyRounding(((basicYear1 * (Convert.ToDecimal(proposal.NokiaCPQ_No_of_Years__c) * 0.85m)) - basicYear1), 2, RoundingMode.HALF_UP);
                             enhanceYear1 = pricingHelper.ApplyRounding((basicYear1 + (basicYear1 * 0.25m)),2, RoundingMode.HALF_UP);
-                            enhanceYear2 = pricingHelper.ApplyRounding((((basicYear1 + (basicYear1 * 0.25m)) * (Convert.ToDecimal(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * 0.85m)) - enhanceYear1), 2, RoundingMode.HALF_UP);
+                            enhanceYear2 = pricingHelper.ApplyRounding((((basicYear1 + (basicYear1 * 0.25m)) * (Convert.ToDecimal(proposal.NokiaCPQ_No_of_Years__c) * 0.85m)) - enhanceYear1), 2, RoundingMode.HALF_UP);
                             enhanceEmergencyYear1 = pricingHelper.ApplyRounding((enhanceYear1 + (enhanceYear1 * 0.25m)), 2, RoundingMode.HALF_UP);
-                            enhanceEmergencyYear2 = pricingHelper.ApplyRounding((((enhanceYear1 + (enhanceYear1 * 0.25m)) * (Convert.ToDecimal(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * 0.85m)) - enhanceEmergencyYear1), 2, RoundingMode.HALF_UP);
+                            enhanceEmergencyYear2 = pricingHelper.ApplyRounding((((enhanceYear1 + (enhanceYear1 * 0.25m)) * (Convert.ToDecimal(proposal.NokiaCPQ_No_of_Years__c) * 0.85m)) - enhanceEmergencyYear1), 2, RoundingMode.HALF_UP);
                         }
 
-                        else if (proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c) != null && (proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c).equalsIgnoreCase("4") || proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c).equalsIgnoreCase("5")))
+                        else if (proposal.NokiaCPQ_No_of_Years__c != null && (proposal.NokiaCPQ_No_of_Years__c.equalsIgnoreCase("4") || proposal.NokiaCPQ_No_of_Years__c.equalsIgnoreCase("5")))
                         {
                             basicYear1 = pricingHelper.ApplyRounding((item.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_IRP__c) * 0.25m), 2, RoundingMode.HALF_UP);
-                            basicYear2 = pricingHelper.ApplyRounding(((basicYear1 * (Convert.ToDecimal(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * 0.70m)) - basicYear1), 2, RoundingMode.HALF_UP);
+                            basicYear2 = pricingHelper.ApplyRounding(((basicYear1 * (Convert.ToDecimal(proposal.NokiaCPQ_No_of_Years__c) * 0.70m)) - basicYear1), 2, RoundingMode.HALF_UP);
                             enhanceYear1 = pricingHelper.ApplyRounding((basicYear1 + (basicYear1 * 0.25m)), 2, RoundingMode.HALF_UP);
-                            enhanceYear2 = pricingHelper.ApplyRounding((((basicYear1 + (basicYear1 * 0.25m)) * (Convert.ToDecimal(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * 0.70m)) - enhanceYear1), 2, RoundingMode.HALF_UP);
+                            enhanceYear2 = pricingHelper.ApplyRounding((((basicYear1 + (basicYear1 * 0.25m)) * (Convert.ToDecimal(proposal.NokiaCPQ_No_of_Years__c) * 0.70m)) - enhanceYear1), 2, RoundingMode.HALF_UP);
                             enhanceEmergencyYear1 = pricingHelper.ApplyRounding((enhanceYear1 + (enhanceYear1 * 0.25m)), 2, RoundingMode.HALF_UP);
-                            enhanceEmergencyYear2 = pricingHelper.ApplyRounding((((enhanceYear1 + (enhanceYear1 * 0.25m)) * (Convert.ToDecimal(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * 0.70m)) - enhanceEmergencyYear1), 2, RoundingMode.HALF_UP);
+                            enhanceEmergencyYear2 = pricingHelper.ApplyRounding((((enhanceYear1 + (enhanceYear1 * 0.25m)) * (Convert.ToDecimal(proposal.NokiaCPQ_No_of_Years__c) * 0.70m)) - enhanceEmergencyYear1), 2, RoundingMode.HALF_UP);
                         }
 
-                        if (proposal.Get<string>(ProposalField.NokiaCPQ_Maintenance_Type__c) != null && proposal.Get<string>(ProposalField.NokiaCPQ_Maintenance_Type__c).equalsIgnoreCase("MN GS TSS Basic"))
+                        if (proposal.NokiaCPQ_Maintenance_Type__c != null && proposal.NokiaCPQ_Maintenance_Type__c.equalsIgnoreCase("MN GS TSS Basic"))
                         {
                             item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr1_Extended_Price__c, basicYear1);
                             item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr2_Extended_Price__c, basicYear2);
                         }
-                        else if (proposal.Get<string>(ProposalField.NokiaCPQ_Maintenance_Type__c) != null && proposal.Get<string>(ProposalField.NokiaCPQ_Maintenance_Type__c).equalsIgnoreCase("MN GS TSS Enhanced"))
+                        else if (proposal.NokiaCPQ_Maintenance_Type__c != null && proposal.NokiaCPQ_Maintenance_Type__c.equalsIgnoreCase("MN GS TSS Enhanced"))
                         {
                             item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr1_Extended_Price__c, enhanceYear1);
                             item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr2_Extended_Price__c, enhanceYear2);
                         }
-                        else if (proposal.Get<string>(ProposalField.NokiaCPQ_Maintenance_Type__c) != null && proposal.Get<string>(ProposalField.NokiaCPQ_Maintenance_Type__c).equalsIgnoreCase("MN GS TSS Enhanced Emergency"))
+                        else if (proposal.NokiaCPQ_Maintenance_Type__c != null && proposal.NokiaCPQ_Maintenance_Type__c.equalsIgnoreCase("MN GS TSS Enhanced Emergency"))
                         {
                             item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr1_Extended_Price__c, enhanceEmergencyYear1);
                             item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr2_Extended_Price__c, enhanceEmergencyYear2);
@@ -1079,48 +1079,48 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     if (item.Get<string>(LineItemCustomField.NokiaCPQ_Product_Type__c) != null && item.Get<string>(LineItemCustomField.NokiaCPQ_Product_Type__c).equalsIgnoreCase("Access Point"))
                     {
                         //multiplication by no of years
-                        if (proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c) != null && proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c).equalsIgnoreCase("1"))
+                        if (proposal.NokiaCPQ_No_of_Years__c != null && proposal.NokiaCPQ_No_of_Years__c.equalsIgnoreCase("1"))
                         {
                             var extendedIRP = item.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_IRP__c);
                             item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr1_Extended_Price__c, pricingHelper.ApplyRounding((extendedIRP * 0.02m) + (extendedIRP * 0.053m), 2, RoundingMode.HALF_UP));
                             item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr2_Extended_Price__c, 0);
                         }
 
-                        else if (proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c) != null && (proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c).equalsIgnoreCase("2") || proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c).equalsIgnoreCase("3")))
+                        else if (proposal.NokiaCPQ_No_of_Years__c != null && (proposal.NokiaCPQ_No_of_Years__c.equalsIgnoreCase("2") || proposal.NokiaCPQ_No_of_Years__c.equalsIgnoreCase("3")))
                         {
                             var extendedIRP = item.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_IRP__c);
                             item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr1_Extended_Price__c, pricingHelper.ApplyRounding((extendedIRP * 0.02m) + (extendedIRP * 0.053m), 2, RoundingMode.HALF_UP));
-                            item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr2_Extended_Price__c, pricingHelper.ApplyRounding(((extendedIRP * 0.02m * ((Convert.ToDecimal(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * 1.00m) - 1)) + (extendedIRP * 0.053m * ((Convert.ToDecimal(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * 0.85m) - 1))), 2, RoundingMode.HALF_UP));
+                            item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr2_Extended_Price__c, pricingHelper.ApplyRounding(((extendedIRP * 0.02m * ((Convert.ToDecimal(proposal.NokiaCPQ_No_of_Years__c) * 1.00m) - 1)) + (extendedIRP * 0.053m * ((Convert.ToDecimal(proposal.NokiaCPQ_No_of_Years__c) * 0.85m) - 1))), 2, RoundingMode.HALF_UP));
                         }
 
-                        else if (proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c) != null && (proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c).equalsIgnoreCase("4") || proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c).equalsIgnoreCase("5")))
+                        else if (proposal.NokiaCPQ_No_of_Years__c != null && (proposal.NokiaCPQ_No_of_Years__c.equalsIgnoreCase("4") || proposal.NokiaCPQ_No_of_Years__c.equalsIgnoreCase("5")))
                         {
                             var extendedIRP = item.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_IRP__c);
                             item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr1_Extended_Price__c, pricingHelper.ApplyRounding(((extendedIRP * 0.02m) + (extendedIRP * 0.053m)), 2, RoundingMode.HALF_UP));
-                            item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr2_Extended_Price__c, pricingHelper.ApplyRounding(((extendedIRP * 0.02m * ((Convert.ToDecimal(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * 0.85m) - 1)) + (extendedIRP * 0.053m * ((Convert.ToDecimal(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * 0.70m) - 1))), 2, RoundingMode.HALF_UP));
+                            item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr2_Extended_Price__c, pricingHelper.ApplyRounding(((extendedIRP * 0.02m * ((Convert.ToDecimal(proposal.NokiaCPQ_No_of_Years__c) * 0.85m) - 1)) + (extendedIRP * 0.053m * ((Convert.ToDecimal(proposal.NokiaCPQ_No_of_Years__c) * 0.70m) - 1))), 2, RoundingMode.HALF_UP));
                         }
                     }
                     else if (item.Get<string>(LineItemCustomField.NokiaCPQ_Product_Type__c) != null && item.Get<string>(LineItemCustomField.NokiaCPQ_Product_Type__c).equalsIgnoreCase("Controller"))
                     {
-                        if (proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c) != null && proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c).equalsIgnoreCase("1"))
+                        if (proposal.NokiaCPQ_No_of_Years__c != null && proposal.NokiaCPQ_No_of_Years__c.equalsIgnoreCase("1"))
                         {
                             var extendedIRP = item.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_IRP__c);
                             item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr1_Extended_Price__c, pricingHelper.ApplyRounding((extendedIRP * 0.02m), 2, RoundingMode.HALF_UP));
                             item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr2_Extended_Price__c, 0);
                         }
 
-                        else if (proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c) != null && (proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c).equalsIgnoreCase("2") || proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c).equalsIgnoreCase("3")))
+                        else if (proposal.NokiaCPQ_No_of_Years__c != null && (proposal.NokiaCPQ_No_of_Years__c.equalsIgnoreCase("2") || proposal.NokiaCPQ_No_of_Years__c.equalsIgnoreCase("3")))
                         {
                             var extendedIRP = item.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_IRP__c);
                             item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr1_Extended_Price__c, pricingHelper.ApplyRounding(extendedIRP * 0.02m, 2, RoundingMode.HALF_UP));
-                            item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr2_Extended_Price__c, pricingHelper.ApplyRounding(extendedIRP * 0.02m * (Convert.ToDecimal(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) - 1), 2, RoundingMode.HALF_UP));
+                            item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr2_Extended_Price__c, pricingHelper.ApplyRounding(extendedIRP * 0.02m * (Convert.ToDecimal(proposal.NokiaCPQ_No_of_Years__c) - 1), 2, RoundingMode.HALF_UP));
                         }
 
-                        else if (proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c) != null && (proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c).equalsIgnoreCase("4") || proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c).equalsIgnoreCase("5")))
+                        else if (proposal.NokiaCPQ_No_of_Years__c != null && (proposal.NokiaCPQ_No_of_Years__c.equalsIgnoreCase("4") || proposal.NokiaCPQ_No_of_Years__c.equalsIgnoreCase("5")))
                         {
                             var extendedIRP = item.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_IRP__c);
                             item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr1_Extended_Price__c, pricingHelper.ApplyRounding((extendedIRP * 0.02m), 2, RoundingMode.HALF_UP));
-                            item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr2_Extended_Price__c, pricingHelper.ApplyRounding(extendedIRP * 0.02m * ((Convert.ToDecimal(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) * 0.85m) - 1), 2, RoundingMode.HALF_UP));
+                            item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr2_Extended_Price__c, pricingHelper.ApplyRounding(extendedIRP * 0.02m * ((Convert.ToDecimal(proposal.NokiaCPQ_No_of_Years__c) * 0.85m) - 1), 2, RoundingMode.HALF_UP));
                         }
                     }
                 }
@@ -1131,7 +1131,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     {
                         var extendedCLP = item.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_CLP__c);
                         item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr1_Extended_Price__c, pricingHelper.ApplyRounding((extendedCLP * 0.18m * 0.85m), 2, RoundingMode.HALF_UP));
-                        item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr2_Extended_Price__c, pricingHelper.ApplyRounding(extendedCLP * 0.18m * 0.85m * (Convert.ToDecimal(proposal.Get<string>(ProposalField.NokiaCPQ_No_of_Years__c)) - 1), 2, RoundingMode.HALF_UP));
+                        item.Set(LineItemCustomField.NokiaCPQ_Maint_Yr2_Extended_Price__c, pricingHelper.ApplyRounding(extendedCLP * 0.18m * 0.85m * (Convert.ToDecimal(proposal.NokiaCPQ_No_of_Years__c) - 1), 2, RoundingMode.HALF_UP));
                     }
                 }
             }
