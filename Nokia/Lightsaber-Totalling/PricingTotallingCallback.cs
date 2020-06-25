@@ -70,16 +70,16 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         }
                     }
 
-                    if (proposal.Get<string>(ProposalField.NokiaCPQ_Existing_IONMaint_Contract__c) != null)
+                    if (proposal.NokiaCPQ_Existing_IONMaint_Contract__c != null)
                     {
-                        isIONExistingContract_EP = proposal.Get<string>(ProposalField.NokiaCPQ_Existing_IONMaint_Contract__c);
+                        isIONExistingContract_EP = proposal.NokiaCPQ_Existing_IONMaint_Contract__c;
                     }
                 }
             }
 
             if (Constants.QUOTE_TYPE_INDIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
             {
-                var shippingLocationQuery = QueryHelper.GetShippingLocationForIndirectQuoteQuery(proposal.Get<string>(ProposalRelationshipField.NokiaCPQ_Maintenance_Accreditation__r_Portfolio__c),
+                var shippingLocationQuery = QueryHelper.GetShippingLocationForIndirectQuoteQuery(proposal.NokiaCPQ_Maintenance_Accreditation__r_Portfolio__c,
                     proposal.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Cluster__c);
 
                 var shippingLocations = await dBHelper.FindAsync<ShippingLocationQueryModel>(shippingLocationQuery);
@@ -155,9 +155,9 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             //GP: BeforePricing Method
             string isIONExistingContract = string.Empty;
 
-            if (proposal.Get<string>(ProposalField.NokiaCPQ_Existing_IONMaint_Contract__c) != null)
+            if (proposal.NokiaCPQ_Existing_IONMaint_Contract__c != null)
             {
-                isIONExistingContract = proposal.Get<string>(ProposalField.NokiaCPQ_Existing_IONMaint_Contract__c);
+                isIONExistingContract = proposal.NokiaCPQ_Existing_IONMaint_Contract__c;
             }
 
             List<string> pdcList = new List<string>(Labels.SRSPDC);
@@ -291,10 +291,10 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         }
 
                         //GP: Instead of looking up on the cart lineitem, we are using proposal for same
-                        if (proposal.Get<decimal?>(ProposalField.Maintenance_Y1__c) != null)
+                        if (proposal.Maintenance_Y1__c != null)
                         {
-                            cartLineItem.Entity.BasePriceOverride = proposal.Get<decimal?>(ProposalField.Maintenance_Y1__c);
-                            cartLineItem.Entity.BasePrice = proposal.Get<decimal?>(ProposalField.Maintenance_Y1__c);
+                            cartLineItem.Entity.BasePriceOverride = proposal.Maintenance_Y1__c;
+                            cartLineItem.Entity.BasePrice = proposal.Maintenance_Y1__c;
                         }
                         else
                         {
@@ -306,10 +306,10 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     }
                     else if (partNumber != null && partNumber.Contains(Constants.MAINTY2CODE))
                     {
-                        if (proposal.Get<decimal?>(ProposalField.Maintenance_Y2__c) != null)
+                        if (proposal.Maintenance_Y2__c != null)
                         {
-                            cartLineItem.Entity.BasePriceOverride = proposal.Get<decimal?>(ProposalField.Maintenance_Y2__c);
-                            cartLineItem.Entity.BasePrice = proposal.Get<decimal?>(ProposalField.Maintenance_Y2__c);
+                            cartLineItem.Entity.BasePriceOverride = proposal.Maintenance_Y2__c;
+                            cartLineItem.Entity.BasePrice = proposal.Maintenance_Y2__c;
                         }
                         else
                         {
@@ -323,10 +323,10 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         !string.IsNullOrEmpty(cartLineItem.Entity.ChargeType) &&
                         cartLineItem.Entity.ChargeType.Contains(Constants.NOKIA_PRODUCT_NAME_SSP))
                     {
-                        if (proposal.Get<decimal?>(ProposalField.SSP__c) != null)
+                        if (proposal.SSP__c != null)
                         {
-                            cartLineItem.Entity.BasePriceOverride = proposal.Get<decimal?>(ProposalField.SSP__c);
-                            cartLineItem.Entity.BasePrice = proposal.Get<decimal?>(ProposalField.SSP__c);
+                            cartLineItem.Entity.BasePriceOverride = proposal.SSP__c;
+                            cartLineItem.Entity.BasePrice = proposal.SSP__c;
                         }
                         else if (IsLeo())
                         {
@@ -346,10 +346,10 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         !string.IsNullOrEmpty(cartLineItem.Entity.ChargeType) &&
                         cartLineItem.Entity.ChargeType.Contains(Constants.NOKIA_PRODUCT_NAME_SRS))
                     {
-                        if (proposal.Get<decimal?>(ProposalField.SRS__c) != null)
+                        if (proposal.SRS__c != null)
                         {
-                            cartLineItem.Entity.BasePriceOverride = proposal.Get<decimal?>(ProposalField.SRS__c);
-                            cartLineItem.Entity.BasePrice = proposal.Get<decimal?>(ProposalField.SRS__c);
+                            cartLineItem.Entity.BasePriceOverride = proposal.SRS__c;
+                            cartLineItem.Entity.BasePrice = proposal.SRS__c;
                         }
                         else if (IsLeo())
                         {
@@ -835,7 +835,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 var directPortfolioGeneralSettingQuery = QueryHelper.GetDirectPortfolioGeneralSettingQuery(proposal.NokiaCPQ_Portfolio__c);
                 portfolioSettingList = await dBHelper.FindAsync<DirectPortfolioGeneralSettingQueryModel>(directPortfolioGeneralSettingQuery);
 
-                var directCareCostPercentageQuery = QueryHelper.GetDirectCareCostPercentageQuery(proposal.Get<string>(ProposalField.Account_Market__c));
+                var directCareCostPercentageQuery = QueryHelper.GetDirectCareCostPercentageQuery(proposal.Account_Market__c);
                 careCostPercentList = await dBHelper.FindAsync<DirectCareCostPercentageQueryModel>(directCareCostPercentageQuery);
             }
 

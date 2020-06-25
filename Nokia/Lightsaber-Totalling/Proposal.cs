@@ -134,6 +134,62 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             }
         }
 
+        public string NokiaCPQ_Existing_IONMaint_Contract__c
+        {
+            get
+            {
+                return Get<string>(ProposalField.NokiaCPQ_Existing_IONMaint_Contract__c);
+            }
+        }
+
+        public string Account_Market__c
+        {
+            get
+            {
+                return Get<string>(ProposalField.Account_Market__c);
+            }
+        }
+
+        public decimal? Maintenance_Y1__c
+        {
+            get
+            {
+                return Get<decimal?>(ProposalField.Maintenance_Y1__c);
+            }
+        }
+
+        public decimal? Maintenance_Y2__c
+        {
+            get
+            {
+                return Get<decimal?>(ProposalField.Maintenance_Y2__c);
+            }
+        }
+
+        public decimal? SSP__c
+        {
+            get
+            {
+                return Get<decimal?>(ProposalField.SSP__c);
+            }
+        }
+
+        public decimal? SRS__c
+        {
+            get
+            {
+                return Get<decimal?>(ProposalField.SRS__c);
+            }
+        }
+
+        public string NokiaCPQ_Maintenance_Accreditation__r_Portfolio__c
+        {
+            get
+            {
+                return Get<string>(ProposalRelationshipField.NokiaCPQ_Maintenance_Accreditation__r_Portfolio__c);
+            }
+        }
+
 
         private readonly Dictionary<string, object> proposal;
 
