@@ -223,6 +223,305 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 productCostMap.Add(pli.Apttus_Config2__ProductId__c, pli.Apttus_Config2__Cost__c);
             }
 
+            //GP: OnPriceItemSet method
+            foreach (var batchLineItem in batchLineItems)
+            {
+                PriceListItemModel priceListItemModel = batchLineItem.GetPriceListItem();
+                PriceListItem priceListItemEntity = priceListItemModel.Entity;
+
+                string partNumber = getPartNumber(batchLineItem);
+                string productDiscountCat = getProductDiscountCategory(batchLineItem);
+                string configType = getConfigType(batchLineItem);
+
+                if (Constants.QUOTE_TYPE_INDIRECTCPQ.equalsIgnoreCase(proposal.Get<string>(ProposalField.Quote_Type__c)) ||
+                    Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Get<string>(ProposalField.Quote_Type__c)))
+                {
+                    batchLineItem.Set(LineItemCustomField.NokiaCPQ_Account_Region__c, proposal.Get<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_GEOLevel1ID__c));
+                }
+
+                if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Get<string>(ProposalField.Quote_Type__c)))
+                {
+                    //Replacing item.Portfolio_from_Quote_Line_Item__c with 'this.proposalSO.NokiaCPQ_Portfolio__c'
+                    if (proposal.NokiaCPQ_Portfolio__c == Constants.AIRSCALE_WIFI_STRING
+                       && configType == Constants.NOKIA_STANDALONE &&
+                       batchLineItem.GetLineType() == LineType.Option)
+                    {
+                        item.NokiaCPQ_Is_SI__c = true;
+                    }
+
+                    //R-6456,6667 update QTC Line Item with Price point info from Product Extension and BG, BU info from Product2
+                    if (this.proposalSO.NokiaCPQ_Portfolio__c.equalsIgnoreCase('QTC'))
+                    {
+                        item.NokiaCPQ_Org__c = this.proposalSO.Apttus_Proposal__Account__r.L7Name__c;
+                        item.NokiaCPQ_BU__c = item.Apttus_Config2__ProductId__r.Family;
+                        item.NokiaCPQ_BG__c = item.Apttus_Config2__ProductId__r.Business_Group__c;
+
+                        if (Product_extensitonmap.get(item.Apttus_Config2__ProductId__c) != null)
+                        {
+                            item.NokiaCPQ_Custom_Bid__c = Product_extensitonmap.get(item.Apttus_Config2__ProductId__c).Custom_Bid__c;
+                            item.NokiaCPQ_Floor_Price__c = Product_extensitonmap.get(item.Apttus_Config2__ProductId__c).Floor_Price__c == null ? null : Product_extensitonmap.get(item.Apttus_Config2__ProductId__c).Floor_Price__c;
+                            item.NokiaCPQ_Market_Price__c = Product_extensitonmap.get(item.Apttus_Config2__ProductId__c).Market_Price__c == null ? null : Product_extensitonmap.get(item.Apttus_Config2__ProductId__c).Market_Price__c;
+                            item.Product_Extension__c = Product_extensitonmap.get(item.Apttus_Config2__ProductId__c).Id;
+                        }
+                        else
+                        {
+                            item.NokiaCPQ_Floor_Price__c = null;
+                            item.NokiaCPQ_Market_Price__c = null;
+                        }
+
+                    }
+
+                    //R-6508,6510 Logic to stamp Maint Y1, Y2, SSP, SRS rates onto line item
+                    ////R-6500 update Enterprise Line Item with FLoor Price info from Product Extension
+                    if (this.proposalSO.Is_List_Price_Only__c != null && this.proposalSO.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Nokia_CPQ_Constants.NOKIA_IP_ROUTING))
+                    {
+                        item.Is_List_Price_Only__c = this.proposalSO.Is_List_Price_Only__c;
+                        if (this.proposalSO.Is_List_Price_Only__c == false)
+                        {
+                            if (item.Apttus_Config2__LineType__c.equalsIgnoreCase(Nokia_CPQ_Constants.NOKIA_PRODUCT_SERVICES)
+                        && Product_extensitonmap.get(item.Apttus_Config2__ProductId__r.Id) != null &&
+                         Product_extensitonmap.get(item.Apttus_Config2__ProductId__r.Id).Floor_Price__c != Null)
+                            {
+                                item.NokiaCPQ_Floor_Price__c = Product_extensitonmap.get(item.Apttus_Config2__ProductId__r.Id).Floor_Price__c == null ? null : Product_extensitonmap.get(item.Apttus_Config2__ProductId__r.Id).Floor_Price__c;
+                            }
+                            else if (item.Apttus_Config2__LineType__c.equalsIgnoreCase('Option')
+                        && Product_extensitonmap.get(item.Apttus_Config2__OptionId__r.Id) != null &&
+                         Product_extensitonmap.get(item.Apttus_Config2__OptionId__r.Id).Floor_Price__c != Null)
+                            {
+                                item.NokiaCPQ_Floor_Price__c = Product_extensitonmap.get(item.Apttus_Config2__OptionId__r.Id).Floor_Price__c == null ? null : Product_extensitonmap.get(item.Apttus_Config2__OptionId__r.Id).Floor_Price__c;
+                            }
+                            else
+                            {
+                                item.NokiaCPQ_Floor_Price__c = null;
+                            }
+                        }
+                    }
+
+                    CPQ_Maintenance_and_SSP_Rule__c nokiaSSPSRSProdDiscount_EP = new CPQ_Maintenance_and_SSP_Rule__c();
+
+                    Double unlimitedSSP = 0.00;
+                    Double biennialSSP = 0.00;
+                    Double unlimitedSRS = 0.00;
+                    Double biennialSRS = 0.00;
+                    Double serviceRateY1 = 0.00;
+                    Double serviceRateY2 = 0.00;
+
+                    if (Nokia_CPQ_Constants.NOKIA_IP_ROUTING.equalsIgnoreCase(this.proposalSO.NokiaCPQ_Portfolio__c) && !this.proposalSO.Is_List_Price_Only__c && !item.is_Custom_Product__c &&
+                        partNumber != null && !partNumber.contains(Nokia_CPQ_Constants.MAINTY1CODE) &&
+                        !partNumber.contains(Nokia_CPQ_Constants.MAINTY2CODE) &&
+                        !partNumber.contains(Nokia_CPQ_Constants.SSPCODE) &&
+                        !partNumber.contains(Nokia_CPQ_Constants.SRS))
+                    {
+
+
+                        if (maintenanceSSPRuleMap_EP != null && maintenanceSSPRuleMap_EP.get(this.proposalSO.NokiaCPQ_Maintenance_Type__c + Nokia_CPQ_Constants.NOKIA_STRING_APPENDER + productDiscountCat) != null)
+                        {
+
+                            nokiaSSPSRSProdDiscount_EP = maintenanceSSPRuleMap_EP.get(this.proposalSO.NokiaCPQ_Maintenance_Type__c + Nokia_CPQ_Constants.NOKIA_STRING_APPENDER + productDiscountCat);
+                            // System.debug('nokiaSSPSRSProdDiscount_EP'+nokiaSSPSRSProdDiscount_EP);
+
+                            if (nokiaSSPSRSProdDiscount_EP != null)
+                            {
+                                //SSP Rate assignment
+                                if (nokiaSSPSRSProdDiscount_EP.Unlimited_SSP_Discount__c == NULL)
+                                {
+                                    unlimitedSSP = 0.0;
+                                }
+                                else
+                                {
+                                    unlimitedSSP = nokiaSSPSRSProdDiscount_EP.Unlimited_SSP_Discount__c;
+                                }
+                                if (nokiaSSPSRSProdDiscount_EP.Biennial_SSP_Discount__c == NULL)
+                                {
+                                    biennialSSP = 0.0;
+                                }
+                                else
+                                {
+                                    biennialSSP = nokiaSSPSRSProdDiscount_EP.Biennial_SSP_Discount__c;
+                                }
+                                // SRS Rate assignment 
+                                if (nokiaSSPSRSProdDiscount_EP.Unlimited_SRS_Discount__c == NULL)
+                                {
+                                    unlimitedSRS = 0.0;
+                                }
+                                else
+                                {
+                                    unlimitedSRS = nokiaSSPSRSProdDiscount_EP.Unlimited_SRS_Discount__c;
+                                }
+                                if (nokiaSSPSRSProdDiscount_EP.Biennial_SRS_Discount__c == NULL)
+                                {
+                                    biennialSRS = 0.0;
+                                }
+                                else
+                                {
+                                    biennialSRS = nokiaSSPSRSProdDiscount_EP.Biennial_SRS_Discount__c;
+                                }
+
+                                // Year1, Year 2 Rate assignment
+                                if (nokiaSSPSRSProdDiscount_EP.Maintenance_Category__c == NULL)
+                                {
+                                    serviceRateY1 = 0.0;
+                                }
+                                else
+                                {
+                                    serviceRateY1 = nokiaSSPSRSProdDiscount_EP.Service_Rate_Y1__c;
+                                }
+                                if (nokiaSSPSRSProdDiscount_EP.Maintenance_Category__c == NULL)
+                                {
+                                    serviceRateY2 = 0.0;
+                                }
+                                else
+                                {
+                                    serviceRateY2 = nokiaSSPSRSProdDiscount_EP.Service_Rate_Y2__c;
+                                }
+
+                            }
+                        }
+
+
+                        if (this.proposalSO.NokiaCPQ_Maintenance_Type__c != null)
+                        {
+                            item.Nokia_Maint_Y1_Per__c = serviceRateY1 * 100;
+                            item.Nokia_Maint_Y2_Per__c = serviceRateY2 * 100;
+                        }
+                        //  System.debug('isSSP>>>>'+item.Apttus_Config2__ProductId__r.IsSSP__c);
+                        if (!item.Apttus_Config2__ProductId__r.IsSSP__c && this.proposalSO.NokiaCPQ_Maintenance_Type__c != null && this.proposalSO.NokiaCPQ_SSP_Level__c != null && Nokia_CPQ_Constants.NOKIA_UNLIMITED.equalsIgnoreCase(this.proposalSO.NokiaCPQ_SSP_Level__c))
+                        {
+                            item.NokiaCPQ_SSP_Rate__c = unlimitedSSP * 100;
+                        }
+                        else if (!item.Apttus_Config2__ProductId__r.IsSSP__c && this.proposalSO.NokiaCPQ_Maintenance_Type__c != null && this.proposalSO.NokiaCPQ_SSP_Level__c != null && Nokia_CPQ_Constants.NOKIA_BIENNIAL.equalsIgnoreCase(this.proposalSO.NokiaCPQ_SSP_Level__c))
+                        {
+                            item.NokiaCPQ_SSP_Rate__c = biennialSSP * 100;
+                        }
+
+                        if (item.Apttus_Config2__ProductId__r.IsSSP__c && this.proposalSO.NokiaCPQ_Maintenance_Type__c != null && this.proposalSO.NokiaCPQ_SRS_Level__c != null && Nokia_CPQ_Constants.NOKIA_UNLIMITED.equalsIgnoreCase(this.proposalSO.NokiaCPQ_SRS_Level__c))
+                        {
+                            item.NokiaCPQ_SRS_Rate__c = unlimitedSRS * 100;
+                        }
+                        else if (item.Apttus_Config2__ProductId__r.IsSSP__c && this.proposalSO.NokiaCPQ_Maintenance_Type__c != null && this.proposalSO.NokiaCPQ_SRS_Level__c != null && Nokia_CPQ_Constants.NOKIA_BIENNIAL.equalsIgnoreCase(this.proposalSO.NokiaCPQ_SRS_Level__c))
+                        {
+                            item.NokiaCPQ_SRS_Rate__c = biennialSRS * 100;
+                        }
+
+
+                    }
+                    //6508 End
+
+                    if (mode == Apttus_Config2.CustomClass.PricingMode.BASEPRICE)
+                    {
+                        if (item.Apttus_Config2__PriceListId__c == item.Apttus_Config2__PriceListItemId__r.Apttus_Config2__PriceListId__c)
+                        {
+                            if (item.Apttus_Config2__LineType__c.equalsIgnoreCase(Nokia_CPQ_Constants.NOKIA_OPTION) && this.proposalSO.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Nokia_CPQ_Constants.NOKIA_SOFTWARE) && configType.equalsIgnoreCase('Standalone') && !mainBundleList.isEmpty() && !mainBundleList.contains(String.valueOf(item.Apttus_Config2__ParentBundleNumber__c)))
+                            {
+                                item.NokiaCPQ_Unitary_IRP__c = 0.00;
+                            }
+                            else
+                            {
+                                if (!item.is_Custom_Product__c)
+                                {
+                                    item.NokiaCPQ_Unitary_IRP__c = (itemSO.Apttus_Config2__ListPrice__c * (this.proposalSO.exchange_rate__c)).setScale(5, RoundingMode.HALF_UP);
+                                }
+                            }
+
+                            //Setting the Cost
+                            if (!portfolioSettingList.isEmpty() && portfolioSettingList[0].Cost_Calculation_In_PCB__c == true)
+                            {
+                                item.NokiaCPQ_Unitary_Cost__c = 0.00;
+                                //ADDED BY PRIYANKA
+                                if (itemSO.Apttus_Config2__Cost__c != null)
+                                {
+                                    if (!item.Advanced_pricing_done__c)
+                                    {
+                                        item.NokiaCPQ_Unitary_Cost__c = ((itemSO.Apttus_Config2__Cost__c / defaultExchangeRate.get(0).ConversionRate) * (this.proposalSO.exchange_rate__c)).setScale(5, RoundingMode.HALF_UP);
+                                    }
+                                    else if (item.Advanced_pricing_done__c && item.NokiaCPQ_Unitary_Cost__c != null)
+                                    {
+                                        item.NokiaCPQ_Unitary_Cost__c = ((item.NokiaCPQ_Unitary_Cost__c / defaultExchangeRate.get(0).ConversionRate) * (this.proposalSO.exchange_rate__c)).setScale(5, RoundingMode.HALF_UP);
+                                    }
+                                }
+                            }
+                            else if (!portfolioSettingList.isEmpty() && item.NokiaCPQ_Unitary_Cost_Initial__c != null)
+                            {
+                                item.NokiaCPQ_Unitary_Cost__c = ((item.NokiaCPQ_Unitary_Cost_Initial__c / defaultExchangeRate.get(0).ConversionRate) * (this.proposalSO.exchange_rate__c)).setScale(5, RoundingMode.HALF_UP);
+                            }
+                        }
+                        else if (productPriceMap != null)
+                        {
+                            if (item.Apttus_Config2__LineType__c.equalsIgnoreCase(Nokia_CPQ_Constants.NOKIA_OPTION) && this.proposalSO.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Nokia_CPQ_Constants.NOKIA_SOFTWARE) && configType.equalsIgnoreCase('Standalone') && !mainBundleList.isEmpty() && !mainBundleList.contains(String.valueOf(item.Apttus_Config2__ParentBundleNumber__c)))
+                            {
+                                item.NokiaCPQ_Unitary_IRP__c = 0.00;
+                            }
+                            else
+                            {
+                                if (item.Apttus_Config2__LineType__c.equalsIgnoreCase(Nokia_CPQ_Constants.NOKIA_PRODUCT_SERVICES))
+                                {
+                                    item.NokiaCPQ_Unitary_IRP__c = (productPriceMap.get(item.Apttus_Config2__ProductId__c) * (this.proposalSO.exchange_rate__c)).setScale(5, RoundingMode.HALF_UP);
+                                }
+                                else
+                                {
+                                    item.NokiaCPQ_Unitary_IRP__c = (productPriceMap.get(item.Apttus_Config2__OptionId__c) * (this.proposalSO.exchange_rate__c)).setScale(5, RoundingMode.HALF_UP);
+                                }
+                            }
+
+                            //Setting the Cost
+                            if (!portfolioSettingList.isEmpty() && portfolioSettingList[0].Cost_Calculation_In_PCB__c == true)
+                            {
+                                item.NokiaCPQ_Unitary_Cost__c = 0.00;
+                                if (item.Apttus_Config2__LineType__c.equalsIgnoreCase(Nokia_CPQ_Constants.NOKIA_PRODUCT_SERVICES) && productCostMap.get(item.Apttus_Config2__ProductId__c) != null)
+                                {
+                                    //ADDED BY PRIYANKA 
+                                    if (item.Advanced_pricing_done__c)
+                                    {
+                                        item.NokiaCPQ_Unitary_Cost__c = ((item.NokiaCPQ_Unitary_Cost__c / defaultExchangeRate.get(0).ConversionRate) * (this.proposalSO.exchange_rate__c)).setScale(5, RoundingMode.HALF_UP);
+                                    }
+                                    else
+                                    {
+                                        item.NokiaCPQ_Unitary_Cost__c = (productCostMap.get(item.Apttus_Config2__ProductId__c) * (this.proposalSO.exchange_rate__c)).setScale(5, RoundingMode.HALF_UP);
+                                    }
+                                }
+                                else if (!item.Apttus_Config2__LineType__c.equalsIgnoreCase(Nokia_CPQ_Constants.NOKIA_PRODUCT_SERVICES) && productCostMap.get(item.Apttus_Config2__OptionId__c) != null)
+                                {
+                                    //ADDED BY PRIYANKA 
+                                    if (item.Advanced_pricing_done__c)
+                                    {
+                                        item.NokiaCPQ_Unitary_Cost__c = ((item.NokiaCPQ_Unitary_Cost__c / defaultExchangeRate.get(0).ConversionRate) * (this.proposalSO.exchange_rate__c)).setScale(5, RoundingMode.HALF_UP);
+                                    }
+                                    else
+                                    {
+                                        item.NokiaCPQ_Unitary_Cost__c = (productCostMap.get(item.Apttus_Config2__OptionId__c) * (this.proposalSO.exchange_rate__c)).setScale(5, RoundingMode.HALF_UP);
+                                    }
+                                }
+                            }
+                            else if (!portfolioSettingList.isEmpty() && item.NokiaCPQ_Unitary_Cost_Initial__c != null)
+                            {
+                                item.NokiaCPQ_Unitary_Cost__c = ((item.NokiaCPQ_Unitary_Cost_Initial__c / defaultExchangeRate.get(0).ConversionRate) * (this.proposalSO.exchange_rate__c)).setScale(5, RoundingMode.HALF_UP);
+                            }
+                        }
+
+                        item.NokiaCPQ_Unitary_IRP__c = item.NokiaCPQ_Unitary_IRP__c.setScale(2, RoundingMode.HALF_UP);
+                        if (item.NokiaCPQ_Unitary_Cost__c != null)
+                            item.NokiaCPQ_Unitary_Cost__c = item.NokiaCPQ_Unitary_Cost__c.setScale(2, RoundingMode.HALF_UP);
+
+                        if (!mainBundleList.isEmpty() && mainBundleList.contains(String.valueOf(item.Apttus_Config2__ParentBundleNumber__c)))
+                        {
+                            item.NokiaCPQ_Is_Direct_Option__c = true;
+                        }
+
+                        //The piece of code mentioned below is used fro addingm Maintenance line on MN Direct quotes
+                        if (this.proposalSO.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Nokia_CPQ_Constants.AIRSCALE_WIFI_STRING))
+                        {
+                            for (NokiaCPQ_MN_Direct_Product_Map__mdt MN_Direct_rec : MN_Direct_Products_List)
+                            {
+                                if (MN_Direct_rec.NokiaCPQ_Product_Code__c.contains(partNumber))
+                                {
+                                    item.NokiaCPQ_Product_Type__c = MN_Direct_rec.NokiaCPQ_Product_Type__c;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             await Task.CompletedTask;
         }
 
@@ -262,6 +561,38 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             }
 
             return partNumber;
+        }
+
+        string getConfigType(LineItemModel lineItemModel)
+        {
+            string configType = string.Empty;
+
+            if (lineItemModel.GetLineType() == LineType.ProductService)
+            {
+                configType = lineItemModel.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_Apttus_Config2__ConfigurationType__c);
+            }
+            else
+            {
+                configType = lineItemModel.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_Apttus_Config2__ConfigurationType__c);
+            }
+
+            return configType;
+        }
+
+        private string getProductDiscountCategory(LineItemModel lineItemModel)
+        {
+            string productDiscountCat = string.Empty;
+
+            if (lineItemModel.GetLineType() == LineType.ProductService)
+            {
+                productDiscountCat = lineItemModel.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_NokiaCPQ_Product_Discount_Category__c);
+            }
+            else
+            {
+                productDiscountCat = lineItemModel.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_NokiaCPQ_Product_Discount_Category__c);
+            }
+
+            return productDiscountCat;
         }
     }
 }

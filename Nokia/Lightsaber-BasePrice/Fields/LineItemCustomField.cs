@@ -37,5 +37,6 @@
         public const string NokiaCPQ_Light_Color__c = "NokiaCPQ_Light_Color__c";
         public const string NokiaCPQ_Maximum_IRP_Discount__c = "NokiaCPQ_Maximum_IRP_Discount__c";
         public const string NokiaCPQ_IRP_Discount__c = "NokiaCPQ_IRP_Discount__c";
+        public const string NokiaCPQ_Account_Region__c = "NokiaCPQ_Account_Region__c";
     }
 }

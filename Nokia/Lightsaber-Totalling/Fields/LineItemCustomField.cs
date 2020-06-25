@@ -39,5 +39,10 @@
         //GP: This field is also available on proposal, sometimes why are we accessing this from line item object.
         public const string Is_List_Price_Only__c = "Is_List_Price_Only__c";
         public const string Custom_Product_Code__c = "Custom_Product_Code__c";
+        public const string NokiaCPQ_SRSBasePrice__c = "NokiaCPQ_SRSBasePrice__c";
+        public const string NokiaCPQ_CareSRSBasePrice__c = "NokiaCPQ_CareSRSBasePrice__c";
+        public const string Nokia_Maint_Y1_Per__c = "Nokia_Maint_Y1_Per__c";
+        public const string Nokia_Maint_Y2_Per__c = "Nokia_Maint_Y2_Per__c";
+        
     }
 }
