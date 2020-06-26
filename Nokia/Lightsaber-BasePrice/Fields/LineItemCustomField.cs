@@ -49,7 +49,11 @@
         public const string Product_Extension__c = "Product_Extension__c";
 
         public const string Is_List_Price_Only__c = "Is_List_Price_Only__c";
+        public const string NokiaCPQ_Is_Direct_Option__c = "NokiaCPQ_Is_Direct_Option__c";
 
-        
+        public const string Nokia_Maint_Y1_Per__c = "Nokia_Maint_Y1_Per__c";
+        public const string Nokia_Maint_Y2_Per__c = "Nokia_Maint_Y2_Per__c";
+        public const string NokiaCPQ_SSP_Rate__c = "NokiaCPQ_SSP_Rate__c";
+        public const string NokiaCPQ_SRS_Rate__c = "NokiaCPQ_SRS_Rate__c";
     }
 }
