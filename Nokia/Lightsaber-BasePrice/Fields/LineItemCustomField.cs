@@ -55,5 +55,7 @@
         public const string Nokia_Maint_Y2_Per__c = "Nokia_Maint_Y2_Per__c";
         public const string NokiaCPQ_SSP_Rate__c = "NokiaCPQ_SSP_Rate__c";
         public const string NokiaCPQ_SRS_Rate__c = "NokiaCPQ_SRS_Rate__c";
+
+        public const string NokiaCPQ_Unitary_Cost_Initial__c = "NokiaCPQ_Unitary_Cost_Initial__c";
     }
 }
