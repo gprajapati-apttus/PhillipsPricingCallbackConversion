@@ -26,6 +26,9 @@
         public const string Maintenance_Y2__c = "Maintenance_Y2__c";
         public const string SSP__c = "SSP__c";
         public const string SRS__c = "SRS__c";
+        public const string NokiaProductAccreditation__c = "NokiaProductAccreditation__c";
+        public const string NokiaCPQ_Maintenance_Accreditation__c = "NokiaCPQ_Maintenance_Accreditation__c";
+        
     }
 
     public class ProposalRelationshipField
@@ -46,5 +49,7 @@
         public const string Apttus_Proposal__Account__r_NokiaCPQ_Attachment__c = "Apttus_Proposal__Account__r.NokiaCPQ_Attachment__c";
         public const string Apttus_Proposal__Account__r_CountryCode__c = "Apttus_Proposal__Account__r.CountryCode__c";
         public const string Apttus_Proposal__Account__r_L7Name__c = "Apttus_Proposal__Account__r.L7Name__c";
+        public const string NokiaProductAccreditation__r_NokiaCPQ_Incoterm_Percentage__c = "NokiaProductAccreditation__r.NokiaCPQ_Incoterm_Percentage__c";
+        
     }
 }

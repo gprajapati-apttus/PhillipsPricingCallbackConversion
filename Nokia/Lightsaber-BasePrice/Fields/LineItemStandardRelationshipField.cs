@@ -22,5 +22,10 @@
 
         public const string Apttus_Config2__ProductId__r_IsSSP__c = "Apttus_Config2__ProductId__r.IsSSP__c";
         public const string Apttus_Config2__PriceListItemId__r_Apttus_Config2__PriceListId__c = "Apttus_Config2__PriceListItemId__r.Apttus_Config2__PriceListId__c";
+
+        public const string Apttus_Config2__ProductId__r_Is_Dummy_Bundle_CPQ__c = "Apttus_Config2__ProductId__r.Is_Dummy_Bundle_CPQ__c";
+        public const string Apttus_Config2__OptionId__r_Is_Dummy_Bundle_CPQ__c = "Apttus_Config2__OptionId__r.Is_Dummy_Bundle_CPQ__c";
+        public const string Apttus_Config2__ProductId__r_Portfolio__c = "Apttus_Config2__ProductId__r.Portfolio__c";
+        
     }
 }

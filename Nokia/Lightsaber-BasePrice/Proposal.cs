@@ -94,11 +94,59 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             }
         }
 
+        public string NokiaProductAccreditation__c
+        {
+            get
+            {
+                return Get<string>(ProposalField.NokiaProductAccreditation__c);
+            }
+        }
+
+        public string NokiaCPQ_Maintenance_Accreditation__c
+        {
+            get
+            {
+                return Get<string>(ProposalField.NokiaCPQ_Maintenance_Accreditation__c);
+            }
+        }
+
+        public string NokiaCPQ_Maintenance_Level__c
+        {
+            get
+            {
+                return Get<string>(ProposalField.NokiaCPQ_Maintenance_Level__c);
+            }
+        }
+
+        public bool? NokiaCPQ_IsPMA__c
+        {
+            get
+            {
+                return Get<bool?>(ProposalField.NokiaCPQ_IsPMA__c);
+            }
+        }
+
         public string Apttus_Proposal__Account__r_GEOLevel1ID__c
         {
             get
             {
                 return Get<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_GEOLevel1ID__c);
+            }
+        }
+
+        public string NokiaCPQ_Maintenance_Accreditation__r_Pricing_Accreditation__c
+        {
+            get
+            {
+                return Get<string>(ProposalRelationshipField.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Accreditation__c);
+            }
+        }
+
+        public string NokiaProductAccreditation__r_Pricing_Accreditation__c
+        {
+            get
+            {
+                return Get<string>(ProposalRelationshipField.NokiaProductAccreditation__r_Pricing_Accreditation__c);
             }
         }
 
@@ -125,6 +173,16 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 return Get<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_Partner_Program__c);
             }
         }
+
+        public string NokiaProductAccreditation__r_NokiaCPQ_Incoterm_Percentage__c
+        {
+            get
+            {
+                return Get<string>(ProposalRelationshipField.NokiaProductAccreditation__r_NokiaCPQ_Incoterm_Percentage__c);
+            }
+        }
+
+        
 
         public string Apttus_Proposal__Account__r_Partner_Type__c
         {
