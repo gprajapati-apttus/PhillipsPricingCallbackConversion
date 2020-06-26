@@ -430,7 +430,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
 
                             if (batchLineItem.Entity.Cost != null)
                             {
-                                if (batchLineItem.Advanced_pricing_done__c() == false)
+                                if (batchLineItem.Get<bool?>(LineItemCustomField.Advanced_pricing_done__c) == false)
                                 {
                                     batchLineItem.Set(LineItemCustomField.NokiaCPQ_Unitary_Cost__c,
                                         pricingHelper.ApplyRounding(((batchLineItem.Entity.Cost / defaultExchangeRate) * (proposal.exchange_rate__c)), 5, RoundingMode.HALF_UP));
