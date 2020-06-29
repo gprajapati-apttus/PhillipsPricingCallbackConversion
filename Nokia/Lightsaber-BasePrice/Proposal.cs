@@ -180,9 +180,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             {
                 return Get<string>(ProposalRelationshipField.NokiaProductAccreditation__r_NokiaCPQ_Incoterm_Percentage__c);
             }
-        }
-
-        
+        }     
 
         public string Apttus_Proposal__Account__r_Partner_Type__c
         {
@@ -192,6 +190,45 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             }
         }
 
+        public bool? Apttus_Proposal__Account__r_NokiaCPQ_Renewal__c
+        {
+            get
+            {
+                return Get<bool?>(ProposalRelationshipField.Apttus_Proposal__Account__r_NokiaCPQ_Renewal__c);
+            }
+        }
+
+        public bool? Apttus_Proposal__Account__r_NokiaCPQ_Attachment__c
+        {
+            get
+            {
+                return Get<bool?>(ProposalRelationshipField.Apttus_Proposal__Account__r_NokiaCPQ_Attachment__c);
+            }
+        }
+
+        public bool? Apttus_Proposal__Account__r_NokiaCPQ_Performance__c
+        {
+            get
+            {
+                return Get<bool?>(ProposalRelationshipField.Apttus_Proposal__Account__r_NokiaCPQ_Performance__c);
+            }
+        }
+
+        public bool? NokiaCPQ_Is_Maintenance_Quote__c
+        {
+            get
+            {
+                return Get<bool?>(ProposalField.NokiaCPQ_Is_Maintenance_Quote__c);
+            }
+        }
+
+        public string Warranty_credit__c
+        {
+            get
+            {
+                return Get<string>(ProposalField.Warranty_credit__c);
+            }
+        }
 
         private readonly Dictionary<string, object> proposal;
 

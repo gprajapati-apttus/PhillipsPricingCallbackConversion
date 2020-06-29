@@ -11,14 +11,14 @@ namespace Apttus.Lightsaber.Phillips.Pricing
 {
     public class PricingBasePriceCallbackHelper
     {
-        private readonly Dictionary<string, object> proposal = null;
+        private readonly Proposal proposal = null;
         HashSet<decimal> lineNumWithLocalBundleSet = new HashSet<decimal>();
         private readonly IDBHelper dBHelper = null;
         private readonly IPricingHelper pricingHelper = null;
 
         public PricingBasePriceCallbackHelper(Dictionary<string, object> proposal, IDBHelper dBHelper, IPricingHelper pricingHelper)
         {
-            this.proposal = proposal;
+            this.proposal = new Proposal(proposal);
             this.dBHelper = dBHelper;
             this.pricingHelper = pricingHelper;
         }
@@ -325,7 +325,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
             HashSet<string> contractNumberSet = new HashSet<string>();
             var priceListItemIdSet = lineItems.Select(li => li.GetPriceListItem().Entity.Id).ToHashSet();
 
-            if (proposal[ProposalField.Account_Sold_to__c] != null)
+            if (proposal.Account_Sold_to__c != null)
             {
                 var pliTierQuery = QueryHelper.GetPLITierQuery(priceListItemIdSet);
 
@@ -343,12 +343,12 @@ namespace Apttus.Lightsaber.Phillips.Pricing
         {
             Dictionary<string, string> agreementTierDictionary = new Dictionary<string, string>();
             
-            if (proposal[ProposalField.Account_Sold_to__c] != null)
+            if (proposal.Account_Sold_to__c != null)
             {
                 HashSet<string> pliRelatedAgreementSet = pliDictionary.Values.Where(pli => pli.Apttus_Config2__PriceListId__r.APTS_Related_Agreement__c != null).
                                                         Select(pli => pli.Apttus_Config2__PriceListId__r.APTS_Related_Agreement__c).ToHashSet();
 
-                List<AccountContractQueryModel> agreementTierDetails = await QueryHelper.ExecuteAgreementTierQuery(dBHelper, pliRelatedAgreementSet, proposal[ProposalField.Account_Sold_to__c] as string);
+                List<AccountContractQueryModel> agreementTierDetails = await QueryHelper.ExecuteAgreementTierQuery(dBHelper, pliRelatedAgreementSet, proposal.Account_Sold_to__c);
                 foreach (var agreementTierDetail in agreementTierDetails)
                 {
                     agreementTierDictionary.Add(agreementTierDetail.APTS_Agreement_Group__c, agreementTierDetail.APTS_Volume_Tier__c);

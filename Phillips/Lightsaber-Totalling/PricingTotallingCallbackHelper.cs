@@ -11,14 +11,14 @@ namespace Apttus.Lightsaber.Phillips.Totalling
 {
     public class PricingTotallingCallbackHelper
     {
-        private Dictionary<string, object> proposal;
+        private Proposal proposal;
         private Dictionary<string, PriceListItemQueryModel> pliDictionary;
         private IDBHelper dBHelper = null;
         private IPricingHelper pricingHelper = null;
 
         public PricingTotallingCallbackHelper(Dictionary<string, object> proposal, IDBHelper dBHelper, IPricingHelper pricingHelper)
         {
-            this.proposal = proposal;
+            this.proposal = new Proposal(proposal);
             this.dBHelper = dBHelper;
             this.pricingHelper = pricingHelper;
         }
@@ -756,8 +756,8 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                 }
                 else
                 {
-                    cartLineItem.Set(LineItemCustomField.APTS_Payment_Term__c, proposal[ProposalField.Apttus_Proposal__Payment_Term__c]);
-                    cartLineItem.Set(LineItemCustomField.APTS_Inco_Term__c, proposal[ProposalField.APTS_Inco_Term__c]);
+                    cartLineItem.Set(LineItemCustomField.APTS_Payment_Term__c, proposal.Apttus_Proposal__Payment_Term__c);
+                    cartLineItem.Set(LineItemCustomField.APTS_Inco_Term__c, proposal.APTS_Inco_Term__c);
                 }
 
                 if (cartLineItem.GetLineType() == LineType.Option)

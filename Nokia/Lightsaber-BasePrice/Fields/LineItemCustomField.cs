@@ -73,5 +73,29 @@
         public const string NokiaCPQ_Multi_Yr_Per__c = "NokiaCPQ_Multi_Yr_Per__c";
         public const string NokiaCPQ_Maint_Accreditation_Discount__c = "NokiaCPQ_Maint_Accreditation_Discount__c";
         public const string NokiaCPQ_Total_Maintenance_Discount__c = "NokiaCPQ_Total_Maintenance_Discount__c";
+        public const string NokiaCPQ_Accreditation_Discount__c = "NokiaCPQ_Accreditation_Discount__c";
+        public const string NokiaCPQ_Static_Bundle_Option__c = "NokiaCPQ_Static_Bundle_Option__c";
+        public const string Nokia_CPQ_Maint_Prod_Cat_Disc__c = "Nokia_CPQ_Maint_Prod_Cat_Disc__c";
+
+        public const string is_custom_Product__c = "is_custom_Product__c";
+        public const string Nokia_SSP_List_Price__c = "Nokia_SSP_List_Price__c";
+        public const string Nokia_SSP_Base_Price__c = "Nokia_SSP_Base_Price__c";
+
+        public const string Nokia_SRS_List_Price__c = "Nokia_SRS_List_Price__c";
+        public const string Nokia_SRS_Base_Price__c = "Nokia_SRS_Base_Price__c";
+        public const string NokiaCPQ_Maint_Y1_List_Price__c = "NokiaCPQ_Maint_Y1_List_Price__c";
+        public const string Nokia_Maint_Y1_Extended_List_Price__c = "Nokia_Maint_Y1_Extended_List_Price__c";
+
+        public const string NokiaCPQ_Maint_Yr2_List_Price__c = "NokiaCPQ_Maint_Yr2_List_Price__c";
+        public const string NokiaCPQ_Maint_Yr2_Extended_List_Price__c = "NokiaCPQ_Maint_Yr2_Extended_List_Price__c";
+
+        public const string NokiaCPQ_Maint_Yr1_Base_Price__c = "NokiaCPQ_Maint_Yr1_Base_Price__c";
+        public const string NokiaCPQ_Maint_Yr2_Base_Price__c = "NokiaCPQ_Maint_Yr2_Base_Price__c";
+        public const string NokiaCPQ_Category__c = "NokiaCPQ_Category__c";
+        public const string Product_Number_Of_Ports__c = "Product_Number_Of_Ports__c";
+
+        public const string Is_FBA__c = "Is_FBA__c";
+        public const string Is_P2P__c = "Is_P2P__c";
+        
     }
 }

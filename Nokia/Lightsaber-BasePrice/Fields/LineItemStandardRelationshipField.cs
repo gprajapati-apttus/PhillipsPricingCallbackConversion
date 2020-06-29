@@ -26,6 +26,9 @@
         public const string Apttus_Config2__ProductId__r_Is_Dummy_Bundle_CPQ__c = "Apttus_Config2__ProductId__r.Is_Dummy_Bundle_CPQ__c";
         public const string Apttus_Config2__OptionId__r_Is_Dummy_Bundle_CPQ__c = "Apttus_Config2__OptionId__r.Is_Dummy_Bundle_CPQ__c";
         public const string Apttus_Config2__ProductId__r_Portfolio__c = "Apttus_Config2__ProductId__r.Portfolio__c";
+
+        public const string Apttus_Config2__OptionId__r_Number_of_GE_Ports__c = "Apttus_Config2__OptionId__r.Number_of_GE_Ports__c";
+        public const string Apttus_Config2__ProductId__r_Number_of_GE_Ports__c = "Apttus_Config2__ProductId__r.Number_of_GE_Ports__c";
         
     }
 }
