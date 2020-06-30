@@ -45,6 +45,8 @@
         public const string Nokia_Maint_Y2_Per__c = "Nokia_Maint_Y2_Per__c";
         public const string Reference_Price__c = "Reference_Price__c";
         public const string Equivalent_Price__c = "Equivalent_Price__c";
-        
+        public const string Total_Option_Quantity__c = "Total_Option_Quantity__c";
+        public const string NokiaCPQ_Extended_CUP_2__c = "NokiaCPQ_Extended_CUP_2__c";
+        public const string NokiaCPQ_Extended_IRP2__c = "NokiaCPQ_Extended_IRP2__c"; 
     }
 }

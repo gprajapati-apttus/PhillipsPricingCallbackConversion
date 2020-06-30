@@ -30,7 +30,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
             await pcbHelper.CalculatePricePointsForBundle(cartLineItems);
         }
 
-        public async Task FinishAsync(AggregateCartRequest aggregateCartRequest)
+        public async Task OnCartPricingCompleteAsync(AggregateCartRequest aggregateCartRequest)
         {
             await pcbHelper.PopulateCustomFields(cartLineItems);
             await pcbHelper.SetRollupsAndThresholdFlags(aggregateCartRequest.Cart, cartLineItems);

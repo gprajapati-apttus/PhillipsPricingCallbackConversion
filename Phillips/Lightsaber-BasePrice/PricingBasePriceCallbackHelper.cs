@@ -1,4 +1,4 @@
-﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Implementation;
+﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Extension;
 using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
 using Apttus.Lightsaber.Pricing.Common.Constants;
 using Apttus.Lightsaber.Pricing.Common.Entities;
