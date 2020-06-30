@@ -96,6 +96,15 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             return query;
         }
 
+        public static async Task<List<ProductDiscountQueryModel>> ExecuteProductDiscountQuery(IDBHelper dBHelper, string market, List<string> discountCategories)
+        {
+            return await dBHelper.FindAsync<ProductDiscountQueryModel>("Product_Discount__c",
+                                s => (s.Market__c == market) && (discountCategories.Contains(s.Product_Discount_Category__c) || s.Product_Discount_Category__c == null), 
+                                new string[] { "Id", "Name", "Product_Discount_Category__c", "Market__c", "Discount__c" });
+        }
+
+        //[select id, name, Product_Discount_Category__c, Market__c, Discount__c from Product_Discount__c where Market__c =: market AND(Product_Discount_Category__c in: discountCatgory OR Product_Discount_Category__c = null)];
+
         //public static Query GetPLIPriceMultiplierQuery(IEnumerable<string> spooProdIds)
         //{
         //    Query query = new Query();

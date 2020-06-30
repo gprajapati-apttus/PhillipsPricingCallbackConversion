@@ -846,8 +846,6 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                             }
                         }
                         //Heema : Req 6593 End:
-                        decimal? maintY1Percent = 0;
-                        decimal? maintY2Percent = 0;
 
                         //Varsha: start: Changes for Req #4920
                         //Removed item.portfolio formula field and used proposal.NokiaCPQ_Portfolio__c

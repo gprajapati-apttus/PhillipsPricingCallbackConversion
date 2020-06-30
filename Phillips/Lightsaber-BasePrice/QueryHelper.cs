@@ -74,7 +74,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
             query.Conditions = new List<FilterCondition>()
                 {
                         new FilterCondition() { FieldName = "APTS_Local_Bundle_Header__r.APTS_Active__c", Value = true, ComparisonOperator = ConditionOperator.EqualTo},
-                        new FilterCondition() { FieldName = " APTS_Local_Bundle_Header__r.APTS_Parent_Local_Bundle__c", Value = localBundleOptionSet, ComparisonOperator = ConditionOperator.In}
+                        new FilterCondition() { FieldName = "APTS_Local_Bundle_Header__r.APTS_Parent_Local_Bundle__c", Value = localBundleOptionSet, ComparisonOperator = ConditionOperator.In}
                 };
             query.Fields = new string[] {
                                             "Id", "APTS_Local_Bundle_Header__r.APTS_Local_Bundle__c", "APTS_Local_Bundle_Header__r.APTS_Parent_Bundle__c", "APTS_Local_Bundle_Header__r.APTS_Parent_Local_Bundle__c","APTS_Local_Bundle_Header__r.Id",

@@ -813,6 +813,11 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
         public async Task AfterPricingCartAdjustmentAsync(AggregateCartRequest aggregateCartRequest)
         {
+            if (proposal.Quote_Type__c.equalsIgnoreCase("Direct DS") || proposal.Quote_Type__c.equalsIgnoreCase("Indirect DS"))
+            {
+                await calculateEquivalentPrice();
+            }
+
             await Task.CompletedTask;
         }
 
@@ -1256,6 +1261,149 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             }
 
             return licenseUsage;
+        }
+
+
+        private async Task calculateEquivalentPrice()
+        {
+            var allLineItems = cartLineItems;
+            string market = proposal.Account_Market__c;
+
+            Dictionary<string, decimal?> mapcategoryDiscount = new Dictionary<string, decimal?>();
+            Dictionary<string, string> mapLineCategory = new Dictionary<string, string>();
+            List<string> discountCatgories = new List<string>();
+            Dictionary<int, List<LineItemModel>> mapBundlelineOption = new Dictionary<int, List<LineItemModel>>();
+            Dictionary<decimal?, decimal?> mapBundlelineNContractPrice = new Dictionary<decimal?, decimal?>();
+            Dictionary<decimal?, decimal?> mapBundlelineNReferencePrice = new Dictionary<decimal?, decimal?>();
+            List<LineItemModel> nonContractedLines = new List<LineItemModel>();
+            List<ProductDiscountQueryModel> productDisc = new List<ProductDiscountQueryModel>();
+            HashSet<string> pricelistItemId = new HashSet<string>();
+            HashSet<string> ContractedPriceItems = new HashSet<string>();
+            Dictionary<string, decimal?> mapPLIToContractprice = new Dictionary<string, decimal?>();
+            decimal? marketdisc = null;
+
+            foreach (var lineitem in cartLineItems)
+            {
+                pricelistItemId.Add(lineitem.Entity.PriceListItemId);
+            }
+
+            var priceListItems = cartLineItems.Select(c => c.GetPriceListItem()).Distinct();
+
+            if (priceListItems.Any())
+            {
+                foreach (var priceItem in priceListItems)
+                {
+                    if (priceItem.Entity.ContractPrice != null && priceItem.Entity.ContractPrice != 0)
+                    {
+                        ContractedPriceItems.Add(priceItem.Entity.Id);
+                        mapPLIToContractprice.Add(priceItem.Entity.Id, priceItem.Entity.ContractPrice);
+                    }
+                }
+            }
+
+            foreach (var lineitem in cartLineItems)
+            {
+                String productCatDiscount = getProductDiscountCategory(lineitem);
+
+                if (ContractedPriceItems.Contains(lineitem.Entity.PriceListItemId))
+                {
+                    lineitem.Set(LineItemCustomField.Reference_Price__c, mapPLIToContractprice[lineitem.Entity.PriceListItemId]);
+                }
+                else
+                {
+                    discountCatgories.Add(productCatDiscount);
+                    mapLineCategory.Add(lineitem.Entity.Id, productCatDiscount);
+                    nonContractedLines.Add(lineitem);
+                }
+
+                List<LineItemModel> optionlinelist = new List<LineItemModel>();
+
+                if (mapBundlelineOption.ContainsKey(lineitem.GetLineNumber()))
+                {
+                    optionlinelist = mapBundlelineOption[lineitem.GetLineNumber()];
+                }
+
+                optionlinelist.Add(lineitem);
+                mapBundlelineOption.Add(lineitem.GetLineNumber(), optionlinelist);
+            }
+
+            productDisc = await QueryHelper.ExecuteProductDiscountQuery(dBHelper, market, discountCatgories);
+
+            foreach (var categorydiscount in productDisc)
+            {
+                if (categorydiscount.Product_Discount_Category__c == null)
+                {
+                    marketdisc = categorydiscount.Discount__c;
+                }
+                mapcategoryDiscount.Add(categorydiscount.Product_Discount_Category__c, categorydiscount.Discount__c);
+            }
+
+            foreach (var lineitem in nonContractedLines)
+            {
+                //GP: Can LineType be Bundle ????
+                //if (!(lineitem.Apttus_Config2__LineType__c.equalsIgnoreCase('Bundle')))
+                //{
+                if (mapLineCategory.ContainsKey(lineitem.Entity.Id))
+                {
+                    if (mapcategoryDiscount.ContainsKey(mapLineCategory[lineitem.Entity.Id]))
+                    {
+                        decimal? discountPerc = mapcategoryDiscount[mapLineCategory[lineitem.Entity.Id]];
+                        lineitem.Set(LineItemCustomField.Reference_Price__c,
+                            (lineitem.Entity.ListPrice - (lineitem.Entity.ListPrice * (discountPerc / 100))));
+                    }
+                    else
+                    {
+                        lineitem.Set(LineItemCustomField.Reference_Price__c,
+                            (lineitem.Entity.ListPrice - (lineitem.Entity.ListPrice * (marketdisc / 100))));
+                    }
+                }
+                else
+                {
+                    lineitem.Set(LineItemCustomField.Reference_Price__c, lineitem.Entity.ListPrice);
+                }
+                //}
+            }
+
+            foreach (var lineitem in nonContractedLines)
+            {
+                string configType = getConfigType(lineitem);
+                decimal? bundleRefPrice = 0;
+                if (mapBundlelineOption.ContainsKey(lineitem.GetLineNumber()) && configType.equalsIgnoreCase("Bundle"))
+                {
+                    foreach (var option in mapBundlelineOption[lineitem.GetLineNumber()])
+                    {
+                        if (option.GetLineType() == LineType.Option)
+                        {
+                            bundleRefPrice = bundleRefPrice + (option.Get<decimal?>(LineItemCustomField.Reference_Price__c) * option.GetQuantity());
+                        }
+                    }
+
+                    lineitem.Set(LineItemCustomField.Reference_Price__c, bundleRefPrice);
+                    mapBundlelineNReferencePrice.Add(lineitem.GetLineNumber(), lineitem.Get<decimal?>(LineItemCustomField.Reference_Price__c));
+                    mapBundlelineNContractPrice.Add(lineitem.GetLineNumber(), mapPLIToContractprice[lineitem.Entity.PriceListItemId]);
+                }
+            }
+
+            foreach (var lineitem in nonContractedLines)
+            {
+                decimal? bundleRefPrice = 0;
+                decimal? BundleContractprice = 0;
+                if (mapBundlelineOption.ContainsKey(lineitem.GetLineNumber()) &&
+                   lineitem.GetLineType() == LineType.Option)
+                {
+                    if (mapBundlelineNReferencePrice.ContainsKey(lineitem.GetLineNumber()))
+                    {
+                        bundleRefPrice = mapBundlelineNReferencePrice[lineitem.GetLineNumber()];
+                    }
+                    if (mapBundlelineNContractPrice.ContainsKey(lineitem.GetLineNumber()))
+                    {
+                        BundleContractprice = mapBundlelineNContractPrice[lineitem.GetLineNumber()];
+                    }
+
+                    lineitem.Set(LineItemCustomField.Equivalent_Price__c,
+                        (lineitem.Get<decimal?>(LineItemCustomField.Reference_Price__c) / bundleRefPrice) * BundleContractprice);
+                }
+            }
         }
     }
 }
