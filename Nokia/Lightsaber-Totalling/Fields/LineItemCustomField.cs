@@ -50,5 +50,10 @@
         public const string NokiaCPQ_Extended_IRP2__c = "NokiaCPQ_Extended_IRP2__c";
         public const string NokiaCPQ_Extended_Cost__c = "NokiaCPQ_Extended_Cost__c";
         public const string Sales_Margin__c = "Sales_Margin__c";
+        public const string Item_Type_From_CAT__c = "Item_Type_From_CAT__c";
+        public const string NokiaCPQ_Is_Direct_Option__c = "NokiaCPQ_Is_Direct_Option__c";
+        public const string NokiaCPQ_Floor_Price__c = "NokiaCPQ_Floor_Price__c";
+        public const string NokiaCPQ_Custom_Bid__c = "NokiaCPQ_Custom_Bid__c";
+        
     }
 }

@@ -1801,117 +1801,124 @@ namespace Apttus.Lightsaber.Nokia.Totalling
         {
             //system.debug('In Deal guidance');
             //CPQ Requirement : Traffic Light calculations For MN Direct
-            if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING) && !configType.equalsIgnoreCase('Bundle'))
+            if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING) && !configType.equalsIgnoreCase(Constants.BUNDLE))
             {
-                Boolean contractedPL = getCLP(item);
-                Boolean isOEM = getOEM(item);
-                Decimal maxIRPDiscount = getMaximumIRPDiscount(item);
-                String itemType = getItemType(item);
-                if (item.Apttus_Config2__ChargeType__c != Constants.STANDARD_PRICE && item.Apttus_Config2__LineType__c == Constants.NOKIA_PRODUCT_SERVICES)
+                bool? contractedPL = getCLP(item);
+                bool? isOEM = getOEM(item);
+                decimal? maxIRPDiscount = getMaximumIRPDiscount(item);
+                string itemType = getItemType(item);
+
+                if (item.Entity.ChargeType != Constants.STANDARD_PRICE && item.GetLineType() == LineType.ProductService)
                 {
-                    if (item.Apttus_Config2__NetAdjustmentPercent__c < 0 || (!contractedPL && item.NokiaCPQ_Extended_IRP__c != item.NokiaCPQ_Extended_CLP__c))
+                    if (item.Entity.NetAdjustmentPercent < 0 || (contractedPL == false && item.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_IRP__c) != item.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_CLP__c)))
                     {
-                        item.NokiaCPQ_Light_Color__c = Constants.RED;
+                        item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.RED);
                     }
                     else
-                        item.NokiaCPQ_Light_Color__c = Constants.GREEN;
+                    {
+                        item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.GREEN);
+                    }
                 }
                 else
                 {
-                    if (!contractedPL &&
-                    ((!isOEM && (itemType == Constants.HARDWARE_STRING || itemType == Constants.SOFTWARE_STRING)) ||
-                        (isOEM && (itemType == Constants.HARDWARE_STRING || itemType == Constants.SOFTWARE_STRING || itemType == Constants.SERVICE_STRING))))
+                    if (contractedPL == false &&
+                    ((isOEM == false && (itemType == Constants.HARDWARE_STRING || itemType == Constants.SOFTWARE_STRING)) ||
+                        (isOEM == true && (itemType == Constants.HARDWARE_STRING || itemType == Constants.SOFTWARE_STRING || itemType == Constants.SERVICE_STRING))))
                     {
-                        if (item.NokiaCPQ_IRP_Discount__c <= maxIRPDiscount)
+                        if (item.Get<decimal?>(LineItemCustomField.NokiaCPQ_IRP_Discount__c) <= maxIRPDiscount)
                         {
-                            item.NokiaCPQ_Light_Color__c = Constants.GREEN;
+                            item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.GREEN);
                         }
                         else
-                            item.NokiaCPQ_Light_Color__c = Constants.RED;
+                        {
+                            item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.RED);
+                        }
                     }
 
-                    if (contractedPL &&
-                    ((!isOEM && (itemType == Constants.HARDWARE_STRING || itemType == Constants.SOFTWARE_STRING)) ||
-                        (isOEM && (itemType == Constants.HARDWARE_STRING || itemType == Constants.SOFTWARE_STRING || itemType == Constants.SERVICE_STRING))))
+                    if (contractedPL == true &&
+                    ((isOEM == false && (itemType == Constants.HARDWARE_STRING || itemType == Constants.SOFTWARE_STRING)) ||
+                        (isOEM == true && (itemType == Constants.HARDWARE_STRING || itemType == Constants.SOFTWARE_STRING || itemType == Constants.SERVICE_STRING))))
                     {
-                        if (item.Apttus_Config2__NetAdjustmentPercent__c != 0)
+                        if (item.Entity.NetAdjustmentPercent != 0)
                         {
-                            item.NokiaCPQ_Light_Color__c = Constants.RED;
+                            item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.RED);
                         }
                         else
-                            item.NokiaCPQ_Light_Color__c = Constants.GREEN;
+                        {
+                            item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.GREEN);
+                        }
                     }
 
-                    if (!isOEM && itemType == Constants.SERVICE_STRING)
+                    if (isOEM == false && itemType == Constants.SERVICE_STRING)
                     {
-                        if (item.Apttus_Config2__NetAdjustmentPercent__c < 0 || item.NokiaCPQ_ExtendedPrice_CNP__c == 0 ||
-                     (!contractedPL && item.NokiaCPQ_Extended_IRP__c != item.NokiaCPQ_Extended_CLP__c))
+                        if (item.Entity.NetAdjustmentPercent < 0 || item.Get<decimal?>(LineItemCustomField.NokiaCPQ_ExtendedPrice_CNP__c) == 0 ||
+                     (contractedPL == false && item.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_IRP__c) != item.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_CLP__c)))
                         {
-                            item.NokiaCPQ_Light_Color__c = Constants.RED;
+                            item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.RED);
                         }
                         else
-                            item.NokiaCPQ_Light_Color__c = Constants.GREEN;
+                            item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.GREEN);
                     }
                 }
             }
             //CPQ Requirement : Traffic Light calculations For Direct NSW
-            else if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_SOFTWARE) && !configType.equalsIgnoreCase('Bundle'))
+            else if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_SOFTWARE) && !configType.equalsIgnoreCase(Constants.BUNDLE))
             {
-                Boolean contractedPL = getCLP(item);
-                Decimal maxIRPDiscount = getMaximumIRPDiscount(item);
-                Decimal minSalesMargin = getMinimumSalesMargin(item);
-                if (item.NokiaCPQ_Is_Direct_Option__c == true && ((item.Apttus_Config2__NetAdjustmentPercent__c != 0 && item.Apttus_Config2__NetAdjustmentPercent__c != null) ||
-                    ((item.Apttus_Config2__NetAdjustmentPercent__c == null || item.Apttus_Config2__NetAdjustmentPercent__c == 0) && !contractedPL)) && item.Item_Type_From_CAT__c == 'PS')
+                bool? contractedPL = getCLP(item);
+                decimal? maxIRPDiscount = getMaximumIRPDiscount(item);
+                decimal? minSalesMargin = getMinimumSalesMargin(item);
+
+                if (item.Get<bool?>(LineItemCustomField.NokiaCPQ_Is_Direct_Option__c) == true && ((item.Entity.NetAdjustmentPercent != 0 && item.Entity.NetAdjustmentPercent != null) ||
+                    ((item.Entity.NetAdjustmentPercent == null || item.Entity.NetAdjustmentPercent == 0) && contractedPL == false)) && item.Get<string>(LineItemCustomField.Item_Type_From_CAT__c) == "PS")
                 {
-                    if (item.Sales_Margin__c >= minSalesMargin)
+                    if (item.Get<decimal?>(LineItemCustomField.Sales_Margin__c) >= minSalesMargin)
                     {
-                        item.NokiaCPQ_Light_Color__c = Constants.GREEN;
+                        item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.GREEN);
                     }
                     else
                     {
-                        item.NokiaCPQ_Light_Color__c = Constants.RED;
+                        item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.RED);
                     }
                 }
 
-                if ((item.Apttus_Config2__NetAdjustmentPercent__c == 0 || item.Apttus_Config2__NetAdjustmentPercent__c == null) && (item.NokiaCPQ_Is_Direct_Option__c == true && contractedPL))
+                if ((item.Entity.NetAdjustmentPercent == 0 || item.Entity.NetAdjustmentPercent == null) && (item.Get<bool?>(LineItemCustomField.NokiaCPQ_Is_Direct_Option__c) == true && contractedPL == true))
                 {
-                    item.NokiaCPQ_Light_Color__c = Constants.GREEN;
+                    item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.GREEN);
                 }
 
-                if (item.NokiaCPQ_Is_Direct_Option__c == true && ((item.Apttus_Config2__NetAdjustmentPercent__c != null && item.Apttus_Config2__NetAdjustmentPercent__c != 0) ||
-                    ((item.Apttus_Config2__NetAdjustmentPercent__c == 0 || item.Apttus_Config2__NetAdjustmentPercent__c == null) && !contractedPL)) && item.Item_Type_From_CAT__c != 'PS')
+                if (item.Get<bool?>(LineItemCustomField.NokiaCPQ_Is_Direct_Option__c) == true && ((item.Entity.NetAdjustmentPercent != null && item.Entity.NetAdjustmentPercent != 0) ||
+                    ((item.Entity.NetAdjustmentPercent == 0 || item.Entity.NetAdjustmentPercent == null) && contractedPL == false)) && item.Get<string>(LineItemCustomField.Item_Type_From_CAT__c) != "PS")
                 {
-                    if (item.NokiaCPQ_IRP_Discount__c <= maxIRPDiscount)
+                    if (item.Get<decimal?>(LineItemCustomField.NokiaCPQ_IRP_Discount__c) <= maxIRPDiscount)
                     {
-                        item.NokiaCPQ_Light_Color__c = Constants.GREEN;
+                        item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.GREEN);
                     }
                     else
                     {
-                        item.NokiaCPQ_Light_Color__c = Constants.RED;
+                        item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.RED);
                     }
                 }
             }
             //Traffic Light calculations For QTC
-            else if (proposal.NokiaCPQ_Portfolio__c != null &&
-        proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase('QTC'))
+            else if (proposal.NokiaCPQ_Portfolio__c != null && proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase("QTC"))
             {
                 //system.debug('Entered guidance for QTC');
-                if (item.NokiaCPQ_Floor_Price__c == null)
+                if (item.Get<decimal?>(LineItemCustomField.NokiaCPQ_Floor_Price__c) == null)
                 {
-                    item.NokiaCPQ_Light_Color__c = Constants.RED;
+                    item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.RED);
                 }
-                else if ((item.Apttus_Config2__NetPrice__c < (item.Apttus_Config2__Quantity__c * item.NokiaCPQ_Floor_Price__c)) || item.NokiaCPQ_Custom_Bid__c)
+                else if ((item.Entity.NetPrice < (item.Entity.Quantity * item.Get<decimal?>(LineItemCustomField.NokiaCPQ_Floor_Price__c))) || item.Get<bool?>(LineItemCustomField.NokiaCPQ_Custom_Bid__c))
                 {
-                    item.NokiaCPQ_Light_Color__c = Constants.RED;
+                    item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.RED);
                 }
                 else if ((item.Apttus_Config2__NetPrice__c >= (item.Apttus_Config2__Quantity__c * item.NokiaCPQ_Floor_Price__c)) &&
                        (item.Apttus_Config2__NetPrice__c < (item.Apttus_Config2__Quantity__c * item.NokiaCPQ_Floor_Price__c * ((100 + pricingGuidanceSetting[0].Threshold__c) / 100))))
                 {
-                    item.NokiaCPQ_Light_Color__c = Constants.YELLOW;
+                    item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.YELLOW);
                 }
                 else
                 {
-                    item.NokiaCPQ_Light_Color__c = Constants.GREEN;
+                    item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.GREEN);
                 }
             }
             //Traffic Light calculations For Enterprise
@@ -1925,26 +1932,26 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 Boolean contractedPL = getCLP(item);
                 if (contractedPL && item.Apttus_Config2__NetAdjustmentPercent__c == 0)
                 {
-                    item.NokiaCPQ_Light_Color__c = Constants.GREEN;
+                    item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.GREEN);
                 }
                 else
                 {
                     if (item.NokiaCPQ_Floor_Price__c == null || item.NokiaCPQ_Custom_Bid__c)
                     {
-                        item.NokiaCPQ_Light_Color__c = Constants.RED;
+                        item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.RED);
                     }
                     else if (item.Apttus_Config2__NetPrice__c < (item.Apttus_Config2__Quantity__c * item.NokiaCPQ_Floor_Price__c))
                     {
-                        item.NokiaCPQ_Light_Color__c = Constants.RED;
+                        item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.RED);
                     }
                     else if ((item.Apttus_Config2__NetPrice__c >= (item.Apttus_Config2__Quantity__c * item.NokiaCPQ_Floor_Price__c)) &&
                 (item.Apttus_Config2__NetPrice__c < (item.Apttus_Config2__Quantity__c * item.NokiaCPQ_Floor_Price__c * ((100 + pricingGuidanceSetting[0].Threshold__c) / 100))))
                     {
-                        item.NokiaCPQ_Light_Color__c = Constants.YELLOW;
+                        item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.YELLOW);
                     }
                     else
                     {
-                        item.NokiaCPQ_Light_Color__c = Constants.GREEN;
+                        item.Set(LineItemCustomField.NokiaCPQ_Light_Color__c, Constants.GREEN);
                     }
                 }
             }
