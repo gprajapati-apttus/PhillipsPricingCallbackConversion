@@ -6,6 +6,7 @@ using Apttus.Lightsaber.Pricing.Common.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LineItemPropertyNames = Apttus.Lightsaber.Pricing.Common.Entities.LineItem.PropertyNames;
 
 namespace Apttus.Lightsaber.Phillips.Totalling
 {
@@ -23,72 +24,71 @@ namespace Apttus.Lightsaber.Phillips.Totalling
             this.pricingHelper = pricingHelper;
         }
 
-        public async Task IncentiveAdjustmentUnitRounding(List<LineItemModel> cartLineItems)
+        public async Task IncentiveAdjustmentUnitRounding(List<LineItem> cartLineItems)
         {
-            foreach (LineItemModel cartLineItem in cartLineItems)
+            foreach (LineItem cartLineItem in cartLineItems)
             {
-                var cartLineItemEntity = cartLineItem.Entity;
-                if (cartLineItemEntity.IncentiveBasePrice.HasValue && cartLineItemEntity.IncentiveBasePrice.Value != 0 && cartLineItemEntity.BasePrice.HasValue && cartLineItemEntity.BasePrice.Value != 0)
+                if (cartLineItem.IncentiveBasePrice.HasValue && cartLineItem.IncentiveBasePrice.Value != 0 && cartLineItem.BasePrice.HasValue && cartLineItem.BasePrice.Value != 0)
                 {
 
-                    decimal sellingTerm = cartLineItem.GetValuetOrDefault(LineItem.PropertyNames.SellingTerm, 1);
+                    decimal sellingTerm = cartLineItem.GetValuetOrDefault(LineItemPropertyNames.SellingTerm, 1);
                     decimal lineItemQ = cartLineItem.GetQuantity();
 
-                    decimal? unitIncentiveAmount = cartLineItemEntity.BasePrice - cartLineItemEntity.IncentiveBasePrice;
+                    decimal? unitIncentiveAmount = cartLineItem.BasePrice - cartLineItem.IncentiveBasePrice;
                     unitIncentiveAmount = unitIncentiveAmount.HasValue ? pricingHelper.ApplyRounding(unitIncentiveAmount.Value, 2, RoundingMode.HALF_EVEN) : unitIncentiveAmount;
 
-                    cartLineItem.Set(LineItemCustomField.APTS_Unit_Incentive_Adj_Amount__c, unitIncentiveAmount);
-                    cartLineItemEntity.IncentiveBasePrice = cartLineItemEntity.BasePrice - unitIncentiveAmount;
-                    cartLineItemEntity.IncentiveAdjustmentAmount = unitIncentiveAmount * lineItemQ * sellingTerm * -1;
+                    cartLineItem.APTS_Unit_Incentive_Adj_Amount__c = unitIncentiveAmount;
+                    cartLineItem.IncentiveBasePrice = cartLineItem.BasePrice - unitIncentiveAmount;
+                    cartLineItem.IncentiveAdjustmentAmount = unitIncentiveAmount * lineItemQ * sellingTerm * -1;
                 }
             }
 
             await Task.CompletedTask;
         }
 
-        public async Task SetDiscountWithAdjustmentSpread(List<LineItemModel> cartLineItems)
+        public async Task SetDiscountWithAdjustmentSpread(List<LineItem> cartLineItems)
         {
-            Dictionary<decimal, LineItemModel> bundleDiscountsDictionary = new Dictionary<decimal, LineItemModel>();
+            Dictionary<decimal, LineItem> bundleDiscountsDictionary = new Dictionary<decimal, LineItem>();
 
             foreach (var cartLineItem in cartLineItems)
             {
                 decimal? promotionDiscount = null;
                 
-                if (cartLineItem.Entity.IncentiveAdjustmentAmount.HasValue)
+                if (cartLineItem.IncentiveAdjustmentAmount.HasValue)
                 {
-                    promotionDiscount = FormatPrecisionCeiling(cartLineItem.Entity.IncentiveAdjustmentAmount.Value) * -1;
+                    promotionDiscount = FormatPrecisionCeiling(cartLineItem.IncentiveAdjustmentAmount.Value) * -1;
                 }
 
-                cartLineItem.Set(LineItemCustomField.APTS_Promotion_Discount_Amount_c__c, promotionDiscount);
+                cartLineItem.APTS_Promotion_Discount_Amount_c__c = promotionDiscount;
 
                 if (!cartLineItem.IsOptionLine())
                 {
                     bundleDiscountsDictionary.Add(cartLineItem.GetLineNumber(), cartLineItem);
                 }
 
-                decimal? adjustmentsAmount = bundleDiscountsDictionary[cartLineItem.GetLineNumber()].Entity.AdjustmentAmount;
+                decimal? adjustmentsAmount = bundleDiscountsDictionary[cartLineItem.GetLineNumber()].AdjustmentAmount;
 
                 if (adjustmentsAmount.HasValue)
                 {
                     adjustmentsAmount = FormatPrecisionCeiling(adjustmentsAmount.Value);
                 }
 
-                if(bundleDiscountsDictionary.ContainsKey(cartLineItem.GetLineNumber()) && cartLineItem.IsOptionLine() && cartLineItem.Entity.AllocateGroupAdjustment == true)
+                if(bundleDiscountsDictionary.ContainsKey(cartLineItem.GetLineNumber()) && cartLineItem.IsOptionLine() && cartLineItem.AllocateGroupAdjustment == true)
                 {
-                    if (bundleDiscountsDictionary[cartLineItem.GetLineNumber()].Entity.AdjustmentAmount != null &&
-                           bundleDiscountsDictionary[cartLineItem.GetLineNumber()].Entity.AdjustmentType != null)
+                    if (bundleDiscountsDictionary[cartLineItem.GetLineNumber()].AdjustmentAmount != null &&
+                           bundleDiscountsDictionary[cartLineItem.GetLineNumber()].AdjustmentType != null)
                     {
-                        string bundleAdjTYpe = bundleDiscountsDictionary[cartLineItem.GetLineNumber()].Entity.AdjustmentType;
+                        string bundleAdjTYpe = bundleDiscountsDictionary[cartLineItem.GetLineNumber()].AdjustmentType;
                         if (bundleAdjTYpe != Constants.PRICE_OVERRIDE && bundleAdjTYpe != Constants.DISCOUNT_AMOUNT)
                         {
-                            cartLineItem.Entity.AdjustmentType = bundleAdjTYpe;
-                            cartLineItem.Entity.AdjustmentAmount = adjustmentsAmount;
+                            cartLineItem.AdjustmentType = bundleAdjTYpe;
+                            cartLineItem.AdjustmentAmount = adjustmentsAmount;
                         }
                     }
-                    else if (cartLineItem.Entity.AdjustmentType == null)
+                    else if (cartLineItem.AdjustmentType == null)
                     {
-                        cartLineItem.Entity.AdjustmentType = null;
-                        cartLineItem.Entity.AdjustmentAmount = null;
+                        cartLineItem.AdjustmentType = null;
+                        cartLineItem.AdjustmentAmount = null;
                     }
                 }
             }
@@ -96,47 +96,45 @@ namespace Apttus.Lightsaber.Phillips.Totalling
             await Task.CompletedTask;
         }
 
-        public async Task ComputeNetPriceAndNetAdjustment(List<LineItemModel> cartLineItems)
+        public async Task ComputeNetPriceAndNetAdjustment(List<LineItem> cartLineItems)
         {
             Dictionary<string, decimal> mapBundleAdjustments = new Dictionary<string, decimal>();
             Dictionary<string, PricePointsWrapper> mapPricePoints = new Dictionary<string, PricePointsWrapper>();
 
             foreach(var cartLineItem in cartLineItems)
             {
-                cartLineItem.Entity.NetPrice = cartLineItem.GetLineType() == LineType.ProductService
-                                    ? cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Solution_Offered_Price__c)
-                                    : cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Offered_Price_c__c);
+                cartLineItem.NetPrice = cartLineItem.GetLineType() == LineType.ProductService
+                                    ? cartLineItem.APTS_Solution_Offered_Price__c
+                                    : cartLineItem.APTS_Offered_Price_c__c;
 
-                var cartLineItemEntity = cartLineItem.Entity;
-                string uniqIdentifier = cartLineItem.GetLineNumber() + cartLineItemEntity.ChargeType;
+                string uniqIdentifier = cartLineItem.GetLineNumber() + cartLineItem.ChargeType;
                 
-                if (cartLineItemEntity.OptionId == null)
+                if (cartLineItem.OptionId == null)
                 {
-                    if (!mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.PrimaryLineNumber))
+                    if (!mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.PrimaryLineNumber))
                     {
-                        mapPricePoints.Add(uniqIdentifier, new PricePointsWrapper(cartLineItem, pliDictionary.GetValueOrDefault(cartLineItemEntity.PriceListItemId), pricingHelper));
+                        mapPricePoints.Add(uniqIdentifier, new PricePointsWrapper(cartLineItem, pliDictionary.GetValueOrDefault(cartLineItem.PriceListItemId), pricingHelper));
                     }
                 }
-                else if (cartLineItemEntity.OptionId != null && cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_Apttus_Config2__ConfigurationType__c) 
-                    == Constants.CONFIGURATIONTYPE_BUNDLE)
+                else if (cartLineItem.OptionId != null && cartLineItem.Apttus_Config2__OptionId__r_Apttus_Config2__ConfigurationType__c == Constants.CONFIGURATIONTYPE_BUNDLE)
                 {
-                    if (!mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.PrimaryLineNumber))
+                    if (!mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.PrimaryLineNumber))
                     {
-                        mapPricePoints.Add(uniqIdentifier + cartLineItemEntity.PrimaryLineNumber, new PricePointsWrapper(cartLineItem, pliDictionary.GetValueOrDefault(cartLineItemEntity.PriceListItemId), pricingHelper));
+                        mapPricePoints.Add(uniqIdentifier + cartLineItem.PrimaryLineNumber, new PricePointsWrapper(cartLineItem, pliDictionary.GetValueOrDefault(cartLineItem.PriceListItemId), pricingHelper));
                     }
                 }
                 else
                 {
-                    if (cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_List_Price__c).HasValue && !cartLineItem.IsOptional())
+                    if (cartLineItem.APTS_Extended_List_Price__c.HasValue && cartLineItem.IsOptional == false)
                     {
                         if (mapPricePoints.ContainsKey(uniqIdentifier))
                         {
-                            mapPricePoints[uniqIdentifier].listPrice += cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_List_Price__c).Value;
+                            mapPricePoints[uniqIdentifier].listPrice += cartLineItem.APTS_Extended_List_Price__c.Value;
                         }
 
-                        if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.ParentBundleNumber))
+                        if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.ParentBundleNumber))
                         {
-                            mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].listPrice += cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_List_Price__c).Value;
+                            mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].listPrice += cartLineItem.APTS_Extended_List_Price__c.Value;
                         }
                     }
                 }
@@ -144,25 +142,24 @@ namespace Apttus.Lightsaber.Phillips.Totalling
 
             foreach (var cartLineItem in cartLineItems)
             {
-                var cartLineItemEntity = cartLineItem.Entity;
-                string uniqIdentifier = cartLineItem.GetLineNumber() + cartLineItemEntity.ChargeType;
+                string uniqIdentifier = cartLineItem.GetLineNumber() + cartLineItem.ChargeType;
 
-                if (cartLineItemEntity.OptionId == null && cartLineItemEntity.AdjustmentType == null &&
-                        cartLineItemEntity.AdjustmentAmount.HasValue && cartLineItemEntity.AdjustmentType == Constants.DISCOUNT_AMOUNT)
+                if (cartLineItem.OptionId == null && cartLineItem.AdjustmentType == null &&
+                        cartLineItem.AdjustmentAmount.HasValue && cartLineItem.AdjustmentType == Constants.DISCOUNT_AMOUNT)
                 {
                     decimal netAdjPercentage = 0;
-                    decimal extendedListPrice = cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_List_Price__c).HasValue && cartLineItem.IsOptional() 
-                        ? 0 : cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_List_Price__c).Value;
+                    decimal extendedListPrice = cartLineItem.APTS_Extended_List_Price__c.HasValue && cartLineItem.IsOptional == true 
+                        ? 0 : cartLineItem.APTS_Extended_List_Price__c.Value;
 
-                    var solutionListPrice = mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.PrimaryLineNumber) 
-                        ? mapPricePoints[uniqIdentifier + cartLineItemEntity.PrimaryLineNumber].listPrice + extendedListPrice 
+                    var solutionListPrice = mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.PrimaryLineNumber) 
+                        ? mapPricePoints[uniqIdentifier + cartLineItem.PrimaryLineNumber].listPrice + extendedListPrice 
                         : mapPricePoints[uniqIdentifier].listPrice + extendedListPrice;
 
-                    cartLineItem.Set(LineItemCustomField.APTS_Solution_list_Price_c__c, solutionListPrice);
+                    cartLineItem.APTS_Solution_list_Price_c__c = solutionListPrice;
                     
                     if (solutionListPrice.HasValue)
                     {
-                        netAdjPercentage = -1 * FormatPrecisionCeiling(cartLineItemEntity.AdjustmentAmount.Value) / FormatPrecisionCeiling(solutionListPrice.Value) * 100;
+                        netAdjPercentage = -1 * FormatPrecisionCeiling(cartLineItem.AdjustmentAmount.Value) / FormatPrecisionCeiling(solutionListPrice.Value) * 100;
                     }
 
                     mapBundleAdjustments.Add(uniqIdentifier, netAdjPercentage);
@@ -171,49 +168,47 @@ namespace Apttus.Lightsaber.Phillips.Totalling
 
             foreach (var cartLineItem in cartLineItems)
             {
-                var cartLineItemEntity = cartLineItem.Entity;
-
-                if (cartLineItemEntity.AdjustmentType != null && cartLineItemEntity.AdjustmentAmount != null)
+                if (cartLineItem.AdjustmentType != null && cartLineItem.AdjustmentAmount != null)
                 {
-                    if (cartLineItemEntity.AdjustmentType == Constants.DISCOUNT_PERCENTAGE)
+                    if (cartLineItem.AdjustmentType == Constants.DISCOUNT_PERCENTAGE)
                     {
-                        cartLineItemEntity.NetAdjustmentPercent = -1 * FormatPrecisionCeiling(cartLineItemEntity.AdjustmentAmount.Value);
+                        cartLineItem.NetAdjustmentPercent = -1 * FormatPrecisionCeiling(cartLineItem.AdjustmentAmount.Value);
 
                     }
-                    else if (cartLineItemEntity.AdjustmentType == Constants.DISCOUNT_AMOUNT)
+                    else if (cartLineItem.AdjustmentType == Constants.DISCOUNT_AMOUNT)
                     {
-                        if (mapBundleAdjustments.ContainsKey(cartLineItem.GetLineNumber() + cartLineItemEntity.ChargeType) && cartLineItemEntity.AllocateGroupAdjustment == true)
+                        if (mapBundleAdjustments.ContainsKey(cartLineItem.GetLineNumber() + cartLineItem.ChargeType) && cartLineItem.AllocateGroupAdjustment == true)
                         {
-                            cartLineItemEntity.NetAdjustmentPercent = mapBundleAdjustments[cartLineItem.GetLineNumber() + cartLineItemEntity.ChargeType];
+                            cartLineItem.NetAdjustmentPercent = mapBundleAdjustments[cartLineItem.GetLineNumber() + cartLineItem.ChargeType];
 
-                            if (cartLineItemEntity.OptionId != null)
+                            if (cartLineItem.OptionId != null)
                             {
-                                cartLineItemEntity.AdjustmentAmount = 0;
+                                cartLineItem.AdjustmentAmount = 0;
                             }
                         }
-                        else if (cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Philips_List_Price__c).HasValue 
-                            && cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Philips_List_Price__c).Value != 0)
+                        else if (cartLineItem.APTS_Philips_List_Price__c.HasValue 
+                            && cartLineItem.APTS_Philips_List_Price__c.Value != 0)
                         {
-                            cartLineItemEntity.NetAdjustmentPercent = -1 * FormatPrecisionCeiling(cartLineItemEntity.AdjustmentAmount.Value) 
-                                / FormatPrecisionCeiling(cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Philips_List_Price__c).Value) * 100;
+                            cartLineItem.NetAdjustmentPercent = -1 * FormatPrecisionCeiling(cartLineItem.AdjustmentAmount.Value) 
+                                / FormatPrecisionCeiling(cartLineItem.APTS_Philips_List_Price__c.Value) * 100;
                         }
                     }
                 }
-                else if (mapBundleAdjustments.ContainsKey(cartLineItem.GetLineNumber() + cartLineItemEntity.ChargeType)
-                         && cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Philips_List_Price__c).HasValue 
-                         && cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Philips_List_Price__c).Value > 0
-                         && cartLineItemEntity.AllocateGroupAdjustment == true)
+                else if (mapBundleAdjustments.ContainsKey(cartLineItem.GetLineNumber() + cartLineItem.ChargeType)
+                         && cartLineItem.APTS_Philips_List_Price__c.HasValue 
+                         && cartLineItem.APTS_Philips_List_Price__c.Value > 0
+                         && cartLineItem.AllocateGroupAdjustment == true)
                 {
-                    cartLineItemEntity.NetAdjustmentPercent = mapBundleAdjustments[cartLineItem.GetLineNumber() + cartLineItemEntity.ChargeType];
+                    cartLineItem.NetAdjustmentPercent = mapBundleAdjustments[cartLineItem.GetLineNumber() + cartLineItem.ChargeType];
                 }
 
-                cartLineItem.Set(LineItemCustomField.APTS_Net_Adjustment_Percent_c__c, cartLineItemEntity.NetAdjustmentPercent);
+                cartLineItem.APTS_Net_Adjustment_Percent_c__c = cartLineItem.NetAdjustmentPercent;
             }
 
             await Task.CompletedTask;
         }
 
-        public async Task CalculatePricePointsForBundle(List<LineItemModel> cartLineItems)
+        public async Task CalculatePricePointsForBundle(List<LineItem> cartLineItems)
         {
             Dictionary<string, PricePointsWrapper> mapPricePoints = new Dictionary<string, PricePointsWrapper>();
             string bundleAdjustmentType = string.Empty;
@@ -223,41 +218,40 @@ namespace Apttus.Lightsaber.Phillips.Totalling
 
             foreach (var cartLineItem in cartLineItems)
             {
-                var cartLineItemEntity = cartLineItem.Entity;
                 var priceListItem = cartLineItem.GetPriceListItem();
-                string uniqIdentifier = cartLineItem.GetLineNumber() + cartLineItemEntity.ChargeType;
+                string uniqIdentifier = cartLineItem.GetLineNumber() + cartLineItem.ChargeType;
                 uniqIdentifier_li = uniqIdentifier;
 
-                var productType = cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_Apttus_Config2__ProductType__c);
-                var configurationType = cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_Apttus_Config2__ConfigurationType__c);
+                var productType = cartLineItem.Apttus_Config2__ProductId__r_Apttus_Config2__ProductType__c;
+                var configurationType = cartLineItem.Apttus_Config2__OptionId__r_Apttus_Config2__ConfigurationType__c;
 
                 if (productType == Constants.SOLUTION_SUBSCRIPTION && (cartLineItem.GetLineType() == LineType.ProductService || configurationType == Constants.CONFIGURATIONTYPE_BUNDLE))
                 {
-                    uniqIdentifier_li = cartLineItem.GetLineNumber() + cartLineItemEntity.PrimaryLineNumber + cartLineItemEntity.ChargeType;
+                    uniqIdentifier_li = cartLineItem.GetLineNumber() + cartLineItem.PrimaryLineNumber + cartLineItem.ChargeType;
                 }
                 else if (productType == Constants.SOLUTION_SUBSCRIPTION && configurationType == Constants.CONFIGURATIONTYPE_OPTION)
                 {
-                    uniqIdentifier_li = cartLineItem.GetLineNumber() + cartLineItemEntity.ParentBundleNumber + cartLineItemEntity.ChargeType;
+                    uniqIdentifier_li = cartLineItem.GetLineNumber() + cartLineItem.ParentBundleNumber + cartLineItem.ChargeType;
                 }
 
-                if (cartLineItemEntity.OptionId == null)
+                if (cartLineItem.OptionId == null)
                 {
-                    if (!mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.PrimaryLineNumber))
+                    if (!mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.PrimaryLineNumber))
                     {
-                        mapPricePoints.Add(uniqIdentifier, new PricePointsWrapper(cartLineItem, pliDictionary.GetValueOrDefault(cartLineItemEntity.PriceListItemId), pricingHelper));
+                        mapPricePoints.Add(uniqIdentifier, new PricePointsWrapper(cartLineItem, pliDictionary.GetValueOrDefault(cartLineItem.PriceListItemId), pricingHelper));
                     }
 
-                    mapBundleAdjustment.Add(uniqIdentifier_li, cartLineItemEntity.AdjustmentType);
+                    mapBundleAdjustment.Add(uniqIdentifier_li, cartLineItem.AdjustmentType);
                 }
-                else if (cartLineItemEntity.OptionId != null && configurationType == Constants.CONFIGURATIONTYPE_BUNDLE && productType == Constants.SOLUTION_SUBSCRIPTION)
+                else if (cartLineItem.OptionId != null && configurationType == Constants.CONFIGURATIONTYPE_BUNDLE && productType == Constants.SOLUTION_SUBSCRIPTION)
                 {
-                    if (!mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.PrimaryLineNumber))
+                    if (!mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.PrimaryLineNumber))
                     {
-                        mapPricePoints.Add(uniqIdentifier + cartLineItemEntity.PrimaryLineNumber, 
-                            new PricePointsWrapper(cartLineItem, pliDictionary.GetValueOrDefault(cartLineItemEntity.PriceListItemId), pricingHelper));
+                        mapPricePoints.Add(uniqIdentifier + cartLineItem.PrimaryLineNumber, 
+                            new PricePointsWrapper(cartLineItem, pliDictionary.GetValueOrDefault(cartLineItem.PriceListItemId), pricingHelper));
                     }
 
-                    mapBundleAdjustment.Add(uniqIdentifier_li, cartLineItemEntity.AdjustmentType);
+                    mapBundleAdjustment.Add(uniqIdentifier_li, cartLineItem.AdjustmentType);
                 }
                 else
                 {
@@ -267,163 +261,162 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                         decimal? minPrice = 0;
                         decimal? optEscPrice = 0;
                         decimal? optionOfferedPrice = 0;
-                        decimal? sellingTerm = cartLineItem.GetValuetOrDefault(LineItem.PropertyNames.SellingTerm, 1);
-                        decimal? extQty = cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_Quantity__c).HasValue 
-                            && cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_Quantity__c).Value != 0 ? cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_Quantity__c).Value : 1;
+                        decimal? sellingTerm = cartLineItem.GetValuetOrDefault(LineItemPropertyNames.SellingTerm, 1);
+                        decimal? extQty = cartLineItem.APTS_Extended_Quantity__c.HasValue 
+                            && cartLineItem.APTS_Extended_Quantity__c.Value != 0 ? cartLineItem.APTS_Extended_Quantity__c.Value : 1;
 
                         bundleAdjustmentType = mapBundleAdjustment.GetValueOrDefault(uniqIdentifier_li) != null ? mapBundleAdjustment.GetValueOrDefault(uniqIdentifier_li) : string.Empty;
 
-                        var extendedListPrice = cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_List_Price__c);
+                        var extendedListPrice = cartLineItem.APTS_Extended_List_Price__c;
 
-                        if (extendedListPrice.HasValue && !cartLineItem.IsOptional())
+                        if (extendedListPrice.HasValue && cartLineItem.IsOptional== false)
                         {
                             mapPricePoints[uniqIdentifier].listPrice += extendedListPrice.Value;
 
-                            if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.ParentBundleNumber))
+                            if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.ParentBundleNumber))
                             {
-                                mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].listPrice += extendedListPrice.Value;
+                                mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].listPrice += extendedListPrice.Value;
                             }
                         }
 
                         decimal listPrice = extendedListPrice.HasValue ? extendedListPrice.Value : 0;
-                        decimal contractDiscount = cartLineItem.Get<decimal?>(LineItemCustomField.APTS_ContractDiscount__c).HasValue 
-                            ? cartLineItem.Get<decimal?>(LineItemCustomField.APTS_ContractDiscount__c).Value : 0;
+                        decimal contractDiscount = cartLineItem.APTS_ContractDiscount__c.HasValue 
+                            ? cartLineItem.APTS_ContractDiscount__c.Value : 0;
                         decimal contractAmt = listPrice * contractDiscount / 100;
 
-                        cartLineItem.Set(LineItemCustomField.APTS_Contract_Discount_Amount__c, contractAmt);
-                        decimal? netAdjPercent = cartLineItemEntity.NetAdjustmentPercent;
+                        cartLineItem.APTS_Contract_Discount_Amount__c = contractAmt;
+                        decimal? netAdjPercent = cartLineItem.NetAdjustmentPercent;
 
-                        decimal? stdAdj = GetStrategicDiscount(netAdjPercent, cartLineItemEntity.AdjustmentType, listPrice);
-                        decimal incAdjAmt = cartLineItemEntity.IncentiveAdjustmentAmount != null ? FormatPrecisionCeiling(cartLineItemEntity.IncentiveAdjustmentAmount.Value) : 0;
+                        decimal? stdAdj = GetStrategicDiscount(netAdjPercent, cartLineItem.AdjustmentType, listPrice);
+                        decimal incAdjAmt = cartLineItem.IncentiveAdjustmentAmount != null ? FormatPrecisionCeiling(cartLineItem.IncentiveAdjustmentAmount.Value) : 0;
 
                         decimal? unitStrategicDiscountAmount = (listPrice / extQty / sellingTerm) * stdAdj / 100;
                         decimal? strategicDiscountAmount = listPrice * stdAdj / 100;
 
                         if (productType != null && productType.Contains("Solution"))
                         {
-                            if (cartLineItem.Get<string>(LineItemCustomField.APTS_Billing_Plan__c) != null 
-                                && cartLineItem.Get<string>(LineItemCustomField.APTS_Billing_Plan__c) == Constants.BILLING_PLAN_ANNUAL)
+                            if (cartLineItem.APTS_Billing_Plan__c != null && cartLineItem.APTS_Billing_Plan__c == Constants.BILLING_PLAN_ANNUAL)
                             {
                                 var roundedUnitStrategicDisount = pricingHelper.ApplyRounding(unitStrategicDiscountAmount * 12, 2, RoundingMode.HALF_EVEN);
-                                cartLineItem.Set(LineItemCustomField.APTS_Unit_Strategic_Discount_Amount__c, roundedUnitStrategicDisount);
+                                cartLineItem.APTS_Unit_Strategic_Discount_Amount__c = roundedUnitStrategicDisount;
                             }
                             else
                             {
                                 var roundedUnitStrategicDisount = pricingHelper.ApplyRounding(unitStrategicDiscountAmount, 2, RoundingMode.HALF_EVEN);
-                                cartLineItem.Set(LineItemCustomField.APTS_Unit_Strategic_Discount_Amount__c, roundedUnitStrategicDisount);
+                                cartLineItem.APTS_Unit_Strategic_Discount_Amount__c = roundedUnitStrategicDisount;
                             }
                         }
                         else if (productType == Constants.SERVICE_PRODUCT_TYPE)
                         {
-                            cartLineItem.Set(LineItemCustomField.APTS_Unit_Strategic_Discount_Amount__c, unitStrategicDiscountAmount);
-                            cartLineItem.Set(LineItemCustomField.APTS_Strategic_Discount_Amount_c__c, strategicDiscountAmount);
+                            cartLineItem.APTS_Unit_Strategic_Discount_Amount__c = unitStrategicDiscountAmount;
+                            cartLineItem.APTS_Strategic_Discount_Amount_c__c = strategicDiscountAmount;
                         }
                         else
                         {
                             var roundedUnitStrategicDisount = pricingHelper.ApplyRounding(unitStrategicDiscountAmount, 2, RoundingMode.HALF_EVEN);
-                            cartLineItem.Set(LineItemCustomField.APTS_Unit_Strategic_Discount_Amount__c, roundedUnitStrategicDisount);
+                            cartLineItem.APTS_Unit_Strategic_Discount_Amount__c = roundedUnitStrategicDisount;
 
-                            cartLineItem.Set(LineItemCustomField.APTS_Strategic_Discount_Amount_c__c, roundedUnitStrategicDisount * sellingTerm * extQty);
+                            cartLineItem.APTS_Strategic_Discount_Amount_c__c = roundedUnitStrategicDisount * sellingTerm * extQty;
                         }
 
                         if (productType != null && productType.Contains("Solution"))
                         {
-                            if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.ParentBundleNumber))
+                            if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.ParentBundleNumber))
                             {
-                                if (cartLineItem.Get<decimal?>(LineItemCustomField.APTS_SAP_List_Price__c).HasValue)
+                                if (cartLineItem.APTS_SAP_List_Price__c.HasValue)
                                 {
-                                    mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].sapListPrice += cartLineItem.Get<decimal?>(LineItemCustomField.APTS_SAP_List_Price__c).Value;
+                                    mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].sapListPrice += cartLineItem.APTS_SAP_List_Price__c.Value;
                                 }
-                                if (cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Unit_Strategic_Discount_Amount__c).HasValue)
+                                if (cartLineItem.APTS_Unit_Strategic_Discount_Amount__c.HasValue)
                                 {
-                                    mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].unitStrategicDiscountAmount 
-                                        += cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Unit_Strategic_Discount_Amount__c).Value;
+                                    mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].unitStrategicDiscountAmount 
+                                        += cartLineItem.APTS_Unit_Strategic_Discount_Amount__c.Value;
                                 }
                             }
                         }
 
-                        if (cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Target_Price__c).HasValue)
+                        if (cartLineItem.APTS_Target_Price__c.HasValue)
                         {
-                            targetPrice = FormatPrecisionCeiling(cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Target_Price__c).Value);
-                            if (!cartLineItem.IsOptional() && targetPrice != null)
+                            targetPrice = FormatPrecisionCeiling(cartLineItem.APTS_Target_Price__c.Value);
+                            if (cartLineItem.IsOptional == false && targetPrice != null)
                             {
                                 mapPricePoints[uniqIdentifier].targetPrice += targetPrice;
-                                if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.ParentBundleNumber))
-                                    mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].targetPrice += targetPrice;
+                                if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.ParentBundleNumber))
+                                    mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].targetPrice += targetPrice;
                             }
                         }
 
-                        if (cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Minimum_Price__c).HasValue)
+                        if (cartLineItem.APTS_Minimum_Price__c.HasValue)
                         {
-                            minPrice = FormatPrecisionCeiling(cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Minimum_Price__c).Value);
-                            if (!cartLineItem.IsOptional())
+                            minPrice = FormatPrecisionCeiling(cartLineItem.APTS_Minimum_Price__c.Value);
+                            if (cartLineItem.IsOptional == false)
                             {
                                 mapPricePoints[uniqIdentifier].minPrice += minPrice;
-                                if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.ParentBundleNumber))
+                                if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.ParentBundleNumber))
                                 {
-                                    mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].minPrice += minPrice;
+                                    mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].minPrice += minPrice;
                                 }
                             }
                         }
 
-                        if (cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Escalation_Price__c).HasValue)
+                        if (cartLineItem.APTS_Escalation_Price__c.HasValue)
                         {
-                            optEscPrice = FormatPrecisionCeiling(cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Escalation_Price__c).Value);
-                            if (!cartLineItem.IsOptional())
+                            optEscPrice = FormatPrecisionCeiling(cartLineItem.APTS_Escalation_Price__c.Value);
+                            if (cartLineItem.IsOptional == false)
                             {
                                 mapPricePoints[uniqIdentifier].preEscalationPrice += optEscPrice;
-                                if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.ParentBundleNumber))
+                                if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.ParentBundleNumber))
                                 {
-                                    mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].preEscalationPrice += optEscPrice;
+                                    mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].preEscalationPrice += optEscPrice;
                                 }
                             }
                         }
 
-                        if (cartLineItemEntity.ListPrice.HasValue && cartLineItem.Get<bool?>(LineItemCustomField.APTS_Local_Bundle_Component_Flag__c) != true)
+                        if (cartLineItem.ListPrice.HasValue && cartLineItem.APTS_Local_Bundle_Component_Flag__c != true)
                         {
                             decimal? qty = cartLineItem.GetQuantity();
 
-                            if (!cartLineItem.IsOptional())
+                            if (cartLineItem.IsOptional == false)
                             {
-                                var countryPriceListListPrice = pliDictionary.GetValueOrDefault(cartLineItemEntity.PriceListItemId)?.APTS_Country_Pricelist_List_Price__c;
+                                var countryPriceListListPrice = pliDictionary.GetValueOrDefault(cartLineItem.PriceListItemId)?.APTS_Country_Pricelist_List_Price__c;
 
                                 mapPricePoints[uniqIdentifier].optionPrice += (countryPriceListListPrice == null) 
-                                    ? FormatPrecisionCeiling(cartLineItemEntity.ListPrice.Value) * qty : countryPriceListListPrice.Value * qty;
+                                    ? FormatPrecisionCeiling(cartLineItem.ListPrice.Value) * qty : countryPriceListListPrice.Value * qty;
 
-                                if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.ParentBundleNumber))
+                                if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.ParentBundleNumber))
                                 {
-                                    mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].optionPrice += (countryPriceListListPrice == null) 
-                                        ? FormatPrecisionCeiling(cartLineItemEntity.ListPrice.Value) * qty : countryPriceListListPrice.Value * qty;
+                                    mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].optionPrice += (countryPriceListListPrice == null) 
+                                        ? FormatPrecisionCeiling(cartLineItem.ListPrice.Value) * qty : countryPriceListListPrice.Value * qty;
                                 }
                             }
                         }
 
-                        if (cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Contract_Net_Price__c).HasValue && !cartLineItem.IsOptional())
+                        if (cartLineItem.APTS_Contract_Net_Price__c.HasValue && cartLineItem.IsOptional == false)
                         {
-                            mapPricePoints[uniqIdentifier].contractNetPrice += FormatPrecisionCeiling(cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Contract_Net_Price__c).Value);
+                            mapPricePoints[uniqIdentifier].contractNetPrice += FormatPrecisionCeiling(cartLineItem.APTS_Contract_Net_Price__c.Value);
 
-                            if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.ParentBundleNumber))
+                            if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.ParentBundleNumber))
                             {
-                                mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].contractNetPrice += 
-                                    FormatPrecisionCeiling(cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Contract_Net_Price__c).Value);
+                                mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].contractNetPrice += 
+                                    FormatPrecisionCeiling(cartLineItem.APTS_Contract_Net_Price__c.Value);
                             }
                         }
 
-                        if (cartLineItemEntity.ExtendedPrice.HasValue && !cartLineItem.IsOptional())
+                        if (cartLineItem.ExtendedPrice.HasValue && cartLineItem.IsOptional == false)
                         {
                             mapPricePoints[uniqIdentifier].bundleExtendedPrice += mapPricePoints[uniqIdentifier].qty != null 
-                                ? FormatPrecisionCeiling(cartLineItemEntity.ExtendedPrice.Value) * mapPricePoints[uniqIdentifier].qty : FormatPrecisionCeiling(cartLineItemEntity.ExtendedPrice.Value);
+                                ? FormatPrecisionCeiling(cartLineItem.ExtendedPrice.Value) * mapPricePoints[uniqIdentifier].qty : FormatPrecisionCeiling(cartLineItem.ExtendedPrice.Value);
 
-                            if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.ParentBundleNumber))
+                            if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.ParentBundleNumber))
                             {
-                                mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].bundleExtendedPrice += 
-                                    mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].qty != null 
-                                    ? FormatPrecisionCeiling(cartLineItemEntity.ExtendedPrice.Value) * mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].qty 
-                                    : FormatPrecisionCeiling(cartLineItemEntity.ExtendedPrice.Value);
+                                mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].bundleExtendedPrice += 
+                                    mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].qty != null 
+                                    ? FormatPrecisionCeiling(cartLineItem.ExtendedPrice.Value) * mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].qty 
+                                    : FormatPrecisionCeiling(cartLineItem.ExtendedPrice.Value);
                             }
                         }
 
-                        if (cartLineItem.Get<decimal?>(LineItemCustomField.APTS_ContractDiscount__c).HasValue && priceListItem.Entity.ListPrice.HasValue)
+                        if (cartLineItem.APTS_ContractDiscount__c.HasValue && priceListItem.Entity.ListPrice.HasValue)
                         {
                             PricePointsWrapper points = mapPricePoints[uniqIdentifier];
                             if (points.solutionContractDiscountAmount == null)
@@ -431,152 +424,150 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                                 points.solutionContractDiscountAmount = 0;
                             }
 
-                            if (!cartLineItem.IsOptional())
+                            if (cartLineItem.IsOptional == false)
                             {
                                 mapPricePoints[uniqIdentifier].solutionContractDiscountAmount += contractAmt;
-                                if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.ParentBundleNumber))
+                                if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.ParentBundleNumber))
                                 {
-                                    mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].solutionContractDiscountAmount += contractAmt;
+                                    mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].solutionContractDiscountAmount += contractAmt;
                                 }
                             }
                         }
 
-                        if (cartLineItemEntity.IncentiveAdjustmentAmount.HasValue && cartLineItemEntity.IncentiveAdjustmentAmount.Value < 0 && !cartLineItem.IsOptional())
+                        if (cartLineItem.IncentiveAdjustmentAmount.HasValue && cartLineItem.IncentiveAdjustmentAmount.Value < 0 && cartLineItem.IsOptional == false)
                         {
-                            var unitIncentiveAdjAmount = cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Unit_Incentive_Adj_Amount__c);
-                            mapPricePoints[uniqIdentifier].incentiveAdjAmount += (FormatPrecisionCeiling(cartLineItemEntity.IncentiveAdjustmentAmount.Value) * -1);
+                            var unitIncentiveAdjAmount = cartLineItem.APTS_Unit_Incentive_Adj_Amount__c;
+                            mapPricePoints[uniqIdentifier].incentiveAdjAmount += (FormatPrecisionCeiling(cartLineItem.IncentiveAdjustmentAmount.Value) * -1);
 
                             if (unitIncentiveAdjAmount.HasValue)
                             {
                                 mapPricePoints[uniqIdentifier].solutionUnitIncentiveAmount += unitIncentiveAdjAmount.Value * -1;
                             }
 
-                            if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.ParentBundleNumber))
+                            if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.ParentBundleNumber))
                             {
-                                mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].incentiveAdjAmount 
-                                    += (FormatPrecisionCeiling(cartLineItemEntity.IncentiveAdjustmentAmount.Value) * -1);
+                                mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].incentiveAdjAmount 
+                                    += (FormatPrecisionCeiling(cartLineItem.IncentiveAdjustmentAmount.Value) * -1);
 
                                 if (unitIncentiveAdjAmount.HasValue)
                                 {
-                                    mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].solutionUnitIncentiveAmount += unitIncentiveAdjAmount.Value * -1;
+                                    mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].solutionUnitIncentiveAmount += unitIncentiveAdjAmount.Value * -1;
                                 }
                             }
                         }
-                        else if (cartLineItemEntity.IncentiveAdjustmentAmount.HasValue && cartLineItemEntity.IncentiveAdjustmentAmount.Value > 0 && !cartLineItem.IsOptional())
+                        else if (cartLineItem.IncentiveAdjustmentAmount.HasValue && cartLineItem.IncentiveAdjustmentAmount.Value > 0 && cartLineItem.IsOptional == false)
                         {
-                            var unitIncentiveAdjAmount = cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Unit_Incentive_Adj_Amount__c);
-                            mapPricePoints[uniqIdentifier].incentiveAdjAmount += (FormatPrecisionCeiling(cartLineItemEntity.IncentiveAdjustmentAmount.Value));
+                            var unitIncentiveAdjAmount = cartLineItem.APTS_Unit_Incentive_Adj_Amount__c;
+                            mapPricePoints[uniqIdentifier].incentiveAdjAmount += (FormatPrecisionCeiling(cartLineItem.IncentiveAdjustmentAmount.Value));
 
                             if (unitIncentiveAdjAmount.HasValue)
                             {
                                 mapPricePoints[uniqIdentifier].solutionUnitIncentiveAmount += unitIncentiveAdjAmount.Value;
                             }
 
-                            if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.ParentBundleNumber))
+                            if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.ParentBundleNumber))
                             {
-                                mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].incentiveAdjAmount += (FormatPrecisionCeiling(cartLineItemEntity.IncentiveAdjustmentAmount.Value));
+                                mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].incentiveAdjAmount += (FormatPrecisionCeiling(cartLineItem.IncentiveAdjustmentAmount.Value));
 
                                 if (unitIncentiveAdjAmount.HasValue)
                                 {
-                                    mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].solutionUnitIncentiveAmount += unitIncentiveAdjAmount.Value;
+                                    mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].solutionUnitIncentiveAmount += unitIncentiveAdjAmount.Value;
                                 }
                             }
                         }
 
-                        if (cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Offered_Price_c__c).HasValue)
+                        if (cartLineItem.APTS_Offered_Price_c__c.HasValue)
                         {
-                            optionOfferedPrice = cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_List_Price__c).HasValue 
-                                ? cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_List_Price__c).Value : 0;
+                            optionOfferedPrice = cartLineItem.APTS_Extended_List_Price__c.HasValue 
+                                ? cartLineItem.APTS_Extended_List_Price__c.Value : 0;
                             
                             decimal? totalDiscounts = 0;
                             totalDiscounts = totalDiscounts - contractAmt;
 
-                            if (cartLineItemEntity.IncentiveAdjustmentAmount.HasValue)
+                            if (cartLineItem.IncentiveAdjustmentAmount.HasValue)
                             {
-                                decimal incAdjAmt1 = FormatPrecisionCeiling(cartLineItemEntity.IncentiveAdjustmentAmount.Value);
+                                decimal incAdjAmt1 = FormatPrecisionCeiling(cartLineItem.IncentiveAdjustmentAmount.Value);
                                 totalDiscounts = totalDiscounts + incAdjAmt1;
                             }
-                            if (cartLineItemEntity.NetAdjustmentPercent.HasValue)
+                            if (cartLineItem.NetAdjustmentPercent.HasValue)
                             {
-                                totalDiscounts = totalDiscounts - cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Strategic_Discount_Amount_c__c);
+                                totalDiscounts = totalDiscounts - cartLineItem.APTS_Strategic_Discount_Amount_c__c;
                             }
 
                             optionOfferedPrice = optionOfferedPrice + totalDiscounts;
 
-                            if (!cartLineItem.IsOptional() && optionOfferedPrice.HasValue)
+                            if (cartLineItem.IsOptional == false && optionOfferedPrice.HasValue)
                             {
                                 mapPricePoints[uniqIdentifier].offeredPrice += optionOfferedPrice;
 
-                                if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItemEntity.ParentBundleNumber))
+                                if (mapPricePoints.ContainsKey(uniqIdentifier + cartLineItem.ParentBundleNumber))
                                 {
-                                    mapPricePoints[uniqIdentifier + cartLineItemEntity.ParentBundleNumber].offeredPrice += optionOfferedPrice;
+                                    mapPricePoints[uniqIdentifier + cartLineItem.ParentBundleNumber].offeredPrice += optionOfferedPrice;
                                 }
                             }
                         }
 
                         if (optEscPrice != null && optEscPrice != 0)
                         {
-                            var escalationPriceAttainment = (optionOfferedPrice / FormatPrecisionCeiling(cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Escalation_Price__c).Value)) * 100;
-                            cartLineItem.Set(LineItemCustomField.APTS_Escalation_Price_Attainment_c__c, escalationPriceAttainment);
+                            var escalationPriceAttainment = (optionOfferedPrice / FormatPrecisionCeiling(cartLineItem.APTS_Escalation_Price__c.Value)) * 100;
+                            cartLineItem.APTS_Escalation_Price_Attainment_c__c = escalationPriceAttainment;
                         }
 
                         if (targetPrice != null && targetPrice != 0)
                         {
-                            var targetPriceAttainment = (optionOfferedPrice / (FormatPrecisionCeiling(cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Target_Price__c).Value))) * 100;
-                            cartLineItem.Set(LineItemCustomField.APTS_Target_Price_Attainment__c, targetPriceAttainment);
+                            var targetPriceAttainment = (optionOfferedPrice / (FormatPrecisionCeiling(cartLineItem.APTS_Target_Price__c.Value))) * 100;
+                            cartLineItem.APTS_Target_Price_Attainment__c = targetPriceAttainment;
                         }
 
                         if (minPrice != null && minPrice != 0)
                         {
-                            var minimumPriceAttainment = (optionOfferedPrice / (FormatPrecisionCeiling(cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Minimum_Price__c).Value))) * 100;
-                            cartLineItem.Set(LineItemCustomField.APTS_Minimum_Price_Attainment_c__c, minimumPriceAttainment);
+                            var minimumPriceAttainment = (optionOfferedPrice / (FormatPrecisionCeiling(cartLineItem.APTS_Minimum_Price__c.Value))) * 100;
+                            cartLineItem.APTS_Minimum_Price_Attainment_c__c = minimumPriceAttainment;
                         }
 
-                        cartLineItem.Set(LineItemCustomField.APTS_Price_Attainment_Color__c, 
-                            GetColor(optionOfferedPrice, optEscPrice, minPrice, cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_List_Price__c)));
+                        cartLineItem.APTS_Price_Attainment_Color__c = 
+                            GetColor(optionOfferedPrice, optEscPrice, minPrice, cartLineItem.APTS_Extended_List_Price__c);
                     }
                 }
             }
 
             foreach (var cartLineItem in cartLineItems)
             {
-                var cartLineItemEntity = cartLineItem.Entity;
-
-                decimal? sellingTerm = cartLineItemEntity.SellingTerm;
+                decimal? sellingTerm = cartLineItem.SellingTerm;
                 decimal? extQty = cartLineItem.GetValuetOrDefault(LineItemCustomField.APTS_Extended_Quantity__c, 1);
-                string uniqIdentifier = cartLineItem.GetLineNumber() + cartLineItemEntity.ChargeType;
+                string uniqIdentifier = cartLineItem.GetLineNumber() + cartLineItem.ChargeType;
                 uniqIdentifier_li = uniqIdentifier;
 
-                var productType = cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_Apttus_Config2__ProductType__c);
-                var configurationType = cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_Apttus_Config2__ConfigurationType__c);
+                var productType = cartLineItem.Apttus_Config2__ProductId__r_Apttus_Config2__ProductType__c;
+                var configurationType = cartLineItem.Apttus_Config2__OptionId__r_Apttus_Config2__ConfigurationType__c;
 
                 if (productType == Constants.SOLUTION_SUBSCRIPTION && (cartLineItem.GetLineType() == LineType.ProductService || configurationType == Constants.CONFIGURATIONTYPE_BUNDLE))
                 {
-                    uniqIdentifier_li = cartLineItem.GetLineNumber() + cartLineItemEntity.PrimaryLineNumber + cartLineItemEntity.ChargeType;
+                    uniqIdentifier_li = cartLineItem.GetLineNumber() + cartLineItem.PrimaryLineNumber + cartLineItem.ChargeType;
                 }
                 else if (productType == Constants.SOLUTION_SUBSCRIPTION && configurationType == Constants.CONFIGURATIONTYPE_OPTION)
                 {
-                    uniqIdentifier_li = cartLineItem.GetLineNumber() + cartLineItemEntity.ParentBundleNumber + cartLineItemEntity.ChargeType;
+                    uniqIdentifier_li = cartLineItem.GetLineNumber() + cartLineItem.ParentBundleNumber + cartLineItem.ChargeType;
                 }
 
                 bundleAdjustmentType = mapBundleAdjustment[uniqIdentifier_li] != null ? mapBundleAdjustment[uniqIdentifier_li] : string.Empty;
 
-                if (cartLineItemEntity.OptionId != null && configurationType == Constants.CONFIGURATIONTYPE_BUNDLE)
+                if (cartLineItem.OptionId != null && configurationType == Constants.CONFIGURATIONTYPE_BUNDLE)
                 {
-                    uniqIdentifier += cartLineItemEntity.PrimaryLineNumber;
+                    uniqIdentifier += cartLineItem.PrimaryLineNumber;
                 }
 
                 if (mapPricePoints.ContainsKey(uniqIdentifier))
                 {
-                    if (cartLineItemEntity.OptionId == null || (cartLineItemEntity.OptionId != null && configurationType == Constants.CONFIGURATIONTYPE_BUNDLE))
+                    if (cartLineItem.OptionId == null || (cartLineItem.OptionId != null && configurationType == Constants.CONFIGURATIONTYPE_BUNDLE))
                     {
-                        var extListPrice = cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_List_Price__c);
+                        var extListPrice = cartLineItem.APTS_Extended_List_Price__c;
 
-                        decimal extendedListPrice = cartLineItem.IsOptional() ? 0 : extListPrice.Value;
+                        decimal extendedListPrice = cartLineItem.IsOptional == true ? 0 : extListPrice.Value;
                         
                         if (extListPrice.HasValue)
                         {
-                            cartLineItem.Set(LineItemCustomField.APTS_Solution_list_Price_c__c, mapPricePoints[uniqIdentifier].listPrice + extendedListPrice);
+                            cartLineItem.APTS_Solution_list_Price_c__c = mapPricePoints[uniqIdentifier].listPrice + extendedListPrice;
                         }
 
                         decimal listPrice = extListPrice.HasValue ? extListPrice.Value : 0;
@@ -585,60 +576,60 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                         decimal? contractAmt = 0;
                         decimal? unitContractAmt = 0;
 
-                        if (cartLineItem.Get<decimal?>(LineItemCustomField.APTS_ContractDiscount__c).HasValue)
+                        if (cartLineItem.APTS_ContractDiscount__c.HasValue)
                         {
-                            decimal contractDiscount = cartLineItem.Get<decimal?>(LineItemCustomField.APTS_ContractDiscount__c).Value;
+                            decimal contractDiscount = cartLineItem.APTS_ContractDiscount__c.Value;
                             unitContractAmt = ((bundleOfferedPrice / extQty / sellingTerm) * contractDiscount / 100);
                             unitContractAmt = pricingHelper.ApplyRounding(unitContractAmt, 2, RoundingMode.HALF_EVEN);
                             contractAmt = unitContractAmt * extQty * sellingTerm;
                             totalDiscounts = totalDiscounts - contractAmt;
                         }
-                        if (cartLineItemEntity.IncentiveAdjustmentAmount.HasValue)
+                        if (cartLineItem.IncentiveAdjustmentAmount.HasValue)
                         {
-                            totalDiscounts = totalDiscounts + FormatPrecisionCeiling(cartLineItemEntity.IncentiveAdjustmentAmount.Value);
+                            totalDiscounts = totalDiscounts + FormatPrecisionCeiling(cartLineItem.IncentiveAdjustmentAmount.Value);
                         }
-                        if (cartLineItemEntity.NetAdjustmentPercent.HasValue)
+                        if (cartLineItem.NetAdjustmentPercent.HasValue)
                         {
-                            decimal? stdAdj = GetStrategicDiscount(cartLineItemEntity.NetAdjustmentPercent.Value, cartLineItemEntity.AdjustmentType, listPrice);
-                            decimal? incAdjAmt = cartLineItemEntity.IncentiveAdjustmentAmount.HasValue ? FormatPrecisionCeiling(cartLineItemEntity.IncentiveAdjustmentAmount.Value) : 0;
+                            decimal? stdAdj = GetStrategicDiscount(cartLineItem.NetAdjustmentPercent.Value, cartLineItem.AdjustmentType, listPrice);
+                            decimal? incAdjAmt = cartLineItem.IncentiveAdjustmentAmount.HasValue ? FormatPrecisionCeiling(cartLineItem.IncentiveAdjustmentAmount.Value) : 0;
 
                             decimal? unitStrategicDiscountAmount = (listPrice / extQty / sellingTerm) * stdAdj / 100;
                             decimal? strategicDiscountAmount = listPrice * stdAdj / 100;
 
                             if (productType == Constants.SERVICE_PRODUCT_TYPE)
                             {
-                                cartLineItem.Set(LineItemCustomField.APTS_Unit_Strategic_Discount_Amount__c, unitStrategicDiscountAmount);
-                                cartLineItem.Set(LineItemCustomField.APTS_Strategic_Discount_Amount_c__c, strategicDiscountAmount);
+                                cartLineItem.APTS_Unit_Strategic_Discount_Amount__c = unitStrategicDiscountAmount;
+                                cartLineItem.APTS_Strategic_Discount_Amount_c__c = strategicDiscountAmount;
                             }
                             else
                             {
-                                cartLineItem.Set(LineItemCustomField.APTS_Unit_Strategic_Discount_Amount__c, pricingHelper.ApplyRounding(unitStrategicDiscountAmount, 2, RoundingMode.HALF_EVEN));
-                                cartLineItem.Set(LineItemCustomField.APTS_Strategic_Discount_Amount_c__c,
-                                    pricingHelper.ApplyRounding(unitStrategicDiscountAmount, 2, RoundingMode.HALF_EVEN) * sellingTerm * extQty);
+                                cartLineItem.APTS_Unit_Strategic_Discount_Amount__c = pricingHelper.ApplyRounding(unitStrategicDiscountAmount, 2, RoundingMode.HALF_EVEN);
+                                cartLineItem.APTS_Strategic_Discount_Amount_c__c =
+                                    pricingHelper.ApplyRounding(unitStrategicDiscountAmount, 2, RoundingMode.HALF_EVEN) * sellingTerm * extQty;
                             }
 
-                            totalDiscounts = totalDiscounts - cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Strategic_Discount_Amount_c__c);
+                            totalDiscounts = totalDiscounts - cartLineItem.APTS_Strategic_Discount_Amount_c__c;
                         }
 
                         bundleOfferedPrice = bundleOfferedPrice + totalDiscounts;
 
-                        if (productType != null && productType.Contains("Solution") && cartLineItemEntity.OptionId != null && configurationType == Constants.CONFIGURATIONTYPE_BUNDLE)
+                        if (productType != null && productType.Contains("Solution") && cartLineItem.OptionId != null && configurationType == Constants.CONFIGURATIONTYPE_BUNDLE)
                         {
-                            var billingPlan = cartLineItem.Get<string>(LineItemCustomField.APTS_Billing_Plan__c);
+                            var billingPlan = cartLineItem.APTS_Billing_Plan__c;
 
                             if (billingPlan != null && (billingPlan == Constants.BILLING_PLAN_MONTHLY || billingPlan == Constants.BILLING_PLAN_QUATERLY || billingPlan == Constants.BILLING_PLAN_ANNUAL))
                             {
-                                cartLineItem.Set(LineItemCustomField.APTS_SAP_List_Price__c, mapPricePoints[uniqIdentifier].sapListPrice);
+                                cartLineItem.APTS_SAP_List_Price__c = mapPricePoints[uniqIdentifier].sapListPrice;
                             }
 
-                            cartLineItem.Set(LineItemCustomField.APTS_Unit_Strategic_Discount_Amount__c, mapPricePoints[uniqIdentifier].unitStrategicDiscountAmount);
+                            cartLineItem.APTS_Unit_Strategic_Discount_Amount__c = mapPricePoints[uniqIdentifier].unitStrategicDiscountAmount;
                         }
                         
-                        decimal? optEscPrice = FormatPrecisionCeiling(cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Escalation_Price__c).Value);
+                        decimal? optEscPrice = FormatPrecisionCeiling(cartLineItem.APTS_Escalation_Price__c.Value);
                         if (optEscPrice != null && optEscPrice != 0)
                         {
                             decimal? escalationPriceAttainment;
-                            if (!Constants.listTradeSpoo.Contains(cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_APTS_SPOO_Type__c)))
+                            if (!Constants.listTradeSpoo.Contains(cartLineItem.Apttus_Config2__ProductId__r_APTS_SPOO_Type__c))
                             {
                                 escalationPriceAttainment = (bundleOfferedPrice / optEscPrice) * 100;
                             }
@@ -647,13 +638,13 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                                 escalationPriceAttainment = bundleOfferedPrice != 0 ? (optEscPrice / bundleOfferedPrice) * 100 : 0;
                             }
 
-                            cartLineItem.Set(LineItemCustomField.APTS_Escalation_Price_Attainment_c__c, escalationPriceAttainment);
+                            cartLineItem.APTS_Escalation_Price_Attainment_c__c = escalationPriceAttainment;
                         }
-                        decimal? minPrice = FormatPrecisionCeiling(cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Minimum_Price__c));
+                        decimal? minPrice = FormatPrecisionCeiling(cartLineItem.APTS_Minimum_Price__c);
                         if (minPrice != null && minPrice != 0)
                         {
                             decimal? minimumPriceAttainment;
-                            if (!Constants.listTradeSpoo.Contains(cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_APTS_SPOO_Type__c)))
+                            if (!Constants.listTradeSpoo.Contains(cartLineItem.Apttus_Config2__ProductId__r_APTS_SPOO_Type__c))
                             {
                                 minimumPriceAttainment = (bundleOfferedPrice / minPrice) * 100;
                             }
@@ -662,13 +653,13 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                                 minimumPriceAttainment = bundleOfferedPrice != 0 ? (minPrice / bundleOfferedPrice) * 100 : 0;
                             }
 
-                            cartLineItem.Set(LineItemCustomField.APTS_Minimum_Price_Attainment_c__c, minimumPriceAttainment);
+                            cartLineItem.APTS_Minimum_Price_Attainment_c__c = minimumPriceAttainment;
                         }
-                        decimal? targetPrice = FormatPrecisionCeiling(cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Target_Price__c));
+                        decimal? targetPrice = FormatPrecisionCeiling(cartLineItem.APTS_Target_Price__c);
                         if (targetPrice != null && targetPrice != 0)
                         {
                             decimal? targetPriceAttainment;
-                            if (!Constants.listTradeSpoo.Contains(cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_APTS_SPOO_Type__c)))
+                            if (!Constants.listTradeSpoo.Contains(cartLineItem.Apttus_Config2__ProductId__r_APTS_SPOO_Type__c))
                             {
                                 targetPriceAttainment = (bundleOfferedPrice / targetPrice) * 100;
                             }
@@ -677,49 +668,48 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                                 targetPriceAttainment = bundleOfferedPrice != 0 ? (targetPrice / bundleOfferedPrice) * 100 : 0;
                             }
 
-                            cartLineItem.Set(LineItemCustomField.APTS_Target_Price_Attainment__c, targetPriceAttainment);
+                            cartLineItem.APTS_Target_Price_Attainment__c = targetPriceAttainment;
                         }
 
-                        cartLineItem.Set(LineItemCustomField.APTS_Price_Attainment_Color__c, 
-                            GetColor(bundleOfferedPrice, optEscPrice, minPrice, cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_List_Price__c)));
+                        cartLineItem.APTS_Price_Attainment_Color__c = 
+                            GetColor(bundleOfferedPrice, optEscPrice, minPrice, cartLineItem.APTS_Extended_List_Price__c);
 
-                        decimal? solMinPrice = cartLineItem.IsOptional() 
+                        decimal? solMinPrice = cartLineItem.IsOptional == true 
                             ? mapPricePoints[uniqIdentifier].minPrice 
-                            : mapPricePoints[uniqIdentifier].minPrice + FormatPrecisionCeiling(cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Minimum_Price__c));
+                            : mapPricePoints[uniqIdentifier].minPrice + FormatPrecisionCeiling(cartLineItem.APTS_Minimum_Price__c);
 
-                        cartLineItem.Set(LineItemCustomField.APTS_Minimum_Price_Bundle__c, solMinPrice);
-                        decimal? solEscPrice = cartLineItem.IsOptional() ? mapPricePoints[uniqIdentifier].preEscalationPrice : mapPricePoints[uniqIdentifier].preEscalationPrice + optEscPrice;
-                        cartLineItem.Set(LineItemCustomField.APTS_Escalation_Price_Bundle__c, solEscPrice);
+                        cartLineItem.APTS_Minimum_Price_Bundle__c = solMinPrice;
+                        decimal? solEscPrice = cartLineItem.IsOptional == true ? mapPricePoints[uniqIdentifier].preEscalationPrice : mapPricePoints[uniqIdentifier].preEscalationPrice + optEscPrice;
+                        cartLineItem.APTS_Escalation_Price_Bundle__c = solEscPrice;
 
-                        if (cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Country_Target_Price__c).HasValue)
+                        if (cartLineItem.APTS_Country_Target_Price__c.HasValue)
                         {
-                            cartLineItem.Set(LineItemCustomField.APTS_Target_Price_Bundle__c,
-                                cartLineItem.IsOptional() 
+                            cartLineItem.APTS_Target_Price_Bundle__c =
+                                cartLineItem.IsOptional == true 
                                 ? mapPricePoints[uniqIdentifier].targetPrice 
-                                : mapPricePoints[uniqIdentifier].targetPrice + FormatPrecisionCeiling(cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Target_Price__c))
-                                );
+                                : mapPricePoints[uniqIdentifier].targetPrice + FormatPrecisionCeiling(cartLineItem.APTS_Target_Price__c);
                         }
 
-                        cartLineItem.Set(LineItemCustomField.APTS_Option_List_Price__c, mapPricePoints[uniqIdentifier].optionPrice);
-                        cartLineItem.Set(LineItemCustomField.APTS_Contract_Discount_Amount__c, mapPricePoints[uniqIdentifier].contractDiscountAmount);
-                        cartLineItem.Set(LineItemCustomField.APTS_Solution_Contract_Discount_Amount__c, mapPricePoints[uniqIdentifier].solutionContractDiscountAmount);
-                        cartLineItem.Set(LineItemCustomField.APTS_Incentive_Adjustment_Amount_Bundle__c, mapPricePoints[uniqIdentifier].incentiveAdjAmount);
-                        cartLineItem.Set(LineItemCustomField.APTS_Solution_Unit_Incentive_Adj_Amount__c, mapPricePoints[uniqIdentifier].solutionUnitIncentiveAmount);
+                        cartLineItem.APTS_Option_List_Price__c = mapPricePoints[uniqIdentifier].optionPrice;
+                        cartLineItem.APTS_Contract_Discount_Amount__c = mapPricePoints[uniqIdentifier].contractDiscountAmount;
+                        cartLineItem.APTS_Solution_Contract_Discount_Amount__c = mapPricePoints[uniqIdentifier].solutionContractDiscountAmount;
+                        cartLineItem.APTS_Incentive_Adjustment_Amount_Bundle__c = mapPricePoints[uniqIdentifier].incentiveAdjAmount;
+                        cartLineItem.APTS_Solution_Unit_Incentive_Adj_Amount__c = mapPricePoints[uniqIdentifier].solutionUnitIncentiveAmount;
 
                         decimal? solOfferedPrice = mapPricePoints[uniqIdentifier].offeredPrice;
-                        cartLineItem.Set(LineItemCustomField.APTS_Solution_Offered_Price_c__c, solOfferedPrice);
-                        cartLineItemEntity.NetPrice = solOfferedPrice + bundleOfferedPrice;
+                        cartLineItem.APTS_Solution_Offered_Price_c__c = solOfferedPrice;
+                        cartLineItem.NetPrice = solOfferedPrice + bundleOfferedPrice;
 
-                        if (cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Solution_List_Price_c__c).HasValue && cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Solution_Offered_Price__c).HasValue)
+                        if (cartLineItem.APTS_Solution_List_Price_c__c.HasValue && cartLineItem.APTS_Solution_Offered_Price__c.HasValue)
                         {
-                            var totalResultingDiscountAmount = cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Solution_List_Price_c__c).Value - 
-                                (cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Solution_Offered_Price__c).Value + bundleOfferedPrice);
+                            var totalResultingDiscountAmount = cartLineItem.APTS_Solution_List_Price_c__c.Value - 
+                                (cartLineItem.APTS_Solution_Offered_Price__c.Value + bundleOfferedPrice);
                             
-                            cartLineItem.Set(LineItemCustomField.APTS_Total_Resulting_Discount_Amount__c, totalResultingDiscountAmount);
+                            cartLineItem.APTS_Total_Resulting_Discount_Amount__c = totalResultingDiscountAmount;
                         }
 
-                        cartLineItem.Set(LineItemCustomField.APTS_Solution_Price_Attainment_Color__c, 
-                            GetColor(solOfferedPrice + bundleOfferedPrice, solEscPrice, solMinPrice, cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_List_Price__c)));
+                        cartLineItem.APTS_Solution_Price_Attainment_Color__c = 
+                            GetColor(solOfferedPrice + bundleOfferedPrice, solEscPrice, solMinPrice, cartLineItem.APTS_Extended_List_Price__c);
                     }
                 }
             }
@@ -727,7 +717,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
             await Task.CompletedTask;
         }
 
-        public async Task PopulatePLICustomFields(List<LineItemModel> cartLineItems)
+        public async Task PopulatePLICustomFields(List<LineItem> cartLineItems)
         {
             pliDictionary = new Dictionary<string, PriceListItemQueryModel>();
             var priceListItemIdSet = cartLineItems.Select(li => li.GetPriceListItem().Entity.Id).ToHashSet();
@@ -741,61 +731,59 @@ namespace Apttus.Lightsaber.Phillips.Totalling
             }
         }
 
-        public async Task PopulateCustomFields(List<LineItemModel> cartLineItems)
+        public async Task PopulateCustomFields(List<LineItem> cartLineItems)
         {
             foreach (var cartLineItem in cartLineItems)
             {
-                var cartLineItemEntity = cartLineItem.Entity;
-
-                var pliCustomFields = pliDictionary.GetValueOrDefault(cartLineItemEntity.PriceListItemId);
+                var pliCustomFields = pliDictionary.GetValueOrDefault(cartLineItem.PriceListItemId);
 
                 if (pliCustomFields != null && pliCustomFields.APTS_Country_Pricelist_List_Price__c != null)
                 {
-                    cartLineItem.Set(LineItemCustomField.APTS_Payment_Term__c, pliCustomFields.Apttus_Config2__PriceListId__r.APTS_Payment_Term_Credit_Terms__c);
-                    cartLineItem.Set(LineItemCustomField.APTS_Inco_Term__c, pliCustomFields.Apttus_Config2__PriceListId__r.APTS_Inco_Terms__c);
+                    cartLineItem.APTS_Payment_Term__c = pliCustomFields.Apttus_Config2__PriceListId__r.APTS_Payment_Term_Credit_Terms__c;
+                    cartLineItem.APTS_Inco_Term__c = pliCustomFields.Apttus_Config2__PriceListId__r.APTS_Inco_Terms__c;
                 }
                 else
                 {
-                    cartLineItem.Set(LineItemCustomField.APTS_Payment_Term__c, proposal.Apttus_Proposal__Payment_Term__c);
-                    cartLineItem.Set(LineItemCustomField.APTS_Inco_Term__c, proposal.APTS_Inco_Term__c);
+                    cartLineItem.APTS_Payment_Term__c = proposal.Apttus_Proposal__Payment_Term__c;
+                    cartLineItem.APTS_Inco_Term__c = proposal.APTS_Inco_Term__c;
                 }
 
                 if (cartLineItem.GetLineType() == LineType.Option)
                 {
-                    if (cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_Main_Article_Group_ID__c) != null)
-                        cartLineItem.Set(LineItemCustomField.APTS_MAG__c, cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_Main_Article_Group_ID__c));
+                    if (cartLineItem.Apttus_Config2__OptionId__r_Main_Article_Group_ID__c != null)
+                        cartLineItem.APTS_MAG__c = cartLineItem.Apttus_Config2__OptionId__r_Main_Article_Group_ID__c;
 
-                    if (cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_Business_Unit_ID__c) != null)
-                        cartLineItem.Set(LineItemCustomField.APTS_Business_Unit__c, cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_Business_Unit_ID__c));
+                    if (cartLineItem.Apttus_Config2__OptionId__r_Business_Unit_ID__c != null)
+                        cartLineItem.APTS_Business_Unit__c = cartLineItem.Apttus_Config2__OptionId__r_Business_Unit_ID__c;
                 }
                 else
                 {
-                    if (cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_Main_Article_Group_ID__c) != null)
-                        cartLineItem.Set(LineItemCustomField.APTS_MAG__c, cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_Main_Article_Group_ID__c));
+                    if (cartLineItem.Apttus_Config2__ProductId__r_Main_Article_Group_ID__c != null)
+                        cartLineItem.APTS_MAG__c = cartLineItem.Apttus_Config2__ProductId__r_Main_Article_Group_ID__c;
 
-                    if (cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_Business_Unit_ID__c) != null)
-                        cartLineItem.Set(LineItemCustomField.APTS_Business_Unit__c, cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_Business_Unit_ID__c));
+                    if (cartLineItem.Apttus_Config2__ProductId__r_Business_Unit_ID__c != null)
+                        cartLineItem.APTS_Business_Unit__c = cartLineItem.Apttus_Config2__ProductId__r_Business_Unit_ID__c;
                 }
 
-                var escalationPriceAttainment = cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Escalation_Price_Attainment__c);
+                var escalationPriceAttainment = cartLineItem.APTS_Escalation_Price_Attainment__c;
                 if (escalationPriceAttainment.HasValue)
                 {
-                    cartLineItem.Set(LineItemCustomField.APTS_Is_Escalation_Price_Attained__c, 
-                        !((escalationPriceAttainment.Value < 100 && cartLineItemEntity.NetPrice > 0) || (escalationPriceAttainment.Value > 100 && cartLineItemEntity.NetPrice < 0)));
+                    cartLineItem.APTS_Is_Escalation_Price_Attained__c = 
+                        !((escalationPriceAttainment.Value < 100 && cartLineItem.NetPrice > 0) || (escalationPriceAttainment.Value > 100 && cartLineItem.NetPrice < 0));
                 }
 
-                var minimumPriceAttainment = cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Minimum_Price_Attainment__c);
+                var minimumPriceAttainment = cartLineItem.APTS_Minimum_Price_Attainment__c;
                 if (minimumPriceAttainment.HasValue)
                 {
-                    cartLineItem.Set(LineItemCustomField.APTS_Is_Minimum_Price_Attained__c, 
-                        !((minimumPriceAttainment.Value < 100 && cartLineItemEntity.NetPrice > 0) || (minimumPriceAttainment.Value > 100 && cartLineItemEntity.NetPrice < 0)));
+                    cartLineItem.APTS_Is_Minimum_Price_Attained__c =
+                        !((minimumPriceAttainment.Value < 100 && cartLineItem.NetPrice > 0) || (minimumPriceAttainment.Value > 100 && cartLineItem.NetPrice < 0));
                 }
             }
 
             await Task.CompletedTask;
         }
 
-        public async Task SetRollupsAndThresholdFlags(ProductConfigurationModel cart, List<LineItemModel> cartLineItems)
+        public async Task SetRollupsAndThresholdFlags(ProductConfigurationModel cart, List<LineItem> cartLineItems)
         {
             Dictionary<string, decimal?> mapClogToThresoldValue = new Dictionary<string, decimal?>();
 
@@ -826,29 +814,27 @@ namespace Apttus.Lightsaber.Phillips.Totalling
 
             foreach (var cartLineItem in cartLineItems)
             {
-                var cartLineItemEntity = cartLineItem.Entity;
-
-                if (cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_APTS_Type__c) == "SPOO"
-                    && cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_APTS_SPOO_Type__c) == "3rd Party"
-                    && cartLineItemEntity.NetPrice.HasValue)
+                if (cartLineItem.Apttus_Config2__ProductId__r_APTS_Type__c == "SPOO"
+                    && cartLineItem.Apttus_Config2__ProductId__r_APTS_SPOO_Type__c == "3rd Party"
+                    && cartLineItem.NetPrice.HasValue)
                 {
-                    CalculatedThreshold_3rdP = CalculatedThreshold_3rdP + FormatPrecisionCeiling(cartLineItemEntity.NetPrice.Value);
+                    CalculatedThreshold_3rdP = CalculatedThreshold_3rdP + FormatPrecisionCeiling(cartLineItem.NetPrice.Value);
                 }
 
-                if (cartLineItem.GetLineType() == LineType.ProductService && cartLineItemEntity.NetPrice.HasValue)
+                if (cartLineItem.GetLineType() == LineType.ProductService && cartLineItem.NetPrice.HasValue)
                 {
-                    CalculatedThreshold_QT = CalculatedThreshold_QT + FormatPrecisionCeiling(cartLineItemEntity.NetPrice.Value);
+                    CalculatedThreshold_QT = CalculatedThreshold_QT + FormatPrecisionCeiling(cartLineItem.NetPrice.Value);
                 }
 
-                if (mapClogToThresoldValue.ContainsKey(cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_APTS_CLOGS__c))
-                            && cartLineItem.Get<decimal?>(LineItemCustomField.APTS_Extended_List_Price__c) >= 
-                            mapClogToThresoldValue.GetValueOrDefault(cartLineItem.Get<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_APTS_CLOGS__c)))
+                if (mapClogToThresoldValue.ContainsKey(cartLineItem.Apttus_Config2__ProductId__r_APTS_CLOGS__c)
+                            && cartLineItem.APTS_Extended_List_Price__c >= 
+                            mapClogToThresoldValue.GetValueOrDefault(cartLineItem.Apttus_Config2__ProductId__r_APTS_CLOGS__c))
                 {
-                    cartLineItem.Set(LineItemCustomField.APTS_Procurement_approval_needed__c, true);
+                    cartLineItem.APTS_Procurement_approval_needed__c = true;
                 }
                 else
                 {
-                    cartLineItem.Set(LineItemCustomField.APTS_Procurement_approval_needed__c, false);
+                    cartLineItem.APTS_Procurement_approval_needed__c = false;
                 }
             }
 

@@ -12,11 +12,11 @@ namespace Apttus.Lightsaber.Phillips.Pricing
     public class PricingBasePriceCallback : CodeExtensibility, IPricingBasePriceCallback
     {
         private PricingBasePriceCallbackHelper pcbHelper = null;
-        private List<LineItemModel> batchLineItems = null;
+        private List<LineItem> batchLineItems = null;
 
         public async Task BeforePricingBatchAsync(BatchPriceRequest batchPriceRequest)
         {
-            batchLineItems = batchPriceRequest.LineItems.SelectMany(x => x.ChargeLines).ToList();
+            batchLineItems = batchPriceRequest.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
 
             var proposalSO = batchPriceRequest.Cart.Get<Dictionary<string, object>>(Constants.PROPOSAL);
             pcbHelper = new PricingBasePriceCallbackHelper(proposalSO, GetDBHelper(), GetPricingHelper());
@@ -26,7 +26,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
 
         public async Task OnPricingBatchAsync(BatchPriceRequest batchPriceRequest)
         {
-            var namBundleDictionary = await pcbHelper.QueryAndPopulateNAMBundleDictionary(batchPriceRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).ToList());
+            var namBundleDictionary = await pcbHelper.QueryAndPopulateNAMBundleDictionary(batchPriceRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList());
             var pliSPOODictionary = await pcbHelper.PopulateSPOOPLIDictionary(batchLineItems);
             var pliDictionary = await pcbHelper.QueryAndPopulatePliCustomFields(batchLineItems);
             var agreementTierDictionary = await pcbHelper.QueryAndPopulateAgreementTiers(pliDictionary);
@@ -41,7 +41,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
 
                 await pcbHelper.CalculateExtendedListPriceAndOptionUnitPrice(batchLineItem);
 
-                if (batchLineItem.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_Apttus_Config2__ProductType__c) != Constants.SYSTEM_TYPE_SERVICE)
+                if (batchLineItem.Apttus_Config2__ProductId__r_Apttus_Config2__ProductType__c != Constants.SYSTEM_TYPE_SERVICE)
                 {
                     await pcbHelper.PopulateTier(batchLineItem, pliDictionary, agreementTierDictionary);
                 }

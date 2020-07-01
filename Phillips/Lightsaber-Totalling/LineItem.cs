@@ -1,11 +1,12 @@
 ﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Extension;
+using Apttus.Lightsaber.Pricing.Common.Constants;
 using Apttus.Lightsaber.Pricing.Common.Entities;
 using Apttus.Lightsaber.Pricing.Common.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Apttus.Lightsaber.Phillips.Pricing
+namespace Apttus.Lightsaber.Phillips.Totalling
 {
     public class LineItem
     {
@@ -186,6 +187,11 @@ namespace Apttus.Lightsaber.Phillips.Pricing
         public decimal GetValuetOrDefault(string fieldName, decimal defaultValue)
         {
             return lineItemModel.GetValuetOrDefault(fieldName, defaultValue);
+        }
+
+        public LineType GetLineType()
+        {
+            return lineItemModel.GetLineType();
         }
 
         #region Custom & Not available Standard LineItem Fields

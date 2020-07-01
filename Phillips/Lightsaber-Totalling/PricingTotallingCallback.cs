@@ -11,11 +11,11 @@ namespace Apttus.Lightsaber.Phillips.Totalling
     public class PricingTotallingCallback : CodeExtensibility, IPricingTotallingCallback
     {
         private PricingTotallingCallbackHelper pcbHelper = null;
-        private List<LineItemModel> cartLineItems = null;
+        private List<LineItem> cartLineItems = null;
 
         public async Task BeforePricingCartAdjustmentAsync(AggregateCartRequest aggregateCartRequest)
         {
-            cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).ToList();
+            cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
             var proposalSO = aggregateCartRequest.Cart.Get<Dictionary<string, object>>(Constants.PROPOSAL);
             pcbHelper = new PricingTotallingCallbackHelper(proposalSO, GetDBHelper(), GetPricingHelper());
 
