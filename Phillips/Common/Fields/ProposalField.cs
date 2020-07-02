@@ -1,4 +1,4 @@
-﻿namespace Apttus.Lightsaber.Phillips.Pricing
+﻿namespace Apttus.Lightsaber.Phillips.Common
 {
     public class ProposalField
     {

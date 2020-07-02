@@ -6,21 +6,9 @@ namespace Apttus.Lightsaber.Phillips.Totalling
 {
     public class Proposal
     {
-        public string Apttus_Proposal__Payment_Term__c
-        {
-            get
-            {
-                return Get<string>(ProposalField.Apttus_Proposal__Payment_Term__c);
-            }
-        }
-
-        public string APTS_Inco_Term__c
-        {
-            get
-            {
-                return Get<string>(ProposalField.APTS_Inco_Term__c);
-            }
-        }
+        public string Account_Sold_to__c { get { return Get<string>(ProposalField.Account_Sold_to__c); } }
+        public string Apttus_Proposal__Payment_Term__c { get { return Get<string>(ProposalField.Apttus_Proposal__Payment_Term__c); } }
+        public string APTS_Inco_Term__c { get { return Get<string>(ProposalField.APTS_Inco_Term__c); } }
 
         private readonly Dictionary<string, object> proposal;
 

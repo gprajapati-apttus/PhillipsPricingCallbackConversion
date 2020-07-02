@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Apttus.Lightsaber.Phillips.Pricing
+namespace Apttus.Lightsaber.Phillips.Common
 {
     public class Proposal
     {
