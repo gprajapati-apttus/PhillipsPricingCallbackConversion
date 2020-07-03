@@ -300,6 +300,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
         public decimal? NokiaCPQ_Extended_Cost__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_Cost__c); } set { lineItemModel.Set(LineItemCustomField.NokiaCPQ_Extended_Cost__c, value); } }
         public decimal? Sales_Margin__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.Sales_Margin__c); } set { lineItemModel.Set(LineItemCustomField.Sales_Margin__c, value); } }
         public string Item_Type_From_CAT__c { get { return lineItemModel.Get<string>(LineItemCustomField.Item_Type_From_CAT__c); } set { lineItemModel.Set(LineItemCustomField.Item_Type_From_CAT__c, value); } }
+        public bool? NokiaCPQ_IsArcadiaBundle__c { get { return lineItemModel.Get<bool?>(LineItemCustomField.NokiaCPQ_IsArcadiaBundle__c); } set { lineItemModel.Set(LineItemCustomField.NokiaCPQ_IsArcadiaBundle__c, value); } }
 
         #endregion
 

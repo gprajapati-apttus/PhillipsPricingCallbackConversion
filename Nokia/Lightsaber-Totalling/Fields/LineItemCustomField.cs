@@ -54,6 +54,8 @@
         public const string NokiaCPQ_Is_Direct_Option__c = "NokiaCPQ_Is_Direct_Option__c";
         public const string NokiaCPQ_Floor_Price__c = "NokiaCPQ_Floor_Price__c";
         public const string NokiaCPQ_Custom_Bid__c = "NokiaCPQ_Custom_Bid__c";
+        public const string NokiaCPQ_IsArcadiaBundle__c = "NokiaCPQ_IsArcadiaBundle__c";
+        
 
         #region BasePrice
 
