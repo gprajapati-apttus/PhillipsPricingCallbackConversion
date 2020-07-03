@@ -15,20 +15,22 @@
         public const string Apttus_Config2__OptionId__r_NokiaCPQ_License_Usage__c = "Apttus_Config2__OptionId__r.NokiaCPQ_License_Usage__c";
         public const string Apttus_Config2__ProductId__r_Id = "Apttus_Config2__ProductId__r.Id";
         public const string Apttus_Config2__OptionId__r_Id = "Apttus_Config2__OptionId__r.Id";
-
         public const string Apttus_Config2__ProductId__r_ProductCode = "Apttus_Config2__ProductId__r.ProductCode";
         public const string Apttus_Config2__OptionId__r_ProductCode = "Apttus_Config2__OptionId__r.ProductCode";
         public const string Apttus_Config2__ProductId__r_Family = "Apttus_Config2__ProductId__r.Family";
-
         public const string Apttus_Config2__ProductId__r_IsSSP__c = "Apttus_Config2__ProductId__r.IsSSP__c";
         public const string Apttus_Config2__PriceListItemId__r_Apttus_Config2__PriceListId__c = "Apttus_Config2__PriceListItemId__r.Apttus_Config2__PriceListId__c";
-
         public const string Apttus_Config2__ProductId__r_Is_Dummy_Bundle_CPQ__c = "Apttus_Config2__ProductId__r.Is_Dummy_Bundle_CPQ__c";
         public const string Apttus_Config2__OptionId__r_Is_Dummy_Bundle_CPQ__c = "Apttus_Config2__OptionId__r.Is_Dummy_Bundle_CPQ__c";
         public const string Apttus_Config2__ProductId__r_Portfolio__c = "Apttus_Config2__ProductId__r.Portfolio__c";
-
         public const string Apttus_Config2__OptionId__r_Number_of_GE_Ports__c = "Apttus_Config2__OptionId__r.Number_of_GE_Ports__c";
         public const string Apttus_Config2__ProductId__r_Number_of_GE_Ports__c = "Apttus_Config2__ProductId__r.Number_of_GE_Ports__c";
-        
+
+        #region Totalling
+
+        public const string Apttus_Config2__PriceListItemId__r_Partner_Price__c = "Apttus_Config2__PriceListItemId__r.Partner_Price__c";
+
+
+        #endregion
     }
 }

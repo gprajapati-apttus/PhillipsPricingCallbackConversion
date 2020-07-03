@@ -190,6 +190,14 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             }
         }
 
+        public string Apttus_Proposal__Account__r_CountryCode__c
+        {
+            get
+            {
+                return Get<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_CountryCode__c);
+            }
+        }
+
 
         private readonly Dictionary<string, object> proposal;
 

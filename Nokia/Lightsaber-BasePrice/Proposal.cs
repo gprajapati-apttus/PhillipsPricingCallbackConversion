@@ -174,11 +174,11 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             }
         }
 
-        public string NokiaProductAccreditation__r_NokiaCPQ_Incoterm_Percentage__c
+        public decimal? NokiaProductAccreditation__r_NokiaCPQ_Incoterm_Percentage__c
         {
             get
             {
-                return Get<string>(ProposalRelationshipField.NokiaProductAccreditation__r_NokiaCPQ_Incoterm_Percentage__c);
+                return Get<decimal?>(ProposalRelationshipField.NokiaProductAccreditation__r_NokiaCPQ_Incoterm_Percentage__c);
             }
         }     
 
