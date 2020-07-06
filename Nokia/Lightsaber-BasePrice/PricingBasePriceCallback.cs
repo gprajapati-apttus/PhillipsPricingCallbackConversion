@@ -72,25 +72,11 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 }
             }
 
-            foreach (var cartLineItem in cartLineItems)
-            {
-                PriceListItemModel priceListItemModel = cartLineItem.GetPriceListItem();
-                PriceListItem priceListItemEntity = priceListItemModel.Entity;
-
-                if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
-                {
-
-                }
-            }
-
             await Task.CompletedTask;
         }
 
         public async Task OnPricingBatchAsync(BatchPriceRequest batchPriceRequest)
         {
-            //IsLeo()
-            //Is1Year()
-
             decimal? defaultExchangeRate = null;
             List<string> productList = new List<string>();
             Dictionary<string, decimal?> productPriceMap = new Dictionary<string, decimal?>();

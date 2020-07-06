@@ -27,7 +27,6 @@ namespace Apttus.Lightsaber.Nokia.Totalling
         public async Task BeforePricingCartAdjustmentAsync(AggregateCartRequest aggregateCartRequest)
         {
             //GP: Start Method
-            //IsLeo()
             decimal? minMaintPrice_EP = null;
             decimal? minMaintPrice = null;
             string isIONExistingContract_EP = string.Empty;
