@@ -396,7 +396,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 Dictionary<string, LineItem> productServiceMap = new Dictionary<string, LineItem>();
                 Dictionary<string, LineItem> careSRSOptionMap = new Dictionary<string, LineItem>();
 
-                Dictionary<decimal?, decimal?> linenumberQuantity = new Dictionary<decimal?, decimal?>();
+                //Dictionary<decimal?, decimal?> linenumberQuantity = new Dictionary<decimal?, decimal?>();
 
                 foreach (var cartLineItem in cartLineItems)
                 {
@@ -433,10 +433,10 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         }
                     }
                     //To set quantities for other charge types on main bundle
-                    if (cartLineItem.ChargeType != null && cartLineItem.ChargeType.equalsIgnoreCase(Constants.STANDARD) && cartLineItem.GetLineType() == LineType.ProductService)
-                    {
-                        linenumberQuantity.Add(cartLineItem.GetLineNumber(), cartLineItem.GetQuantity());
-                    }
+                    //if (cartLineItem.ChargeType != null && cartLineItem.ChargeType.equalsIgnoreCase(Constants.STANDARD) && cartLineItem.GetLineType() == LineType.ProductService)
+                    //{
+                    //    linenumberQuantity.Add(cartLineItem.GetLineNumber(), cartLineItem.GetQuantity());
+                    //}
                     //Map of Airscale wifi Maintenance lines
                     if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING))
                     {
@@ -600,14 +600,14 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                             totalExtendedMaintY1Price = maintenanceValueMap["ExtendedMaintY1Price"];
                             totalExtendedMaintY2Price = maintenanceValueMap["ExtendedMaintY2Price"];
                         }
-                        if (cartLineItem.ChargeType != null && !cartLineItem.ChargeType.equalsIgnoreCase(Constants.STANDARD) && cartLineItem.GetLineType() == LineType.ProductService)
-                        {
-                            if (linenumberQuantity.Count > 0 && linenumberQuantity.ContainsKey(cartLineItem.GetLineNumber()))
-                            {
-                                cartLineItem.Quantity = linenumberQuantity[cartLineItem.GetLineNumber()];
+                        //if (cartLineItem.ChargeType != null && !cartLineItem.ChargeType.equalsIgnoreCase(Constants.STANDARD) && cartLineItem.GetLineType() == LineType.ProductService)
+                        //{
+                        //    if (linenumberQuantity.Count > 0 && linenumberQuantity.ContainsKey(cartLineItem.GetLineNumber()))
+                        //    {
+                        //        cartLineItem.Quantity = linenumberQuantity[cartLineItem.GetLineNumber()];
 
-                            }
-                        }
+                        //    }
+                        //}
                     }
 
                     foreach (var cartLineItem in cartLineItems)
@@ -729,13 +729,13 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 {
                     foreach (var item in productServiceMap.Values)
                     {
-                        if (!item.ChargeType.equalsIgnoreCase(Constants.STANDARD))
-                        {
-                            if (linenumberQuantity.Count > 0 && linenumberQuantity.ContainsKey(item.GetLineNumber()))
-                            {
-                                item.Quantity = linenumberQuantity[item.GetLineNumber()];
-                            }
-                        }
+                        //if (!item.ChargeType.equalsIgnoreCase(Constants.STANDARD))
+                        //{
+                        //    if (linenumberQuantity.Count > 0 && linenumberQuantity.ContainsKey(item.GetLineNumber()))
+                        //    {
+                        //        item.Quantity = linenumberQuantity[item.GetLineNumber()];
+                        //    }
+                        //}
                         //Care & SRS calculation for NSW
                         if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase("Nokia Software"))
                         {
@@ -879,7 +879,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     string partNumber = getPartNumber(item);
                     string configType = getConfigType(item);
 
-                    if (configType.equalsIgnoreCase("Bundle") && !proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING))
+                    if (configType.equalsIgnoreCase(Constants.BUNDLE) && !proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING))
                     {
                         var key = item.PrimaryLineNumber + Constants.NOKIA_UNDERSCORE + item.ChargeType;
                         if (primaryNoLineItemList.ContainsKey(key))
@@ -1264,17 +1264,13 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                                                 }
                                                 careNetCNP = careNetCNP - optionLineItem.NetPrice;
                                                 srsNetCNP = srsNetCNP - optionLineItem.NetPrice;
-
-
                                             }
 
                                             if (itemType != null && itemType == "Hardware")
                                             {
                                                 srsExtendedCLP = srsExtendedCLP - optionLineItem.NokiaCPQ_Extended_CLP_2__c;
                                                 srsNetCNP = srsNetCNP - optionLineItem.NetPrice;
-
                                             }
-
                                         }
                                     }
                                 }

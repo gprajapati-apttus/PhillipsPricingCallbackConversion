@@ -72,6 +72,37 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 }
             }
 
+            if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
+            {
+                Dictionary<decimal?, decimal?> linenumberQuantity = new Dictionary<decimal?, decimal?>();
+
+                foreach (var batchLineItem in batchLineItems)
+                {
+                    //To set quantities for other charge types on main bundle
+                    if (batchLineItem.ChargeType != null && batchLineItem.ChargeType.equalsIgnoreCase(Constants.STANDARD) && batchLineItem.GetLineType() == LineType.ProductService)
+                    {
+                        linenumberQuantity.Add(batchLineItem.GetLineNumber(), batchLineItem.GetQuantity());
+                    }
+                }
+
+                foreach (var batchLineItem in batchLineItems)
+                {
+                    string configType = getConfigType(batchLineItem);
+                    if (batchLineItem.GetLineType() == LineType.Option && Constants.BUNDLE.equalsIgnoreCase(configType))
+                    {
+                        if (batchLineItem.AdjustmentType == Constants.DISCOUNT_AMOUNT)
+                            batchLineItem.BasePriceOverride = batchLineItem.AdjustmentAmount;
+                        else
+                            batchLineItem.BasePriceOverride = 0;
+                    }
+
+                    if (batchLineItem.ChargeType != null && !batchLineItem.ChargeType.equalsIgnoreCase(Constants.STANDARD) && batchLineItem.GetLineType() == LineType.ProductService)
+                    {
+                        batchLineItem.Quantity = linenumberQuantity[batchLineItem.GetLineNumber()];
+                    }
+                }
+            }
+
             await Task.CompletedTask;
         }
 
@@ -100,8 +131,8 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 {
                     productList.Add(batchLineItem.GetProductOrOptionId());
 
-                    if (proposal.NokiaCPQ_Portfolio__c == Constants.QTC || 
-                        (proposal.NokiaCPQ_Portfolio__c == Constants.NOKIA_IP_ROUTING && 
+                    if (proposal.NokiaCPQ_Portfolio__c == Constants.QTC ||
+                        (proposal.NokiaCPQ_Portfolio__c == Constants.NOKIA_IP_ROUTING &&
                         proposal.Is_List_Price_Only__c == false))
                     {
                         ProductId_set.Add(batchLineItem.GetProductOrOptionId());
@@ -137,7 +168,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                         proposal.Apttus_Proposal__Account__r_GEOLevel1ID__c, proposal.NokiaCPQ_Maintenance_Type__c);
                     var maintenanceSSPRuleList = await dBHelper.FindAsync<MaintenanceAndSSPRuleQueryModel>(maintenanceAndSSPRuleQuery);
 
-                    foreach(var maintenanceSSPRule in maintenanceSSPRuleList)
+                    foreach (var maintenanceSSPRule in maintenanceSSPRuleList)
                     {
                         if (maintenanceSSPRule.Maintenance_Type__c != null && maintenanceSSPRule.Maintenance_Category__c != null)
                         {
@@ -155,10 +186,10 @@ namespace Apttus.Lightsaber.Nokia.Pricing
 
                 foreach (var nokiaMaintenanceSSPRule in nokiaMaintenanceSSPRules)
                 {
-                    if (nokiaMaintenanceSSPRule.NokiaCPQ_Pricing_Cluster__c.equalsIgnoreCase(proposal.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Cluster__c) 
+                    if (nokiaMaintenanceSSPRule.NokiaCPQ_Pricing_Cluster__c.equalsIgnoreCase(proposal.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Cluster__c)
                         || nokiaMaintenanceSSPRule.NokiaCPQ_Pricing_Cluster__c.equalsIgnoreCase(proposal.NokiaProductAccreditation__r_Pricing_Cluster__c))
                     {
-                        var key = nokiaMaintenanceSSPRule.NokiaCPQ_Pricing_Cluster__c + Constants.NOKIA_STRING_APPENDER + nokiaMaintenanceSSPRule.NokiaCPQ_Product_Discount_Category__c + 
+                        var key = nokiaMaintenanceSSPRule.NokiaCPQ_Pricing_Cluster__c + Constants.NOKIA_STRING_APPENDER + nokiaMaintenanceSSPRule.NokiaCPQ_Product_Discount_Category__c +
                             Constants.NOKIA_STRING_APPENDER + nokiaMaintenanceSSPRule.NokiaCPQ_withPMA__c + Constants.NOKIA_STRING_APPENDER + nokiaMaintenanceSSPRule.NokiaCPQ_Maintenance_Type__c;
 
                         if (maintenanceSSPRuleMap.ContainsKey(key))
@@ -177,7 +208,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
 
                 var tierDiscountDetailQueryModels = await dBHelper.FindAsync<TierDiscountDetailQueryModel>(tierDiscountDetailQuery);
 
-                foreach(var tierDiscountDetailQueryModel in tierDiscountDetailQueryModels)
+                foreach (var tierDiscountDetailQueryModel in tierDiscountDetailQueryModels)
                 {
                     var key = tierDiscountDetailQueryModel.NokiaCPQ_Tier_Type__c + Constants.NOKIA_STRING_APPENDER +
                         tierDiscountDetailQueryModel.NokiaCPQ_Partner_Type__c + Constants.NOKIA_STRING_APPENDER +
@@ -203,7 +234,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                     var indirectMarketPriceListQuery = QueryHelper.GetIndirectMarketPriceListQuery();
                     var priceListCollection = await dBHelper.FindAsync<PriceListQueryModel>(indirectMarketPriceListQuery);
 
-                    foreach(var priceList in priceListCollection)
+                    foreach (var priceList in priceListCollection)
                     {
                         mapPliType.Add(priceList.Id, priceList.PriceList_Type__c);
                     }
@@ -282,7 +313,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                                 productExtensitonMap[batchLineItem.ProductId] != null &&
                                 productExtensitonMap[batchLineItem.ProductId].Floor_Price__c != null)
                             {
-                                batchLineItem.NokiaCPQ_Floor_Price__c = 
+                                batchLineItem.NokiaCPQ_Floor_Price__c =
                                     productExtensitonMap[batchLineItem.ProductId].Floor_Price__c == null ? null : productExtensitonMap[batchLineItem.ProductId].Floor_Price__c;
                             }
                             else if (batchLineItem.GetLineType() == LineType.Option &&
@@ -386,23 +417,23 @@ namespace Apttus.Lightsaber.Nokia.Pricing
 
                         var isSSPProduct = batchLineItem.Apttus_Config2__ProductId__r_IsSSP__c;
 
-                        if (isSSPProduct == false && proposal.NokiaCPQ_Maintenance_Type__c != null && proposal.NokiaCPQ_SSP_Level__c != null && 
+                        if (isSSPProduct == false && proposal.NokiaCPQ_Maintenance_Type__c != null && proposal.NokiaCPQ_SSP_Level__c != null &&
                             Constants.NOKIA_UNLIMITED.equalsIgnoreCase(proposal.NokiaCPQ_SSP_Level__c))
                         {
                             batchLineItem.NokiaCPQ_SSP_Rate__c = unlimitedSSP * 100;
                         }
-                        else if (isSSPProduct == false && proposal.NokiaCPQ_Maintenance_Type__c != null && proposal.NokiaCPQ_SSP_Level__c != null && 
+                        else if (isSSPProduct == false && proposal.NokiaCPQ_Maintenance_Type__c != null && proposal.NokiaCPQ_SSP_Level__c != null &&
                             Constants.NOKIA_BIENNIAL.equalsIgnoreCase(proposal.NokiaCPQ_SSP_Level__c))
                         {
                             batchLineItem.NokiaCPQ_SSP_Rate__c = biennialSSP * 100;
                         }
 
-                        if (isSSPProduct == true && proposal.NokiaCPQ_Maintenance_Type__c != null && proposal.NokiaCPQ_SRS_Level__c != null && 
+                        if (isSSPProduct == true && proposal.NokiaCPQ_Maintenance_Type__c != null && proposal.NokiaCPQ_SRS_Level__c != null &&
                             Constants.NOKIA_UNLIMITED.equalsIgnoreCase(proposal.NokiaCPQ_SRS_Level__c))
                         {
                             batchLineItem.NokiaCPQ_SRS_Rate__c = unlimitedSRS * 100;
                         }
-                        else if (isSSPProduct == true && proposal.NokiaCPQ_Maintenance_Type__c != null && proposal.NokiaCPQ_SRS_Level__c != null && 
+                        else if (isSSPProduct == true && proposal.NokiaCPQ_Maintenance_Type__c != null && proposal.NokiaCPQ_SRS_Level__c != null &&
                             Constants.NOKIA_BIENNIAL.equalsIgnoreCase(proposal.NokiaCPQ_SRS_Level__c))
                         {
                             batchLineItem.NokiaCPQ_SRS_Rate__c = biennialSRS * 100;
@@ -437,10 +468,10 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                                     batchLineItem.NokiaCPQ_Unitary_Cost__c =
                                         pricingHelper.ApplyRounding(((batchLineItem.Cost / defaultExchangeRate) * (proposal.exchange_rate__c)), 5, RoundingMode.HALF_UP);
                                 }
-                                else if (batchLineItem.Advanced_pricing_done__c == true && 
+                                else if (batchLineItem.Advanced_pricing_done__c == true &&
                                     batchLineItem.NokiaCPQ_Unitary_Cost__c != null)
                                 {
-                                    batchLineItem.NokiaCPQ_Unitary_Cost__c = 
+                                    batchLineItem.NokiaCPQ_Unitary_Cost__c =
                                         pricingHelper.ApplyRounding(((batchLineItem.NokiaCPQ_Unitary_Cost__c / defaultExchangeRate) * (proposal.exchange_rate__c)), 5, RoundingMode.HALF_UP);
                                 }
                             }
@@ -453,7 +484,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                     }
                     else if (productPriceMap != null)
                     {
-                        if (batchLineItem.GetLineType() == LineType.Option  && proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_SOFTWARE) && 
+                        if (batchLineItem.GetLineType() == LineType.Option && proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_SOFTWARE) &&
                             configType.equalsIgnoreCase("Standalone") && IsOptionLineFromSubBundle(batchLineItem))
                         {
                             batchLineItem.NokiaCPQ_Unitary_IRP__c = 0;
@@ -467,7 +498,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                             }
                             else
                             {
-                                batchLineItem.NokiaCPQ_Unitary_IRP__c = 
+                                batchLineItem.NokiaCPQ_Unitary_IRP__c =
                                     pricingHelper.ApplyRounding((productPriceMap[batchLineItem.OptionId] * (proposal.exchange_rate__c)), 5, RoundingMode.HALF_UP);
                             }
                         }
@@ -575,17 +606,17 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                     }
                     else
                     {
-                        dummyBundleLI = batchLineItem.Apttus_Config2__OptionId__r_Is_Dummy_Bundle_CPQ__c; 
+                        dummyBundleLI = batchLineItem.Apttus_Config2__OptionId__r_Is_Dummy_Bundle_CPQ__c;
                     }
                     /*End Performance Formula Fields*/
 
-                    if (Constants.DEFAULTPENDING.equals(batchLineItem.Apttus_Config2__ConfigStatus__c) && Constants.NOKIA_YES.equals(dummyBundleLI) && 
+                    if (Constants.DEFAULTPENDING.equals(batchLineItem.Apttus_Config2__ConfigStatus__c) && Constants.NOKIA_YES.equals(dummyBundleLI) &&
                         batchLineItem.GetLineType() == LineType.Option)
                     {
                         batchLineItem.Apttus_Config2__ConfigStatus__c = Constants.COMPLETE_MSG;
                     }
-                    
-                    if (batchLineItem != null && batchLineItem.Source__c != null && 
+
+                    if (batchLineItem != null && batchLineItem.Source__c != null &&
                         (batchLineItem.Source__c.equalsIgnoreCase(Constants.NOKIA_EPT) ||
                         batchLineItem.Source__c.equalsIgnoreCase(Constants.WAVELITESOURCE)))
                     { //Added by RG for Wavelite check
@@ -693,7 +724,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                             {
                                 key = Constants.INCENTIVES_STRING_APPENDER + proposal.Apttus_Proposal__Account__r_Partner_Type__c + Constants.NOKIA_STRING_APPENDER + Constants.ATTACHMENT_STRING_APPENDER + proposal.Apttus_Proposal__Account__r_Partner_Program__c;
 
-                                if (tierDiscountRuleMap.Any() && tierDiscountRuleMap.ContainsKey(key) &&  tierDiscountRuleMap[key] != null && tierDiscountRuleMap[key].size() > 0)
+                                if (tierDiscountRuleMap.Any() && tierDiscountRuleMap.ContainsKey(key) && tierDiscountRuleMap[key] != null && tierDiscountRuleMap[key].size() > 0)
                                 {
                                     batchLineItem.NokiaCPQ_Attachment_Per__c = tierDiscountRuleMap[key][0];
                                 }
@@ -710,8 +741,8 @@ namespace Apttus.Lightsaber.Nokia.Pricing
 
                         if (Convert.ToInt32(proposal.NokiaCPQ_No_of_Years__c) >= 3 && !sspSRSDefaultsList.isEmpty() && sspSRSDefaultsList[0].Multi_Year_Discount_Applicable__c == true)
                         {
-                            if (tierDiscountRuleMap.Any() && 
-                                tierDiscountRuleMap[Constants.INCENTIVES_STRING_APPENDER + proposal.Apttus_Proposal__Account__r_Partner_Type__c + Constants.NOKIA_STRING_APPENDER + Constants.MULTIYR_STRING_APPENDER + proposal.Apttus_Proposal__Account__r_Partner_Program__c] != null && 
+                            if (tierDiscountRuleMap.Any() &&
+                                tierDiscountRuleMap[Constants.INCENTIVES_STRING_APPENDER + proposal.Apttus_Proposal__Account__r_Partner_Type__c + Constants.NOKIA_STRING_APPENDER + Constants.MULTIYR_STRING_APPENDER + proposal.Apttus_Proposal__Account__r_Partner_Program__c] != null &&
                                 tierDiscountRuleMap[Constants.INCENTIVES_STRING_APPENDER + proposal.Apttus_Proposal__Account__r_Partner_Type__c + Constants.NOKIA_STRING_APPENDER + Constants.MULTIYR_STRING_APPENDER + proposal.Apttus_Proposal__Account__r_Partner_Program__c].Count > 0)
                             {
                                 batchLineItem.NokiaCPQ_Multi_Yr_Per__c =
@@ -751,7 +782,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                         key = batchLineItem.Nokia_Pricing_Cluster__c + Constants.NOKIA_STRING_APPENDER + productDiscountCat + Constants.NOKIA_STRING_APPENDER + proposal.NokiaCPQ_IsPMA__c + Constants.NOKIA_STRING_APPENDER + proposal.NokiaCPQ_Maintenance_Type__c;
                         if (maintenanceSSPRuleMap != null &&
                             maintenanceSSPRuleMap.ContainsKey(key) &&
-                            maintenanceSSPRuleMap[key] != null && 
+                            maintenanceSSPRuleMap[key] != null &&
                             maintenanceSSPRuleMap[key].Count > 0)
                         {
                             nokiaSSPSRSProdDiscount = maintenanceSSPRuleMap[key][0];
@@ -786,18 +817,18 @@ namespace Apttus.Lightsaber.Nokia.Pricing
 
                         NokiaMaintenanceAndSSPRulesQueryModel nokiaMaintenanceProdDiscount;
                         key = batchLineItem.Nokia_Maint_Pricing_Cluster__c + Constants.NOKIA_STRING_APPENDER + productDiscountCat + Constants.NOKIA_STRING_APPENDER + proposal.NokiaCPQ_IsPMA__c + Constants.NOKIA_STRING_APPENDER + proposal.NokiaCPQ_Maintenance_Type__c;
-                        
+
                         if (maintenanceSSPRuleMap != null &&
                             maintenanceSSPRuleMap.ContainsKey(key) &&
-                            maintenanceSSPRuleMap[key] != null && 
+                            maintenanceSSPRuleMap[key] != null &&
                             maintenanceSSPRuleMap[key].Count > 0)
                         {
                             nokiaMaintenanceProdDiscount = maintenanceSSPRuleMap[key][0];
                             if (nokiaMaintenanceProdDiscount != null)
                             {
-                                if (nokiaMaintenanceProdDiscount.NokiaCPQ_Service_Rate_Y1__c == null || batchLineItem.NokiaCPQ_Spare__c == true || 
-                                    (proposal.NokiaCPQ_Is_Maintenance_Quote__c == true && proposal.Warranty_credit__c != null && proposal.Warranty_credit__c.equalsIgnoreCase(Constants.NOKIA_NO)) || 
-                                    (batchLineItem.GetLineType() == LineType.Option && batchLineItem.NokiaCPQ_Static_Bundle_Option__c == true && 
+                                if (nokiaMaintenanceProdDiscount.NokiaCPQ_Service_Rate_Y1__c == null || batchLineItem.NokiaCPQ_Spare__c == true ||
+                                    (proposal.NokiaCPQ_Is_Maintenance_Quote__c == true && proposal.Warranty_credit__c != null && proposal.Warranty_credit__c.equalsIgnoreCase(Constants.NOKIA_NO)) ||
+                                    (batchLineItem.GetLineType() == LineType.Option && batchLineItem.NokiaCPQ_Static_Bundle_Option__c == true &&
                                     (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_FIXED_ACCESS_POL) || proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_FIXED_ACCESS_FBA)))
                                 )
                                 {
@@ -808,7 +839,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                                     serviceRateY1 = nokiaMaintenanceProdDiscount.NokiaCPQ_Service_Rate_Y1__c;
                                 }
                                 if (nokiaMaintenanceProdDiscount.NokiaCPQ_Service_Rate_Y2__c == null || batchLineItem.NokiaCPQ_Spare__c == true || Is1Year() ||
-                                    (batchLineItem.GetLineType() == LineType.Option && batchLineItem.NokiaCPQ_Static_Bundle_Option__c == true && 
+                                    (batchLineItem.GetLineType() == LineType.Option && batchLineItem.NokiaCPQ_Static_Bundle_Option__c == true &&
                                     (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_FIXED_ACCESS_POL) || proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_FIXED_ACCESS_FBA))))
                                 {
                                     serviceRateY2 = 0;
@@ -821,7 +852,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                             }
                         }
                         //Heema : Req 6593 start:
-                        if (proposal.NokiaCPQ_LEO_Discount__c == true && (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_FIXED_ACCESS_POL) || 
+                        if (proposal.NokiaCPQ_LEO_Discount__c == true && (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_FIXED_ACCESS_POL) ||
                             proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_FIXED_ACCESS_FBA)))
                         {
                             serviceRateY1 = 0.05m;
@@ -893,12 +924,12 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                                         batchLineItem.NokiaCPQ_SSP_Rate__c != null &&
                                         batchLineItem.Nokia_CPQ_Maint_Prod_Cat_Disc__c != null)
                                     {
-                                        batchLineItem.Nokia_SSP_Base_Price__c = batchLineItem.Nokia_SSP_List_Price__c * 
-                                            (1 - batchLineItem.Nokia_CPQ_Maint_Prod_Cat_Disc__c * .01m) * 
+                                        batchLineItem.Nokia_SSP_Base_Price__c = batchLineItem.Nokia_SSP_List_Price__c *
+                                            (1 - batchLineItem.Nokia_CPQ_Maint_Prod_Cat_Disc__c * .01m) *
                                             (1 - batchLineItem.NokiaCPQ_Accreditation_Discount__c * .01m);
 
                                         batchLineItem.Nokia_SSP_Base_Price__c =
-                                            pricingHelper.ApplyRounding(batchLineItem.Nokia_SSP_Base_Price__c,  2, RoundingMode.HALF_UP);
+                                            pricingHelper.ApplyRounding(batchLineItem.Nokia_SSP_Base_Price__c, 2, RoundingMode.HALF_UP);
                                     }
                                     if (batchLineItem.Nokia_SSP_Base_Price__c != null && batchLineItem.Quantity != null)
                                     {
@@ -912,8 +943,8 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                             if (sspSRSDefaultsList[0].SRS_Visible__c == true)
                             {
                                 // Replacing item.Portfolio_from_Quote_Line_Item__c with proposal.NokiaCPQ_Portfolio__c
-                                if (((productDiscountCat != null && Labels.SRSPDC.Contains(productDiscountCat) || 
-                                    (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_NUAGE) && batchLineItem.ProductId != null && 
+                                if (((productDiscountCat != null && Labels.SRSPDC.Contains(productDiscountCat) ||
+                                    (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_NUAGE) && batchLineItem.ProductId != null &&
                                     Constants.PRODUCTITEMTYPESOFTWARE.equalsIgnoreCase(batchLineItem.Apttus_Config2__ProductId__r_NokiaCPQ_Item_Type__c))) && !IsLeo()) ||
                                     batchLineItem.is_Custom_Product__c == true)
                                 {
@@ -928,8 +959,8 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                                     // system.debug('SRS calculation' +item.Nokia_SRS_List_Price__c);
                                     if (batchLineItem.Nokia_SRS_List_Price__c != null && batchLineItem.Nokia_CPQ_Maint_Prod_Cat_Disc__c != null)
                                     {
-                                        batchLineItem.Nokia_SRS_Base_Price__c = batchLineItem.Nokia_SRS_List_Price__c * 
-                                            (1 - batchLineItem.Nokia_CPQ_Maint_Prod_Cat_Disc__c * .01m) * 
+                                        batchLineItem.Nokia_SRS_Base_Price__c = batchLineItem.Nokia_SRS_List_Price__c *
+                                            (1 - batchLineItem.Nokia_CPQ_Maint_Prod_Cat_Disc__c * .01m) *
                                             (1 - batchLineItem.NokiaCPQ_Accreditation_Discount__c * .01m);
 
                                         batchLineItem.Nokia_SRS_Base_Price__c =
@@ -984,7 +1015,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                         {
                             batchLineItem.NokiaCPQ_Maint_Yr2_Base_Price__c =
                                 batchLineItem.NokiaCPQ_Maint_Yr2_List_Price__c * (1 - batchLineItem.NokiaCPQ_Total_Maintenance_Discount__c * .01m);
-                            
+
                             batchLineItem.NokiaCPQ_Maint_Yr2_Base_Price__c =
                                 pricingHelper.ApplyRounding(batchLineItem.NokiaCPQ_Maint_Yr2_Base_Price__c, 2, RoundingMode.HALF_UP);
                         }
@@ -1087,7 +1118,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
         private string getPartNumber(LineItem lineItemModel)
         {
             string partNumber = string.Empty;
-            if (lineItemModel.is_Custom_Product__c ==  true)
+            if (lineItemModel.is_Custom_Product__c == true)
             {
                 partNumber = lineItemModel.Custom_Product_Code__c;
             }

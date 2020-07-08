@@ -194,6 +194,11 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             return lineItemModel.GetLineType();
         }
 
+        public LineItem GetRootParentPrimaryChargeTypeLineItem()
+        {
+            return new LineItem(lineItemModel.GetRootParentPrimaryChargeTypeLineItem());
+        }
+
         #region Custom & Not available Standard LineItem Fields
 
         public string Apttus_Config2__ConfigStatus__c { get { return lineItemModel.Get<string>(LineItemStandardField.Apttus_Config2__ConfigStatus__c); } set { lineItemModel.Set(LineItemStandardField.Apttus_Config2__ConfigStatus__c, value); } }

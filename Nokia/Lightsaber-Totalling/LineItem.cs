@@ -200,6 +200,11 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             return lineItemModel.GetExtendedQuantity();
         }
 
+        public LineItem GetRootParentPrimaryChargeTypeLineItem()
+        {
+            return new LineItem(lineItemModel.GetRootParentPrimaryChargeTypeLineItem());
+        }
+
         public void UpdatePrice(IPricingHelper pricingHelper)
         {
             pricingHelper.UpdatePrice(lineItemModel);
