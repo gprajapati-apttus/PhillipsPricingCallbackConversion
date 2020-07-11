@@ -33,7 +33,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                         new FilterCondition() { FieldName = "Apttus_Config2__PriceListId__r.Apttus_Config2__BasedOnPriceListId__c", Value = null, ComparisonOperator = ConditionOperator.EqualTo},
                         new FilterCondition() { FieldName = "CurrencyIsoCode", Value = "EUR", ComparisonOperator = ConditionOperator.EqualTo}
                 };
-            query.Fields = new string[] { "Id", "Apttus_Config2__ListPrice__c", "Apttus_Config2__ProductId__c", "Apttus_Config2__ProductActive__c", 
+            query.Fields = new string[] { "Id", "Apttus_Config2__ListPrice__c", "Apttus_Config2__ProductId__c", "Apttus_Config2__ProductActive__c",
                 "Apttus_Config2__ProductId__r.Portfolio__c", "Apttus_Config2__Cost__c" };
 
             return query;
@@ -58,7 +58,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
         {
             Query query = new Query();
             query.EntityName = "NokiaCPQ_MN_Direct_Product_Map__mdt";
-            query.Fields = new string[] { "Id", "NokiaCPQ_Product_Code__c", "NokiaCPQ_Product_Type__c"};
+            query.Fields = new string[] { "Id", "NokiaCPQ_Product_Code__c", "NokiaCPQ_Product_Type__c" };
 
             return query;
         }
@@ -128,8 +128,8 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 //    WHERE NokiaCPQ_withPMA__c = FALSE AND Partner_Program__c =: proposalSO.Apttus_Proposal__Account__r.Partner_Program__c];
                 whereCondition = new List<FilterCondition>()
                 {
-                        new FilterCondition() { FieldName = "NokiaCPQ_withPMA__c", Value = false, ComparisonOperator = ConditionOperator.EqualTo},
-                        new FilterCondition() { FieldName = "Partner_Program__c", Value = proposal.Apttus_Proposal__Account__r_Partner_Program__c, ComparisonOperator = ConditionOperator.EqualTo}
+                        new FilterCondition() { FieldName = "Partner_Program__c", Value = proposal.Apttus_Proposal__Account__r_Partner_Program__c, ComparisonOperator = ConditionOperator.EqualTo},
+                        new FilterCondition() { FieldName = "NokiaCPQ_withPMA__c", Value = false, ComparisonOperator = ConditionOperator.EqualTo}
                 };
             }
             else if (proposal.NokiaCPQ_LEO_Discount__c == true)
@@ -140,10 +140,11 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 //    WHERE NokiaCPQ_withPMA__c = FALSE and NokiaCPQ_Maintenance_Type__c =: maintenanceType and NokiaCPQ_Maintenance_Level__c = '' and Partner_Program__c =: proposalSO.Apttus_Proposal__Account__r.Partner_Program__c];
                 whereCondition = new List<FilterCondition>()
                 {
-                        new FilterCondition() { FieldName = "NokiaCPQ_withPMA__c", Value = false, ComparisonOperator = ConditionOperator.EqualTo},
                         new FilterCondition() { FieldName = "NokiaCPQ_Maintenance_Type__c", Value = maintenanceType, ComparisonOperator = ConditionOperator.EqualTo},
                         new FilterCondition() { FieldName = "NokiaCPQ_Maintenance_Level__c", Value = string.Empty, ComparisonOperator = ConditionOperator.EqualTo},
-                        new FilterCondition() { FieldName = "Partner_Program__c", Value = proposal.Apttus_Proposal__Account__r_Partner_Program__c, ComparisonOperator = ConditionOperator.EqualTo}
+                        new FilterCondition() { FieldName = "Partner_Program__c", Value = proposal.Apttus_Proposal__Account__r_Partner_Program__c, ComparisonOperator = ConditionOperator.EqualTo},
+                        new FilterCondition() { FieldName = "NokiaCPQ_withPMA__c", Value = false, ComparisonOperator = ConditionOperator.EqualTo}
+
                 };
             }
             else if (proposal.Get<bool?>(ProposalField.NokiaCPQ_IsPMA__c) == true)
@@ -154,10 +155,10 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 //WHERE NokiaCPQ_withPMA__c = TRUE and NokiaCPQ_Maintenance_Type__c =: proposalSO.NokiaCPQ_Maintenance_Type__c and NokiaCPQ_Maintenance_Level__c =:maintPricinglevel and Partner_Program__c =: proposalSO.Apttus_Proposal__Account__r.Partner_Program__c];
                 whereCondition = new List<FilterCondition>()
                 {
-                        new FilterCondition() { FieldName = "NokiaCPQ_withPMA__c", Value = true, ComparisonOperator = ConditionOperator.EqualTo},
                         new FilterCondition() { FieldName = "NokiaCPQ_Maintenance_Type__c", Value = proposal.NokiaCPQ_Maintenance_Type__c, ComparisonOperator = ConditionOperator.EqualTo},
-                        new FilterCondition() { FieldName = "NokiaCPQ_Maintenance_Level__c", Value = string.Empty, ComparisonOperator = ConditionOperator.EqualTo},
-                        new FilterCondition() { FieldName = "Partner_Program__c", Value = proposal.Apttus_Proposal__Account__r_Partner_Program__c, ComparisonOperator = ConditionOperator.EqualTo}
+                        new FilterCondition() { FieldName = "NokiaCPQ_Maintenance_Level__c", Value = maintPricinglevel, ComparisonOperator = ConditionOperator.EqualTo},
+                        new FilterCondition() { FieldName = "Partner_Program__c", Value = proposal.Apttus_Proposal__Account__r_Partner_Program__c, ComparisonOperator = ConditionOperator.EqualTo},
+                        new FilterCondition() { FieldName = "NokiaCPQ_withPMA__c", Value = true, ComparisonOperator = ConditionOperator.EqualTo}
                 };
             }
 
@@ -190,8 +191,8 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 {
                         new FilterCondition() { FieldName = "Portfolio__c", Value = portfolio, ComparisonOperator = ConditionOperator.EqualTo}
                 };
-            query.Fields = new string[] { "Id", "Portfolio__c", "SSP_Visible__c", "SRS_Visible__c", "SRS_Percentage__c", "Tier_Discount_Applicable__c", "AccountLevel_Discount_Applicable__c", 
-                "Multi_Year_Discount_Applicable__c" }; 
+            query.Fields = new string[] { "Id", "Portfolio__c", "SSP_Visible__c", "SRS_Visible__c", "SRS_Percentage__c", "Tier_Discount_Applicable__c", "AccountLevel_Discount_Applicable__c",
+                "Multi_Year_Discount_Applicable__c" };
             query.Limit = 1;
 
             return query;
