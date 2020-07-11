@@ -46,7 +46,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             query.Conditions = new List<FilterCondition>()
                 {
                         new FilterCondition() { FieldName = "CurrencyIsoCode", Value = currencycode, ComparisonOperator = ConditionOperator.EqualTo},
-                        new FilterCondition() { FieldName = "Product__c", Value = productList, ComparisonOperator = ConditionOperator.In},
+                        new FilterCondition() { FieldName = "Product__c", Value = new List<string>(productList), ComparisonOperator = ConditionOperator.In},
                 };
             query.Fields = new string[] { "Id", "Product__c", "Market_Price__c", "Floor_Price__c", "Custom_Bid__c" };
 
