@@ -409,8 +409,8 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         !(cartLineItem.Source__c == "BOMXAE" && proposal.NokiaCPQ_Portfolio__c == "QTC"))
                     {
 
-                        decimal? convertedBasePriceTwoDecimal = pricingHelper.ApplyRounding((cartLineItem.BasePrice / conversionRate) * (proposal.exchange_rate__c), 2, RoundingMode.HALF_UP);
-                        decimal? convertedBasePriceFiveDecimal = pricingHelper.ApplyRounding((cartLineItem.BasePrice / conversionRate) * (proposal.exchange_rate__c), 5, RoundingMode.HALF_UP);
+                        decimal? convertedBasePriceTwoDecimal = pricingHelper.ApplyRounding((cartLineItem.BasePrice / conversionRate) * (proposal.Exchange_Rate__c), 2, RoundingMode.HALF_UP);
+                        decimal? convertedBasePriceFiveDecimal = pricingHelper.ApplyRounding((cartLineItem.BasePrice / conversionRate) * (proposal.Exchange_Rate__c), 5, RoundingMode.HALF_UP);
 
                         if (cartLineItem.PriceListId == cartLineItem.Apttus_Config2__PriceListItemId__r_Apttus_Config2__PriceListId__c &&
                             cartLineItem.BasePriceOverride != convertedBasePriceTwoDecimal)
@@ -1459,11 +1459,11 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         {
                             if (linenumberCareDisPercentage[item.LineNumber] > 0)
                             {
-                                decimal? calculatedPrice = pricingHelper.ApplyRounding(((item.NokiaCPQ_CareSRSBasePrice__c / conversionRate) * proposal.exchange_rate__c) * linenumberCareDisPercentage[item.LineNumber], 2, RoundingMode.HALF_UP);
+                                decimal? calculatedPrice = pricingHelper.ApplyRounding(((item.NokiaCPQ_CareSRSBasePrice__c / conversionRate) * proposal.Exchange_Rate__c) * linenumberCareDisPercentage[item.LineNumber], 2, RoundingMode.HALF_UP);
 
                                 if (item.BasePriceOverride != calculatedPrice)
                                 {
-                                    item.BasePriceOverride = pricingHelper.ApplyRounding(((item.NokiaCPQ_CareSRSBasePrice__c / conversionRate) * proposal.exchange_rate__c) * linenumberCareDisPercentage[item.LineNumber], 2, RoundingMode.HALF_UP);
+                                    item.BasePriceOverride = pricingHelper.ApplyRounding(((item.NokiaCPQ_CareSRSBasePrice__c / conversionRate) * proposal.Exchange_Rate__c) * linenumberCareDisPercentage[item.LineNumber], 2, RoundingMode.HALF_UP);
                                 }
                             }
                             linenumberCarePrice.Add(item.LineNumber, pricingHelper.ApplyRounding(item.BasePriceOverride, 2, RoundingMode.HALF_UP));
@@ -1475,11 +1475,11 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         {
                             if (linenumberSRSDisPercentage[item.LineNumber] > 0)
                             {
-                                decimal? calculatedSRSPrice = pricingHelper.ApplyRounding(((item.NokiaCPQ_SRSBasePrice__c / conversionRate) * proposal.exchange_rate__c) * linenumberSRSDisPercentage[item.LineNumber], 2, RoundingMode.HALF_UP);
+                                decimal? calculatedSRSPrice = pricingHelper.ApplyRounding(((item.NokiaCPQ_SRSBasePrice__c / conversionRate) * proposal.Exchange_Rate__c) * linenumberSRSDisPercentage[item.LineNumber], 2, RoundingMode.HALF_UP);
 
                                 if (item.BasePriceOverride != calculatedSRSPrice)
                                 {
-                                    item.BasePriceOverride = pricingHelper.ApplyRounding(((item.NokiaCPQ_SRSBasePrice__c / conversionRate) * proposal.exchange_rate__c) * linenumberSRSDisPercentage[item.LineNumber], 2, RoundingMode.HALF_UP);
+                                    item.BasePriceOverride = pricingHelper.ApplyRounding(((item.NokiaCPQ_SRSBasePrice__c / conversionRate) * proposal.Exchange_Rate__c) * linenumberSRSDisPercentage[item.LineNumber], 2, RoundingMode.HALF_UP);
                                 }
                             }
 

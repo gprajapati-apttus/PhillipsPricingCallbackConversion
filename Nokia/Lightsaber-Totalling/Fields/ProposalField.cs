@@ -19,7 +19,7 @@
         public const string NokiaCPQ_No_of_Years__c = "NokiaCPQ_No_of_Years__c";
         public const string NokiaCPQ_IsPMA__c = "NokiaCPQ_IsPMA__c";
         public const string Quote_Type__c = "Quote_Type__c";
-        public const string exchange_rate__c = "exchange_rate__c";
+        public const string Exchange_Rate__c = "Exchange_Rate__c";
         public const string NokiaCPQ_SRS_Per__c = "NokiaCPQ_SRS_Per__c";
         public const string NokiaCPQ_OpportunityLeadBG__c = "NokiaCPQ_OpportunityLeadBG__c";
         public const string Account_Market__c = "Account_Market__c";

@@ -442,7 +442,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                             if (batchLineItem.is_Custom_Product__c == false)
                             {
                                 batchLineItem.NokiaCPQ_Unitary_IRP__c =
-                                    pricingHelper.ApplyRounding((batchLineItem.ListPrice * (proposal.exchange_rate__c)), 5, RoundingMode.HALF_UP);
+                                    pricingHelper.ApplyRounding((batchLineItem.ListPrice * (proposal.Exchange_Rate__c)), 5, RoundingMode.HALF_UP);
                             }
                         }
 
@@ -456,20 +456,20 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                                 if (batchLineItem.Advanced_pricing_done__c == false)
                                 {
                                     batchLineItem.NokiaCPQ_Unitary_Cost__c =
-                                        pricingHelper.ApplyRounding(((batchLineItem.Cost / defaultExchangeRate) * (proposal.exchange_rate__c)), 5, RoundingMode.HALF_UP);
+                                        pricingHelper.ApplyRounding(((batchLineItem.Cost / defaultExchangeRate) * (proposal.Exchange_Rate__c)), 5, RoundingMode.HALF_UP);
                                 }
                                 else if (batchLineItem.Advanced_pricing_done__c == true &&
                                     batchLineItem.NokiaCPQ_Unitary_Cost__c != null)
                                 {
                                     batchLineItem.NokiaCPQ_Unitary_Cost__c =
-                                        pricingHelper.ApplyRounding(((batchLineItem.NokiaCPQ_Unitary_Cost__c / defaultExchangeRate) * (proposal.exchange_rate__c)), 5, RoundingMode.HALF_UP);
+                                        pricingHelper.ApplyRounding(((batchLineItem.NokiaCPQ_Unitary_Cost__c / defaultExchangeRate) * (proposal.Exchange_Rate__c)), 5, RoundingMode.HALF_UP);
                                 }
                             }
                         }
                         else if (!portfolioSettingList.isEmpty() && batchLineItem.NokiaCPQ_Unitary_Cost_Initial__c != null)
                         {
                             batchLineItem.NokiaCPQ_Unitary_Cost__c =
-                                pricingHelper.ApplyRounding(((batchLineItem.NokiaCPQ_Unitary_Cost_Initial__c / defaultExchangeRate) * (proposal.exchange_rate__c)), 5, RoundingMode.HALF_UP);
+                                pricingHelper.ApplyRounding(((batchLineItem.NokiaCPQ_Unitary_Cost_Initial__c / defaultExchangeRate) * (proposal.Exchange_Rate__c)), 5, RoundingMode.HALF_UP);
                         }
                     }
                     else if (productPriceMap != null)
@@ -484,12 +484,12 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                             if (batchLineItem.GetLineType() == LineType.ProductService)
                             {
                                 batchLineItem.NokiaCPQ_Unitary_IRP__c =
-                                    pricingHelper.ApplyRounding((productPriceMap[batchLineItem.ProductId] * (proposal.exchange_rate__c)), 5, RoundingMode.HALF_UP);
+                                    pricingHelper.ApplyRounding((productPriceMap[batchLineItem.ProductId] * (proposal.Exchange_Rate__c)), 5, RoundingMode.HALF_UP);
                             }
                             else
                             {
                                 batchLineItem.NokiaCPQ_Unitary_IRP__c =
-                                    pricingHelper.ApplyRounding((productPriceMap[batchLineItem.OptionId] * (proposal.exchange_rate__c)), 5, RoundingMode.HALF_UP);
+                                    pricingHelper.ApplyRounding((productPriceMap[batchLineItem.OptionId] * (proposal.Exchange_Rate__c)), 5, RoundingMode.HALF_UP);
                             }
                         }
 
@@ -503,12 +503,12 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                                 if (batchLineItem.Advanced_pricing_done__c == true)
                                 {
                                     batchLineItem.NokiaCPQ_Unitary_Cost__c =
-                                        pricingHelper.ApplyRounding(((batchLineItem.NokiaCPQ_Unitary_Cost__c / defaultExchangeRate) * (proposal.exchange_rate__c)), 5, RoundingMode.HALF_UP);
+                                        pricingHelper.ApplyRounding(((batchLineItem.NokiaCPQ_Unitary_Cost__c / defaultExchangeRate) * (proposal.Exchange_Rate__c)), 5, RoundingMode.HALF_UP);
                                 }
                                 else
                                 {
                                     batchLineItem.NokiaCPQ_Unitary_Cost__c =
-                                        pricingHelper.ApplyRounding((productCostMap[batchLineItem.ProductId] * (proposal.exchange_rate__c)), 5, RoundingMode.HALF_UP);
+                                        pricingHelper.ApplyRounding((productCostMap[batchLineItem.ProductId] * (proposal.Exchange_Rate__c)), 5, RoundingMode.HALF_UP);
                                 }
                             }
                             else if (batchLineItem.GetLineType() != LineType.ProductService && productCostMap[batchLineItem.OptionId] != null)
@@ -517,19 +517,19 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                                 if (batchLineItem.Advanced_pricing_done__c == true)
                                 {
                                     batchLineItem.NokiaCPQ_Unitary_Cost__c =
-                                        pricingHelper.ApplyRounding(((batchLineItem.NokiaCPQ_Unitary_Cost__c / defaultExchangeRate) * (proposal.exchange_rate__c)), 5, RoundingMode.HALF_UP);
+                                        pricingHelper.ApplyRounding(((batchLineItem.NokiaCPQ_Unitary_Cost__c / defaultExchangeRate) * (proposal.Exchange_Rate__c)), 5, RoundingMode.HALF_UP);
                                 }
                                 else
                                 {
                                     batchLineItem.NokiaCPQ_Unitary_Cost__c =
-                                        pricingHelper.ApplyRounding((productCostMap[batchLineItem.OptionId] * (proposal.exchange_rate__c)), 5, RoundingMode.HALF_UP);
+                                        pricingHelper.ApplyRounding((productCostMap[batchLineItem.OptionId] * (proposal.Exchange_Rate__c)), 5, RoundingMode.HALF_UP);
                                 }
                             }
                         }
                         else if (!portfolioSettingList.isEmpty() && batchLineItem.NokiaCPQ_Unitary_Cost_Initial__c != null)
                         {
                             batchLineItem.NokiaCPQ_Unitary_Cost__c =
-                                pricingHelper.ApplyRounding(((batchLineItem.NokiaCPQ_Unitary_Cost_Initial__c / defaultExchangeRate) * (proposal.exchange_rate__c)), 5, RoundingMode.HALF_UP);
+                                pricingHelper.ApplyRounding(((batchLineItem.NokiaCPQ_Unitary_Cost_Initial__c / defaultExchangeRate) * (proposal.Exchange_Rate__c)), 5, RoundingMode.HALF_UP);
                         }
                     }
 

@@ -86,11 +86,11 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             }
         }
 
-        public decimal? exchange_rate__c
+        public decimal? Exchange_Rate__c
         {
             get
             {
-                return Get<decimal?>(ProposalField.exchange_rate__c);
+                return Get<decimal?>(ProposalField.Exchange_Rate__c);
             }
         }
 
