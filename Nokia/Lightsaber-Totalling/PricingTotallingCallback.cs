@@ -318,9 +318,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
                         isUpdate = true;
                     }
-                    else if (cartLineItem.ChargeType != null &&
-                        !string.IsNullOrEmpty(cartLineItem.ChargeType) &&
-                        cartLineItem.ChargeType.Contains(Constants.NOKIA_PRODUCT_NAME_SSP))
+                    else if (cartLineItem.ChargeType.Contains(Constants.NOKIA_PRODUCT_NAME_SSP))
                     {
                         if (proposal.SSP__c != null)
                         {
@@ -341,9 +339,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
                         isUpdate = true;
                     }
-                    else if (cartLineItem.ChargeType != null &&
-                        !string.IsNullOrEmpty(cartLineItem.ChargeType) &&
-                        cartLineItem.ChargeType.Contains(Constants.NOKIA_PRODUCT_NAME_SRS))
+                    else if (cartLineItem.ChargeType.Contains(Constants.NOKIA_PRODUCT_NAME_SRS))
                     {
                         if (proposal.SRS__c != null)
                         {
@@ -409,9 +405,8 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     {
                         cartLineItem.AllowManualAdjustment = false;
                     }
-                    if (cartLineItem.BasePrice != null && cartLineItem.BasePrice > 0 && cartLineItem.ChargeType != null
-                        && cartLineItem.ChargeType.equalsIgnoreCase("Standard Price") && !(cartLineItem.Source__c == "BOMXAE" &&
-                        proposal.NokiaCPQ_Portfolio__c == "QTC"))
+                    if (cartLineItem.BasePrice != null && cartLineItem.BasePrice > 0 && cartLineItem.ChargeType.equalsIgnoreCase("Standard Price") && 
+                        !(cartLineItem.Source__c == "BOMXAE" && proposal.NokiaCPQ_Portfolio__c == "QTC"))
                     {
 
                         decimal? convertedBasePriceTwoDecimal = pricingHelper.ApplyRounding((cartLineItem.BasePrice / conversionRate) * (proposal.exchange_rate__c), 2, RoundingMode.HALF_UP);
@@ -450,12 +445,11 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         }
                     }
                     //Start: creating maps to limit for loop iterations
-                    if (cartLineItem.ChargeType != null && cartLineItem.GetLineType() == LineType.ProductService)
+                    if (cartLineItem.GetLineType() == LineType.ProductService)
                     {
                         productServiceMap.Add(cartLineItem.Id, cartLineItem);
                     }
-                    if (cartLineItem.ChargeType != null &&
-                        (cartLineItem.ChargeType.equalsIgnoreCase(Constants.NOKIA_YEAR1_MAINTENANCE) || cartLineItem.ChargeType.equalsIgnoreCase(Constants.NOKIA_SRS)) &&
+                    if ((cartLineItem.ChargeType.equalsIgnoreCase(Constants.NOKIA_YEAR1_MAINTENANCE) || cartLineItem.ChargeType.equalsIgnoreCase(Constants.NOKIA_SRS)) &&
                         cartLineItem.GetLineType() != LineType.ProductService)
                     {
                         careSRSOptionMap.Add(cartLineItem.Id, cartLineItem);
@@ -618,8 +612,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         //Req-6228 MN Airscale wifi - Price for the groups to be aggregated from SI
                         //For Direct MN Airscale Wifi
                         //checking if its Group
-                        if (cartLineItem.ChargeType != null &&
-                            cartLineItem.GetLineType() == LineType.Option && Constants.BUNDLE.equalsIgnoreCase(configType))
+                        if (cartLineItem.GetLineType() == LineType.Option && Constants.BUNDLE.equalsIgnoreCase(configType))
                         {
                             cartLineItem.NokiaCPQ_Unitary_Cost__c = 0;
                             cartLineItem.NCPQ_Unitary_CLP__c = 0;
@@ -749,7 +742,6 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                             }
                         }
                     }
-
                 }
 
                 //Stamp prices to Care & SRS
