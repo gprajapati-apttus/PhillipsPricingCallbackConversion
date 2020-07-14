@@ -9,7 +9,7 @@
         public const string Total_ONT_Quantity__c = "Total_ONT_Quantity__c";
         public const string Total_ONT_Quantity_FBA__c = "Total_ONT_Quantity_FBA__c";
         public const string Total_ONT_Quantity_P2P__c = "Total_ONT_Quantity_P2P__c";
-        public const string is_Custom_Product__c = "is_Custom_Product__c";
+        public const string Is_Custom_Product__c = "Is_Custom_Product__c";
         public const string NCPQ_Unitary_CLP__c = "NCPQ_Unitary_CLP__c";
         public const string NokiaCPQ_Spare__c = "NokiaCPQ_Spare__c";
         public const string NokiaCPQ_Product_Type__c = "NokiaCPQ_Product_Type__c";
@@ -67,7 +67,6 @@
         public const string NokiaCPQ_Accreditation_Discount__c = "NokiaCPQ_Accreditation_Discount__c";
         public const string NokiaCPQ_Static_Bundle_Option__c = "NokiaCPQ_Static_Bundle_Option__c";
         public const string Nokia_CPQ_Maint_Prod_Cat_Disc__c = "Nokia_CPQ_Maint_Prod_Cat_Disc__c";
-        public const string is_custom_Product__c = "is_custom_Product__c";
         public const string Nokia_SSP_List_Price__c = "Nokia_SSP_List_Price__c";
         public const string Nokia_SSP_Base_Price__c = "Nokia_SSP_Base_Price__c";
         public const string Nokia_SRS_List_Price__c = "Nokia_SRS_List_Price__c";

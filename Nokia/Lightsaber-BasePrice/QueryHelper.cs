@@ -100,8 +100,12 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             query.EntityName = "NokiaCPQ_Maintenance_and_SSP_Rules__c";
             string maintenanceType = string.Empty;
             string maintPricinglevel = string.Empty;
+            string pricingCluster = string.Empty;
             var whereCondition = new List<FilterCondition>();
 
+            pricingCluster = proposal.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Cluster__c ?? proposal.NokiaProductAccreditation__r_Pricing_Cluster__c;
+
+            //GP: Why can't we use proposal.NokiaCPQ_Maintenance_Type__c instead of this logic?
             if (proposal.NokiaCPQ_LEO_Discount__c == true && proposal.NokiaCPQ_Portfolio__c != Constants.NOKIA_NUAGE)
             {
                 maintenanceType = proposal.NokiaCPQ_Maintenance_Type__c;
@@ -122,24 +126,19 @@ namespace Apttus.Lightsaber.Nokia.Pricing
 
             if (proposal.Get<bool?>(ProposalField.NokiaCPQ_IsPMA__c) == false && proposal.NokiaCPQ_LEO_Discount__c == false)
             {
-                //this.maintenanceSSPRule = [SELECT NokiaCPQ_withPMA__c, NokiaCPQ_Pricing_Cluster__c, NokiaCPQ_Product_Discount_Category__c, NokiaCPQ_Product_Discount_Category_per__c, 
-                //    NokiaCPQ_Unlimited_SSP_Discount__c, NokiaCPQ_Biennial_SSP_Discount__c, NokiaCPQ_Maintenance_Level__c, NokiaCPQ_Maintenance_Type__c, NokiaCPQ_Service_Rate_Y1__c, 
-                //    NokiaCPQ_Service_Rate_Y2__c FROM NokiaCPQ_Maintenance_and_SSP_Rules__c 
-                //    WHERE NokiaCPQ_withPMA__c = FALSE AND Partner_Program__c =: proposalSO.Apttus_Proposal__Account__r.Partner_Program__c];
                 whereCondition = new List<FilterCondition>()
                 {
+                        new FilterCondition() { FieldName = "NokiaCPQ_Pricing_Cluster__c", Value = pricingCluster, ComparisonOperator = ConditionOperator.EqualTo},
+                        new FilterCondition() { FieldName = "NokiaCPQ_Maintenance_Type__c", Value = maintenanceType, ComparisonOperator = ConditionOperator.EqualTo},
                         new FilterCondition() { FieldName = "Partner_Program__c", Value = proposal.Apttus_Proposal__Account__r_Partner_Program__c, ComparisonOperator = ConditionOperator.EqualTo},
                         new FilterCondition() { FieldName = "NokiaCPQ_withPMA__c", Value = false, ComparisonOperator = ConditionOperator.EqualTo}
                 };
             }
             else if (proposal.NokiaCPQ_LEO_Discount__c == true)
             {
-                //this.maintenanceSSPRule = [SELECT NokiaCPQ_withPMA__c, NokiaCPQ_Pricing_Cluster__c, NokiaCPQ_Product_Discount_Category__c, NokiaCPQ_Product_Discount_Category_per__c, 
-                //    NokiaCPQ_Unlimited_SSP_Discount__c, NokiaCPQ_Biennial_SSP_Discount__c, NokiaCPQ_Maintenance_Level__c, NokiaCPQ_Maintenance_Type__c, NokiaCPQ_Service_Rate_Y1__c, 
-                //    NokiaCPQ_Service_Rate_Y2__c FROM NokiaCPQ_Maintenance_and_SSP_Rules__c 
-                //    WHERE NokiaCPQ_withPMA__c = FALSE and NokiaCPQ_Maintenance_Type__c =: maintenanceType and NokiaCPQ_Maintenance_Level__c = '' and Partner_Program__c =: proposalSO.Apttus_Proposal__Account__r.Partner_Program__c];
                 whereCondition = new List<FilterCondition>()
                 {
+                        new FilterCondition() { FieldName = "NokiaCPQ_Pricing_Cluster__c", Value = pricingCluster, ComparisonOperator = ConditionOperator.EqualTo},
                         new FilterCondition() { FieldName = "NokiaCPQ_Maintenance_Type__c", Value = maintenanceType, ComparisonOperator = ConditionOperator.EqualTo},
                         new FilterCondition() { FieldName = "NokiaCPQ_Maintenance_Level__c", Value = string.Empty, ComparisonOperator = ConditionOperator.EqualTo},
                         new FilterCondition() { FieldName = "Partner_Program__c", Value = proposal.Apttus_Proposal__Account__r_Partner_Program__c, ComparisonOperator = ConditionOperator.EqualTo},
@@ -149,12 +148,9 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             }
             else if (proposal.Get<bool?>(ProposalField.NokiaCPQ_IsPMA__c) == true)
             {
-                //this.maintenanceSSPRule = [SELECT NokiaCPQ_withPMA__c, NokiaCPQ_Pricing_Cluster__c, NokiaCPQ_Product_Discount_Category__c, NokiaCPQ_Product_Discount_Category_per__c, 
-                //NokiaCPQ_Unlimited_SSP_Discount__c, NokiaCPQ_Biennial_SSP_Discount__c, NokiaCPQ_Maintenance_Level__c, NokiaCPQ_Maintenance_Type__c, NokiaCPQ_Service_Rate_Y1__c, 
-                //NokiaCPQ_Service_Rate_Y2__c FROM NokiaCPQ_Maintenance_and_SSP_Rules__c 
-                //WHERE NokiaCPQ_withPMA__c = TRUE and NokiaCPQ_Maintenance_Type__c =: proposalSO.NokiaCPQ_Maintenance_Type__c and NokiaCPQ_Maintenance_Level__c =:maintPricinglevel and Partner_Program__c =: proposalSO.Apttus_Proposal__Account__r.Partner_Program__c];
                 whereCondition = new List<FilterCondition>()
                 {
+                        new FilterCondition() { FieldName = "NokiaCPQ_Pricing_Cluster__c", Value = pricingCluster, ComparisonOperator = ConditionOperator.EqualTo},
                         new FilterCondition() { FieldName = "NokiaCPQ_Maintenance_Type__c", Value = proposal.NokiaCPQ_Maintenance_Type__c, ComparisonOperator = ConditionOperator.EqualTo},
                         new FilterCondition() { FieldName = "NokiaCPQ_Maintenance_Level__c", Value = maintPricinglevel, ComparisonOperator = ConditionOperator.EqualTo},
                         new FilterCondition() { FieldName = "Partner_Program__c", Value = proposal.Apttus_Proposal__Account__r_Partner_Program__c, ComparisonOperator = ConditionOperator.EqualTo},
@@ -163,8 +159,8 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             }
 
             query.Conditions = whereCondition;
-            query.Fields = new string[] { "Id", "NokiaCPQ_withPMA__c", "NokiaCPQ_Pricing_Cluster__c", "NokiaCPQ_Product_Discount_Category__c", "NokiaCPQ_Product_Discount_Category_per__c", "NokiaCPQ_Unlimited_SSP_Discount__c",
-                "NokiaCPQ_Biennial_SSP_Discount__c", "NokiaCPQ_Maintenance_Level__c", "NokiaCPQ_Maintenance_Type__c", "NokiaCPQ_Service_Rate_Y1__c", "NokiaCPQ_Service_Rate_Y2__c" };
+            query.Fields = new string[] { "Id", "NokiaCPQ_Product_Discount_Category__c", "NokiaCPQ_Product_Discount_Category_per__c", "NokiaCPQ_Unlimited_SSP_Discount__c",
+                "NokiaCPQ_Biennial_SSP_Discount__c", "NokiaCPQ_Service_Rate_Y1__c", "NokiaCPQ_Service_Rate_Y2__c" };
 
             return query;
         }

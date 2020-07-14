@@ -223,7 +223,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         //Replace item.Portfolio_from_Quote_Line_Item__c formula field with 'this.proposalSO.NokiaCPQ_Portfolio__c', NokiaCPQ_Product_Discount_Category__c with value fetched from method
                         if (((productDiscountCat != null && !pdcList.isEmpty() && pdcList.Contains(productDiscountCat)) ||
                         (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_NUAGE) &&
-                        Constants.PRODUCTITEMTYPESOFTWARE.equalsIgnoreCase(cartLineItem.Apttus_Config2__ProductId__r_NokiaCPQ_Item_Type__c))) || cartLineItem.is_Custom_Product__c == true)
+                        Constants.PRODUCTITEMTYPESOFTWARE.equalsIgnoreCase(cartLineItem.Apttus_Config2__ProductId__r_NokiaCPQ_Item_Type__c))) || cartLineItem.Is_Custom_Product__c == true)
                         {
                             if (cartLineItem.Nokia_SRS_Base_Extended_Price__c != null)
                             {
@@ -233,7 +233,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     }
 
                     if ((productDiscountCat != null && !productDiscountCat.Contains(Constants.NOKIA_NFM_P) && cartLineItem.NokiaCPQ_Spare__c == false) ||
-                        cartLineItem.is_Custom_Product__c == true)
+                        cartLineItem.Is_Custom_Product__c == true)
                     {
                         if (cartLineItem.Nokia_SSP_Base_Extended_Price__c != null)
                         {
@@ -270,7 +270,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         isUpdate = true;
                     }
 
-                    if (cartLineItem.is_Custom_Product__c == false && cartLineItem.Is_Contract_Pricing_2__c == true &&
+                    if (cartLineItem.Is_Custom_Product__c == false && cartLineItem.Is_Contract_Pricing_2__c == true &&
                         cartLineItem.PriceListItemId != null)
                     {
                         cartLineItem.BasePriceOverride = cartLineItem.Apttus_Config2__PriceListItemId__r_Partner_Price__c;
@@ -1638,7 +1638,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
         private string getPartNumber(LineItem lineItem)
         {
             string partNumber = string.Empty;
-            if (lineItem.is_Custom_Product__c == true)
+            if (lineItem.Is_Custom_Product__c == true)
             {
                 partNumber = lineItem.Custom_Product_Code__c;
             }
@@ -2281,7 +2281,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
         (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_IP_ROUTING)
         && proposal.Is_List_Price_Only__c == false && !configType.equalsIgnoreCase(Constants.BUNDLE)
         && item.ChargeType == Constants.STANDARD_PRICE
-        && item.is_Custom_Product__c == false))
+        && item.Is_Custom_Product__c == false))
             {
                 //system.debug('Entered guidance for Enterprise');
                 bool? contractedPL = getCLP(item);
