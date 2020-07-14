@@ -114,12 +114,9 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
             Dictionary<int, LineItem> lineItemObjectMapDirect = new Dictionary<int, LineItem>();
 
-            foreach (var cartLineItem in cartLineItems)
+            if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
             {
-                PriceListItemModel priceListItemModel = cartLineItem.GetPriceListItem();
-                PriceListItem priceListItemEntity = priceListItemModel.Entity;
-
-                if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
+                foreach (var cartLineItem in cartLineItems)
                 {
                     string configType = GetConfigType(cartLineItem);
                     string irpMapKey = cartLineItem.GetLineNumber() + Constants.NOKIA_UNDERSCORE + cartLineItem.ChargeType;
@@ -407,7 +404,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     {
                         cartLineItem.AllowManualAdjustment = false;
                     }
-                    if (cartLineItem.BasePrice != null && cartLineItem.BasePrice > 0 && cartLineItem.ChargeType.equalsIgnoreCase("Standard Price") && 
+                    if (cartLineItem.BasePrice != null && cartLineItem.BasePrice > 0 && cartLineItem.ChargeType.equalsIgnoreCase("Standard Price") &&
                         !(cartLineItem.Source__c == "BOMXAE" && proposal.NokiaCPQ_Portfolio__c == "QTC"))
                     {
 
@@ -1240,7 +1237,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                                 decimal? srsExtendedCLP = item.NokiaCPQ_Extended_CLP_2__c;
                                 decimal? srsNetCNP = item.NetPrice;
 
-                                foreach (var optionLineItem  in lineItemIRPMapDirect[key])
+                                foreach (var optionLineItem in lineItemIRPMapDirect[key])
                                 {
                                     if (optionLineItem.ParentBundleNumber == item.PrimaryLineNumber)
                                     {
@@ -1385,9 +1382,9 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                                 }
                                 else if (item.NokiaCPQ_Unitary_Cost__c != null)
                                 {
-                                    itemCost = unitaryCostMap[item.ParentBundleNumber + Constants.NOKIA_UNDERSCORE + item.ChargeType] + 
+                                    itemCost = unitaryCostMap[item.ParentBundleNumber + Constants.NOKIA_UNDERSCORE + item.ChargeType] +
                                         pricingHelper.ApplyRounding((item.NokiaCPQ_Unitary_Cost__c * item.Quantity), 2, RoundingMode.HALF_UP);
-                                    
+
                                     unitaryCostMap.Add(item.ParentBundleNumber + Constants.NOKIA_UNDERSCORE + item.ChargeType, itemCost);
                                 }
                             }
@@ -1448,7 +1445,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     }
                     //6508 End
                 }
-                
+
                 Dictionary<decimal?, decimal?> mainBundleToGroupIRPMap = new Dictionary<decimal?, decimal?>();
                 Dictionary<decimal?, decimal?> mainBundleToGroupCLPMap = new Dictionary<decimal?, decimal?>();
                 Dictionary<decimal?, decimal?> mainBundleToGroupCUPMap = new Dictionary<decimal?, decimal?>();
@@ -1586,7 +1583,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_IP_ROUTING) && proposal.Is_List_Price_Only__c == false)
                     {
                         //system.debug('enterprise 2nd reprice for SSP/SRS' + item.NokiaCPQ_Extended_IRP2__c + '  ' + item.Apttus_Config2__BasePriceOverride__c*item.Apttus_Config2__Quantity__c);
-                        if (partNumber != null && (partNumber.Contains(Constants.SSPCODE) || partNumber.Contains(Constants.SRS)) && item.Quantity != null && 
+                        if (partNumber != null && (partNumber.Contains(Constants.SSPCODE) || partNumber.Contains(Constants.SRS)) && item.Quantity != null &&
                             item.NokiaCPQ_Extended_IRP2__c != pricingHelper.ApplyRounding((item.BasePriceOverride * item.Quantity), 2, RoundingMode.HALF_UP))
                         {
                             item.PricingStatus = "Pending";

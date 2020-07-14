@@ -116,16 +116,16 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 maintenanceType = Constants.MAINT_TYPE_DEFAULT_VALUE;
             }
 
-            if (proposal.Get<string>(ProposalField.NokiaCPQ_Maintenance_Level__c) != Constants.NOKIA_YES)
+            if (proposal.NokiaCPQ_Maintenance_Level__c != Constants.NOKIA_YES)
             {
-                maintPricinglevel = proposal.Get<string>(ProposalRelationshipField.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Accreditation__c);
+                maintPricinglevel = proposal.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Accreditation__c;
             }
             else
             {
                 maintPricinglevel = Constants.Nokia_Brand;
             }
 
-            if (proposal.Get<bool?>(ProposalField.NokiaCPQ_IsPMA__c) == false && proposal.NokiaCPQ_LEO_Discount__c == false)
+            if (proposal.NokiaCPQ_IsPMA__c == false && proposal.NokiaCPQ_LEO_Discount__c == false)
             {
                 whereCondition = new List<FilterCondition>()
                 {
@@ -147,7 +147,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
 
                 };
             }
-            else if (proposal.Get<bool?>(ProposalField.NokiaCPQ_IsPMA__c) == true)
+            else if (proposal.NokiaCPQ_IsPMA__c == true)
             {
                 whereCondition = new List<FilterCondition>()
                 {

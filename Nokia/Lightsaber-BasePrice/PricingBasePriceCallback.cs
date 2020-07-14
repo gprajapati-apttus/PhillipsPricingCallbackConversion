@@ -223,7 +223,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                     tierDiscountRuleMap.Add(key, tierDiscountRuleList);
                 }
 
-                var sspSRSDefaultValuesQuery = QueryHelper.GetSSPSRSDefaultValuesQuery(proposal.Get<string>(ProposalField.NokiaCPQ_Portfolio__c));
+                var sspSRSDefaultValuesQuery = QueryHelper.GetSSPSRSDefaultValuesQuery(proposal.NokiaCPQ_Portfolio__c);
                 sspSRSDefaultsList = await dBHelper.FindAsync<SSPSRSDefaultValuesQueryModel>(sspSRSDefaultValuesQuery);
 
                 var portfolio = proposal.NokiaCPQ_Portfolio__c;
