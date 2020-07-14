@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Apttus.Lightsaber.Nokia.Totalling
+namespace Apttus.Lightsaber.Nokia.Common
 {
     public class Proposal
     {
@@ -94,11 +94,59 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             }
         }
 
+        public string NokiaProductAccreditation__c
+        {
+            get
+            {
+                return Get<string>(ProposalField.NokiaProductAccreditation__c);
+            }
+        }
+
+        public string NokiaCPQ_Maintenance_Accreditation__c
+        {
+            get
+            {
+                return Get<string>(ProposalField.NokiaCPQ_Maintenance_Accreditation__c);
+            }
+        }
+
+        public string NokiaCPQ_Maintenance_Level__c
+        {
+            get
+            {
+                return Get<string>(ProposalField.NokiaCPQ_Maintenance_Level__c);
+            }
+        }
+
+        public bool? NokiaCPQ_IsPMA__c
+        {
+            get
+            {
+                return Get<bool?>(ProposalField.NokiaCPQ_IsPMA__c);
+            }
+        }
+
         public string Apttus_Proposal__Account__r_GEOLevel1ID__c
         {
             get
             {
                 return Get<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_GEOLevel1ID__c);
+            }
+        }
+
+        public string NokiaCPQ_Maintenance_Accreditation__r_Pricing_Accreditation__c
+        {
+            get
+            {
+                return Get<string>(ProposalRelationshipField.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Accreditation__c);
+            }
+        }
+
+        public string NokiaProductAccreditation__r_Pricing_Accreditation__c
+        {
+            get
+            {
+                return Get<string>(ProposalRelationshipField.NokiaProductAccreditation__r_Pricing_Accreditation__c);
             }
         }
 
@@ -195,6 +243,54 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             get
             {
                 return Get<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_CountryCode__c);
+            }
+        }
+
+        public decimal? NokiaProductAccreditation__r_NokiaCPQ_Incoterm_Percentage__c
+        {
+            get
+            {
+                return Get<decimal?>(ProposalRelationshipField.NokiaProductAccreditation__r_NokiaCPQ_Incoterm_Percentage__c);
+            }
+        }
+
+        public bool? Apttus_Proposal__Account__r_NokiaCPQ_Renewal__c
+        {
+            get
+            {
+                return Get<bool?>(ProposalRelationshipField.Apttus_Proposal__Account__r_NokiaCPQ_Renewal__c);
+            }
+        }
+
+        public bool? Apttus_Proposal__Account__r_NokiaCPQ_Attachment__c
+        {
+            get
+            {
+                return Get<bool?>(ProposalRelationshipField.Apttus_Proposal__Account__r_NokiaCPQ_Attachment__c);
+            }
+        }
+
+        public bool? Apttus_Proposal__Account__r_NokiaCPQ_Performance__c
+        {
+            get
+            {
+                return Get<bool?>(ProposalRelationshipField.Apttus_Proposal__Account__r_NokiaCPQ_Performance__c);
+            }
+        }
+
+        public bool? NokiaCPQ_Is_Maintenance_Quote__c
+        {
+            get
+            {
+                return Get<bool?>(ProposalField.NokiaCPQ_Is_Maintenance_Quote__c);
+            }
+        }
+
+        public string Warranty_credit__c
+        {
+            get
+            {
+                return Get<string>(ProposalField.Warranty_credit__c);
             }
         }
 

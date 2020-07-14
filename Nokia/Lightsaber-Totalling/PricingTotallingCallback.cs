@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Apttus.Lightsaber.Nokia.Common;
+using LineItem = Apttus.Lightsaber.Nokia.Common.LineItem;
 
 namespace Apttus.Lightsaber.Nokia.Totalling
 {

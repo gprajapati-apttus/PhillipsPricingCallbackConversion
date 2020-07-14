@@ -3,6 +3,7 @@ using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Apttus.Lightsaber.Nokia.Common;
 
 namespace Apttus.Lightsaber.Nokia.Pricing
 {

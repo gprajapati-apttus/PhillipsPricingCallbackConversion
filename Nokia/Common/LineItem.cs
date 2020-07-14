@@ -1,8 +1,8 @@
 ﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Extension;
+using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
 using Apttus.Lightsaber.Pricing.Common.Constants;
 using Apttus.Lightsaber.Pricing.Common.Entities;
 using Apttus.Lightsaber.Pricing.Common.Models;
-using Apttus.Lightsaber.Nokia.Pricing;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -195,6 +195,18 @@ namespace Apttus.Lightsaber.Nokia.Common
             return lineItemModel.GetLineType();
         }
 
+        public decimal GetExtendedQuantity()
+        {
+            return lineItemModel.GetExtendedQuantity();
+        }
+        public LineItem GetRootParentPrimaryChargeTypeLineItem()
+        {
+            return new LineItem(lineItemModel.GetRootParentPrimaryChargeTypeLineItem());
+        }
+        public void UpdatePrice(IPricingHelper pricingHelper)
+        {
+            pricingHelper.UpdatePrice(lineItemModel);
+        }
         #region Custom & Not available Standard LineItem Fields
 
         public string Apttus_Config2__ConfigStatus__c { get { return lineItemModel.Get<string>(LineItemStandardField.Apttus_Config2__ConfigStatus__c); } set { lineItemModel.Set(LineItemStandardField.Apttus_Config2__ConfigStatus__c, value); } }
@@ -207,7 +219,6 @@ namespace Apttus.Lightsaber.Nokia.Common
         public decimal? Total_ONT_Quantity__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.Total_ONT_Quantity__c); } set { lineItemModel.Set(LineItemCustomField.Total_ONT_Quantity__c, value); } }
         public decimal? Total_ONT_Quantity_FBA__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.Total_ONT_Quantity_FBA__c); } set { lineItemModel.Set(LineItemCustomField.Total_ONT_Quantity_FBA__c, value); } }
         public decimal? Total_ONT_Quantity_P2P__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.Total_ONT_Quantity_P2P__c); } set { lineItemModel.Set(LineItemCustomField.Total_ONT_Quantity_P2P__c, value); } }
-        public bool? is_Custom_Product__c { get { return lineItemModel.Get<bool?>(LineItemCustomField.is_Custom_Product__c); } set { lineItemModel.Set(LineItemCustomField.is_Custom_Product__c, value); } }
         public decimal? NCPQ_Unitary_CLP__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.NCPQ_Unitary_CLP__c); } set { lineItemModel.Set(LineItemCustomField.NCPQ_Unitary_CLP__c, value); } }
         public bool? NokiaCPQ_Spare__c { get { return lineItemModel.Get<bool?>(LineItemCustomField.NokiaCPQ_Spare__c); } set { lineItemModel.Set(LineItemCustomField.NokiaCPQ_Spare__c, value); } }
         public string NokiaCPQ_Product_Type__c { get { return lineItemModel.Get<string>(LineItemCustomField.NokiaCPQ_Product_Type__c); } set { lineItemModel.Set(LineItemCustomField.NokiaCPQ_Product_Type__c, value); } }
@@ -257,7 +268,7 @@ namespace Apttus.Lightsaber.Nokia.Common
         public string Nokia_Pricing_Cluster__c { get { return lineItemModel.Get<string>(LineItemCustomField.Nokia_Pricing_Cluster__c); } set { lineItemModel.Set(LineItemCustomField.Nokia_Pricing_Cluster__c, value); } }
         public string Nokia_Maintenance_Level__c { get { return lineItemModel.Get<string>(LineItemCustomField.Nokia_Maintenance_Level__c); } set { lineItemModel.Set(LineItemCustomField.Nokia_Maintenance_Level__c, value); } }
         public string Nokia_Maint_Pricing_Cluster__c { get { return lineItemModel.Get<string>(LineItemCustomField.Nokia_Maint_Pricing_Cluster__c); } set { lineItemModel.Set(LineItemCustomField.Nokia_Maint_Pricing_Cluster__c, value); } }
-        public decimal? NokiaCPQ_Attachment_Per__c { get { return lineItemModel.Get< decimal?> (LineItemCustomField.NokiaCPQ_Attachment_Per__c); } set { lineItemModel.Set(LineItemCustomField.NokiaCPQ_Attachment_Per__c, value); } }
+        public decimal? NokiaCPQ_Attachment_Per__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.NokiaCPQ_Attachment_Per__c); } set { lineItemModel.Set(LineItemCustomField.NokiaCPQ_Attachment_Per__c, value); } }
         public decimal? NokiaCPQ_Renewal_Per__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.NokiaCPQ_Renewal_Per__c); } set { lineItemModel.Set(LineItemCustomField.NokiaCPQ_Renewal_Per__c, value); } }
         public decimal? NokiaCPQ_Performance_Per__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.NokiaCPQ_Performance_Per__c); } set { lineItemModel.Set(LineItemCustomField.NokiaCPQ_Performance_Per__c, value); } }
         public decimal? NokiaCPQ_Multi_Yr_Per__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.NokiaCPQ_Multi_Yr_Per__c); } set { lineItemModel.Set(LineItemCustomField.NokiaCPQ_Multi_Yr_Per__c, value); } }
@@ -266,7 +277,7 @@ namespace Apttus.Lightsaber.Nokia.Common
         public decimal? NokiaCPQ_Accreditation_Discount__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.NokiaCPQ_Accreditation_Discount__c); } set { lineItemModel.Set(LineItemCustomField.NokiaCPQ_Accreditation_Discount__c, value); } }
         public bool? NokiaCPQ_Static_Bundle_Option__c { get { return lineItemModel.Get<bool?>(LineItemCustomField.NokiaCPQ_Static_Bundle_Option__c); } set { lineItemModel.Set(LineItemCustomField.NokiaCPQ_Static_Bundle_Option__c, value); } }
         public decimal? Nokia_CPQ_Maint_Prod_Cat_Disc__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.Nokia_CPQ_Maint_Prod_Cat_Disc__c); } set { lineItemModel.Set(LineItemCustomField.Nokia_CPQ_Maint_Prod_Cat_Disc__c, value); } }
-        public bool? is_custom_Product__c { get { return lineItemModel.Get<bool?>(LineItemCustomField.is_custom_Product__c); } set { lineItemModel.Set(LineItemCustomField.is_custom_Product__c, value); } }
+        public bool? Is_Custom_Product__c { get { return lineItemModel.Get<bool?>(LineItemCustomField.Is_Custom_Product__c); } set { lineItemModel.Set(LineItemCustomField.Is_Custom_Product__c, value); } }
         public decimal? Nokia_SSP_List_Price__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.Nokia_SSP_List_Price__c); } set { lineItemModel.Set(LineItemCustomField.Nokia_SSP_List_Price__c, value); } }
         public decimal? Nokia_SSP_Base_Price__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.Nokia_SSP_Base_Price__c); } set { lineItemModel.Set(LineItemCustomField.Nokia_SSP_Base_Price__c, value); } }
         public decimal? Nokia_SRS_List_Price__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.Nokia_SRS_List_Price__c); } set { lineItemModel.Set(LineItemCustomField.Nokia_SRS_List_Price__c, value); } }
@@ -287,9 +298,10 @@ namespace Apttus.Lightsaber.Nokia.Common
         public decimal? Equivalent_Price__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.Equivalent_Price__c); } set { lineItemModel.Set(LineItemCustomField.Equivalent_Price__c, value); } }
         public decimal? NokiaCPQ_Extended_CUP_2__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_CUP_2__c); } set { lineItemModel.Set(LineItemCustomField.NokiaCPQ_Extended_CUP_2__c, value); } }
         public decimal? NokiaCPQ_Extended_IRP2__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_IRP2__c); } set { lineItemModel.Set(LineItemCustomField.NokiaCPQ_Extended_IRP2__c, value); } }
-        public bool? NokiaCPQ_Extended_Cost__c { get { return lineItemModel.Get<bool?>(LineItemCustomField.NokiaCPQ_Extended_Cost__c); } set { lineItemModel.Set(LineItemCustomField.NokiaCPQ_Extended_Cost__c, value); } }
+        public decimal? NokiaCPQ_Extended_Cost__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.NokiaCPQ_Extended_Cost__c); } set { lineItemModel.Set(LineItemCustomField.NokiaCPQ_Extended_Cost__c, value); } }
         public decimal? Sales_Margin__c { get { return lineItemModel.Get<decimal?>(LineItemCustomField.Sales_Margin__c); } set { lineItemModel.Set(LineItemCustomField.Sales_Margin__c, value); } }
         public string Item_Type_From_CAT__c { get { return lineItemModel.Get<string>(LineItemCustomField.Item_Type_From_CAT__c); } set { lineItemModel.Set(LineItemCustomField.Item_Type_From_CAT__c, value); } }
+        public bool? NokiaCPQ_IsArcadiaBundle__c { get { return lineItemModel.Get<bool?>(LineItemCustomField.NokiaCPQ_IsArcadiaBundle__c); } set { lineItemModel.Set(LineItemCustomField.NokiaCPQ_IsArcadiaBundle__c, value); } }
 
         #endregion
 
@@ -319,7 +331,18 @@ namespace Apttus.Lightsaber.Nokia.Common
         public decimal? Apttus_Config2__OptionId__r_Number_of_GE_Ports__c { get { return lineItemModel.GetLookupValue<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_Number_of_GE_Ports__c); } }
         public decimal? Apttus_Config2__ProductId__r_Number_of_GE_Ports__c { get { return lineItemModel.GetLookupValue<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_Number_of_GE_Ports__c); } }
         public decimal? Apttus_Config2__PriceListItemId__r_Partner_Price__c { get { return lineItemModel.GetLookupValue<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__PriceListItemId__r_Partner_Price__c); } }
-        
+        public decimal? Apttus_Config2__OptionId__r_NokiaCPQ_Min_SM_North_America__c { get { return lineItemModel.GetLookupValue<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_NokiaCPQ_Min_SM_North_America__c); } }
+        public decimal? Apttus_Config2__OptionId__r_NokiaCPQ_Min_SM_Latin_America__c { get { return lineItemModel.GetLookupValue<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_NokiaCPQ_Min_SM_Latin_America__c); } }
+        public decimal? Apttus_Config2__OptionId__r_NokiaCPQMin_SM_Middle_East_and_Africa__c { get { return lineItemModel.GetLookupValue<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_NokiaCPQMin_SM_Middle_East_and_Africa__c); } }
+        public decimal? Apttus_Config2__OptionId__r_NokiaCPQ_Min_SM_India__c { get { return lineItemModel.GetLookupValue<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_NokiaCPQ_Min_SM_India__c); } }
+        public decimal? Apttus_Config2__OptionId__r_NokiaCPQ_Min_SM_Asia_Pacific_Japan__c { get { return lineItemModel.GetLookupValue<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_NokiaCPQ_Min_SM_Asia_Pacific_Japan__c); } }
+        public decimal? Apttus_Config2__OptionId__r_NokiaCPQ_Min_SM_Greater_China__c { get { return lineItemModel.GetLookupValue<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_NokiaCPQ_Min_SM_Greater_China__c); } }
+        public decimal? Apttus_Config2__OptionId__r_NokiaCPQ_Min_SM_Europe__c { get { return lineItemModel.GetLookupValue<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_NokiaCPQ_Min_SM_Europe__c); } }
+        public decimal? Apttus_Config2__ProductId__r_NokiaCPQ_Maximum_IRP_Discount__c { get { return lineItemModel.GetLookupValue<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_NokiaCPQ_Maximum_IRP_Discount__c); } }
+        public decimal? Apttus_Config2__OptionId__r_NokiaCPQ_Maximum_IRP_Discount__c { get { return lineItemModel.GetLookupValue<decimal?>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_NokiaCPQ_Maximum_IRP_Discount__c); } }
+        public bool? Apttus_Config2__ProductId__r_NokiaCPQ_OEM__c { get { return lineItemModel.GetLookupValue<bool?>(LineItemStandardRelationshipField.Apttus_Config2__ProductId__r_NokiaCPQ_OEM__c); } }
+        public bool? Apttus_Config2__OptionId__r_NokiaCPQ_OEM__c { get { return lineItemModel.GetLookupValue<bool?>(LineItemStandardRelationshipField.Apttus_Config2__OptionId__r_NokiaCPQ_OEM__c); } }
+        public string Apttus_Config2__PriceListItemId__r_Contracted__c { get { return lineItemModel.GetLookupValue<string>(LineItemStandardRelationshipField.Apttus_Config2__PriceListItemId__r_Contracted__c); } }
         #endregion
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Apttus.Lightsaber.Nokia.Pricing
+namespace Apttus.Lightsaber.Nokia.Common
 {
     class Constants
     {
@@ -557,9 +557,9 @@ namespace Apttus.Lightsaber.Nokia.Pricing
         public const string NokiaCPQShareProposalsWithOTM = "NokiaCPQShareProposalsWithOTM";
         public const string unshareProposalRecordAfterOTMTriggerDelete = "unshareProposalRecordAfterOTMTriggerDelete";
         public const string CUSTPROD001 = "CUSTPROD001";
-
         public const string Direct_DS = "Direct DS";
         public const string WAVELITESOURCE = "Wavelite";
+        public static List<string> pdcList = new List<string>() { "NFM - P IPR", "5620 SAM IPR" };
     }
 
     class Labels

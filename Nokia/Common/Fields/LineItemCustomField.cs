@@ -1,4 +1,4 @@
-﻿namespace Apttus.Lightsaber.Nokia.Pricing
+﻿namespace Apttus.Lightsaber.Nokia.Common
 {
     public class LineItemCustomField
     {
@@ -82,8 +82,6 @@
         public const string Is_FBA__c = "Is_FBA__c";
         public const string Is_P2P__c = "Is_P2P__c";
 
-        #region Totalling
-
         public const string NokiaCPQ_SRSBasePrice__c = "NokiaCPQ_SRSBasePrice__c";
         public const string NokiaCPQ_CareSRSBasePrice__c = "NokiaCPQ_CareSRSBasePrice__c";
         public const string Reference_Price__c = "Reference_Price__c";
@@ -93,7 +91,6 @@
         public const string NokiaCPQ_Extended_Cost__c = "NokiaCPQ_Extended_Cost__c";
         public const string Sales_Margin__c = "Sales_Margin__c";
         public const string Item_Type_From_CAT__c = "Item_Type_From_CAT__c";
-
-        #endregion
+        public const string NokiaCPQ_IsArcadiaBundle__c = "NokiaCPQ_IsArcadiaBundle__c";
     }
 }
