@@ -1,6 +1,6 @@
 ﻿namespace Apttus.Lightsaber.Nokia.Common
 {
-    public class LineItemStandardRelationshipField
+    public class LineItemRelationshipField
     {
         public const string Apttus_Config2__ProductId__r_NokiaCPQ_Item_Type__c = "Apttus_Config2__ProductId__r.NokiaCPQ_Item_Type__c";
         public const string Apttus_Config2__ProductId__r_Business_Group__c = "Apttus_Config2__ProductId__r.Business_Group__c";
@@ -37,10 +37,10 @@
         public const string Apttus_Config2__OptionId__r_NokiaCPQ_Min_SM_Greater_China__c = "Apttus_Config2__OptionId__r.NokiaCPQ_Min_SM_Greater_China__c";
         public const string Apttus_Config2__OptionId__r_NokiaCPQ_Min_SM_Europe__c = "Apttus_Config2__OptionId__r.NokiaCPQ_Min_SM_Europe__c";
 
-        public const string Apttus_Config2__ProductId__r_NokiaCPQ_Maximum_IRP_Discount__c = "Apttus_Config2__ProductId__r_NokiaCPQ_Maximum_IRP_Discount__c";
-        public const string Apttus_Config2__OptionId__r_NokiaCPQ_Maximum_IRP_Discount__c = "Apttus_Config2__OptionId__r_NokiaCPQ_Maximum_IRP_Discount__c";
-        public const string Apttus_Config2__ProductId__r_NokiaCPQ_OEM__c = "Apttus_Config2__ProductId__r_NokiaCPQ_OEM__c";
-        public const string Apttus_Config2__OptionId__r_NokiaCPQ_OEM__c = "Apttus_Config2__OptionId__r_NokiaCPQ_OEM__c";
+        public const string Apttus_Config2__ProductId__r_NokiaCPQ_Maximum_IRP_Discount__c = "Apttus_Config2__ProductId__r.NokiaCPQ_Maximum_IRP_Discount__c";
+        public const string Apttus_Config2__OptionId__r_NokiaCPQ_Maximum_IRP_Discount__c = "Apttus_Config2__OptionId__r.NokiaCPQ_Maximum_IRP_Discount__c";
+        public const string Apttus_Config2__ProductId__r_NokiaCPQ_OEM__c = "Apttus_Config2__ProductId__r.NokiaCPQ_OEM__c";
+        public const string Apttus_Config2__OptionId__r_NokiaCPQ_OEM__c = "Apttus_Config2__OptionId__r.NokiaCPQ_OEM__c";
 
         public const string Apttus_Config2__PriceListItemId__r_Contracted__c = "Apttus_Config2__PriceListItemId__r.Contracted__c";
 

@@ -7,7 +7,7 @@
         public const string NokiaCPQ_LEO_Discount__c = "NokiaCPQ_LEO_Discount__c";
         public const string NokiaCPQ_Maintenance_Level__c = "NokiaCPQ_Maintenance_Level__c";
         public const string Is_List_Price_Only__c = "Is_List_Price_Only__c";
-        public const string Warranty_credit__c = "Warranty_credit__c";
+        public const string Warranty_Credit__c = "Warranty_credit__c";
         public const string NokiaCPQ_Is_Maintenance_Quote__c = "NokiaCPQ_Is_Maintenance_Quote__c";
         public const string CurrencyIsoCode = "CurrencyIsoCode";
         public const string Name = "Name";
@@ -16,12 +16,11 @@
         public const string NokiaCPQ_SRS_Level__c = "NokiaCPQ_SRS_Level__c";
         public const string NokiaCPQ_Portfolio__c = "NokiaCPQ_Portfolio__c";
         public const string NokiaCPQ_Maintenance_Type__c = "NokiaCPQ_Maintenance_Type__c";
-        public const string NokiaCPQ_No_of_Years__c = "NokiaCPQ_No_of_Years__c";
+        public const string NokiaCPQ_No_Of_Years__c = "NokiaCPQ_No_of_Years__c";
         public const string NokiaCPQ_IsPMA__c = "NokiaCPQ_IsPMA__c";
         public const string Quote_Type__c = "Quote_Type__c";
         public const string Exchange_Rate__c = "Exchange_Rate__c";
         public const string NokiaCPQ_SRS_Per__c = "NokiaCPQ_SRS_Per__c";
-        public const string NokiaCPQ_OpportunityLeadBG__c = "NokiaCPQ_OpportunityLeadBG__c";
         public const string Account_Market__c = "Account_Market__c";
         public const string Maintenance_Y1__c = "Maintenance_Y1__c";
         public const string Maintenance_Y2__c = "Maintenance_Y2__c";

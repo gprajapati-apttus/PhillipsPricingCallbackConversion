@@ -22,11 +22,11 @@ namespace Apttus.Lightsaber.Nokia.Common
             }
         }
 
-        public string NokiaCPQ_No_of_Years__c
+        public string NokiaCPQ_No_Of_Years__c
         {
             get
             {
-                return Get<string>(ProposalField.NokiaCPQ_No_of_Years__c);
+                return Get<string>(ProposalField.NokiaCPQ_No_Of_Years__c);
             }
         }
 
@@ -286,11 +286,11 @@ namespace Apttus.Lightsaber.Nokia.Common
             }
         }
 
-        public string Warranty_credit__c
+        public string Warranty_Credit__c
         {
             get
             {
-                return Get<string>(ProposalField.Warranty_credit__c);
+                return Get<string>(ProposalField.Warranty_Credit__c);
             }
         }
 

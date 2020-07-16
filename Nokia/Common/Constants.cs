@@ -560,6 +560,7 @@ namespace Apttus.Lightsaber.Nokia.Common
         public const string Direct_DS = "Direct DS";
         public const string WAVELITESOURCE = "Wavelite";
         public static List<string> pdcList = new List<string>() { "NFM - P IPR", "5620 SAM IPR" };
+        public const string NULL_PRODUCT_DISCOUNT_CATEGORY_KEY = "NULL_PRODUCT_DISCOUNT_CATEGORY_KEY";
     }
 
     class Labels
