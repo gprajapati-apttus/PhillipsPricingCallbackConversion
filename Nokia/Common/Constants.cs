@@ -5,6 +5,7 @@ namespace Apttus.Lightsaber.Nokia.Common
     class Constants
     {
         public const string PROPOSAL = "Apttus_Proposal__Proposal__c";
+        public const string PROPOSAL_CONFIG_RELATIONSHIP_NAME = "Apttus_QPConfig__Proposald__r";
 
         public const string NOKIA_PRODUCT_NAME_SSP = "SSP";
         public const string NOKIA_PARTNER_PROFILE_NAME = "PRM Partner Community User Login";

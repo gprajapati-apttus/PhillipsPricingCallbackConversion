@@ -1,16 +1,27 @@
-﻿using System;
+﻿using Apttus.Lightsaber.Pricing.Common.Entities;
+using Apttus.Lightsaber.Pricing.Common.Models;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Apttus.Lightsaber.Nokia.Common
 {
-    public class Proposal
+    [JsonConverter(typeof(BaseEntitySerializer))]
+    public class Proposal : BaseEntity
     {
+        public Proposal() : base(Constants.PROPOSAL) { }
+        public Proposal(Dictionary<string, object> dbObject) : base(Constants.PROPOSAL, dbObject) { }
+
         public string NokiaCPQ_Portfolio__c
         {
             get
             {
-                return Get<string>(ProposalField.NokiaCPQ_Portfolio__c);
+                return GetValue<string>(ProposalField.NokiaCPQ_Portfolio__c);
+            }
+            set
+            {
+                SetValue(ProposalField.NokiaCPQ_Portfolio__c, value);
             }
         }
 
@@ -18,7 +29,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<bool?>(ProposalField.NokiaCPQ_LEO_Discount__c);
+                return GetValue<bool?>(ProposalField.NokiaCPQ_LEO_Discount__c);
+            }
+            set
+            {
+                SetValue(ProposalField.NokiaCPQ_LEO_Discount__c, value);
             }
         }
 
@@ -26,7 +41,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalField.NokiaCPQ_No_Of_Years__c);
+                return GetValue<string>(ProposalField.NokiaCPQ_No_Of_Years__c);
+            }
+            set
+            {
+                SetValue(ProposalField.NokiaCPQ_No_Of_Years__c, value);
             }
         }
 
@@ -34,7 +53,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_L7Name__c);
+                return GetLookupValue<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_L7Name__c);
+            }
+            set
+            {
+                SetValue(ProposalRelationshipField.Apttus_Proposal__Account__r_L7Name__c, value);
             }
         }
 
@@ -42,7 +65,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<bool?>(ProposalField.Is_List_Price_Only__c);
+                return GetValue<bool?>(ProposalField.Is_List_Price_Only__c);
+            }
+            set
+            {
+                SetValue(ProposalField.Is_List_Price_Only__c, value);
             }
         }
 
@@ -50,7 +77,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalField.NokiaCPQ_Maintenance_Type__c);
+                return GetValue<string>(ProposalField.NokiaCPQ_Maintenance_Type__c);
+            }
+            set
+            {
+                SetValue(ProposalField.NokiaCPQ_Maintenance_Type__c, value);
             }
         }
 
@@ -58,7 +89,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalField.NokiaCPQ_SSP_Level__c);
+                return GetValue<string>(ProposalField.NokiaCPQ_SSP_Level__c);
+            }
+            set
+            {
+                SetValue(ProposalField.NokiaCPQ_SSP_Level__c, value);
             }
         }
 
@@ -66,15 +101,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalField.NokiaCPQ_SRS_Level__c);
+                return GetValue<string>(ProposalField.NokiaCPQ_SRS_Level__c);
             }
-        }
-
-        public string CurrencyIsoCode
-        {
-            get
+            set
             {
-                return Get<string>(ProposalField.CurrencyIsoCode);
+                SetValue(ProposalField.NokiaCPQ_SRS_Level__c, value);
             }
         }
 
@@ -82,7 +113,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalField.Quote_Type__c);
+                return GetValue<string>(ProposalField.Quote_Type__c);
+            }
+            set
+            {
+                SetValue(ProposalField.Quote_Type__c, value);
             }
         }
 
@@ -90,7 +125,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<decimal?>(ProposalField.Exchange_Rate__c);
+                return GetValue<decimal?>(ProposalField.Exchange_Rate__c);
+            }
+            set
+            {
+                SetValue(ProposalField.Exchange_Rate__c, value);
             }
         }
 
@@ -98,7 +137,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalField.NokiaProductAccreditation__c);
+                return GetValue<string>(ProposalField.NokiaProductAccreditation__c);
+            }
+            set
+            {
+                SetValue(ProposalField.NokiaProductAccreditation__c, value);
             }
         }
 
@@ -106,7 +149,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalField.NokiaCPQ_Maintenance_Accreditation__c);
+                return GetValue<string>(ProposalField.NokiaCPQ_Maintenance_Accreditation__c);
+            }
+            set
+            {
+                SetValue(ProposalField.NokiaCPQ_Maintenance_Accreditation__c, value);
             }
         }
 
@@ -114,7 +161,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalField.NokiaCPQ_Maintenance_Level__c);
+                return GetValue<string>(ProposalField.NokiaCPQ_Maintenance_Level__c);
+            }
+            set
+            {
+                SetValue(ProposalField.NokiaCPQ_Maintenance_Level__c, value);
             }
         }
 
@@ -122,7 +173,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<bool?>(ProposalField.NokiaCPQ_IsPMA__c);
+                return GetValue<bool?>(ProposalField.NokiaCPQ_IsPMA__c);
+            }
+            set
+            {
+                SetValue(ProposalField.NokiaCPQ_IsPMA__c, value);
             }
         }
 
@@ -130,7 +185,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_GEOLevel1ID__c);
+                return GetLookupValue<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_GEOLevel1ID__c);
+            }
+            set
+            {
+                SetValue(ProposalRelationshipField.Apttus_Proposal__Account__r_GEOLevel1ID__c, value);
             }
         }
 
@@ -138,7 +197,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalRelationshipField.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Accreditation__c);
+                return GetLookupValue<string>(ProposalRelationshipField.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Accreditation__c);
+            }
+            set
+            {
+                SetValue(ProposalRelationshipField.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Accreditation__c, value);
             }
         }
 
@@ -146,7 +209,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalRelationshipField.NokiaProductAccreditation__r_Pricing_Accreditation__c);
+                return GetLookupValue<string>(ProposalRelationshipField.NokiaProductAccreditation__r_Pricing_Accreditation__c);
+            }
+            set
+            {
+                SetValue(ProposalRelationshipField.NokiaProductAccreditation__r_Pricing_Accreditation__c, value);
             }
         }
 
@@ -154,7 +221,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalRelationshipField.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Cluster__c);
+                return GetLookupValue<string>(ProposalRelationshipField.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Cluster__c);
+            }
+            set
+            {
+                SetValue(ProposalRelationshipField.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Cluster__c, value);
             }
         }
 
@@ -162,7 +233,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalRelationshipField.NokiaProductAccreditation__r_Pricing_Cluster__c);
+                return GetLookupValue<string>(ProposalRelationshipField.NokiaProductAccreditation__r_Pricing_Cluster__c);
+            }
+            set
+            {
+                SetValue(ProposalRelationshipField.NokiaProductAccreditation__r_Pricing_Cluster__c, value);
             }
         }
 
@@ -170,7 +245,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_Partner_Program__c);
+                return GetLookupValue<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_Partner_Program__c);
+            }
+            set
+            {
+                SetValue(ProposalRelationshipField.Apttus_Proposal__Account__r_Partner_Program__c, value);
             }
         }
 
@@ -178,7 +257,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_Partner_Type__c);
+                return GetLookupValue<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_Partner_Type__c);
+            }
+            set
+            {
+                SetValue(ProposalRelationshipField.Apttus_Proposal__Account__r_Partner_Type__c, value);
             }
         }
 
@@ -186,7 +269,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalField.NokiaCPQ_Existing_IONMaint_Contract__c);
+                return GetValue<string>(ProposalField.NokiaCPQ_Existing_IONMaint_Contract__c);
+            }
+            set
+            {
+                SetValue(ProposalField.NokiaCPQ_Existing_IONMaint_Contract__c, value);
             }
         }
 
@@ -194,7 +281,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalField.Account_Market__c);
+                return GetValue<string>(ProposalField.Account_Market__c);
+            }
+            set
+            {
+                SetValue(ProposalField.Account_Market__c, value);
             }
         }
 
@@ -202,7 +293,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<decimal?>(ProposalField.Maintenance_Y1__c);
+                return GetValue<decimal?>(ProposalField.Maintenance_Y1__c);
+            }
+            set
+            {
+                SetValue(ProposalField.Maintenance_Y1__c, value);
             }
         }
 
@@ -210,7 +305,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<decimal?>(ProposalField.Maintenance_Y2__c);
+                return GetValue<decimal?>(ProposalField.Maintenance_Y2__c);
+            }
+            set
+            {
+                SetValue(ProposalField.Maintenance_Y2__c, value);
             }
         }
 
@@ -218,7 +317,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<decimal?>(ProposalField.SSP__c);
+                return GetValue<decimal?>(ProposalField.SSP__c);
+            }
+            set
+            {
+                SetValue(ProposalField.SSP__c, value);
             }
         }
 
@@ -226,7 +329,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<decimal?>(ProposalField.SRS__c);
+                return GetValue<decimal?>(ProposalField.SRS__c);
+            }
+            set
+            {
+                SetValue(ProposalField.SRS__c, value);
             }
         }
 
@@ -234,7 +341,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalRelationshipField.NokiaCPQ_Maintenance_Accreditation__r_Portfolio__c);
+                return GetLookupValue<string>(ProposalRelationshipField.NokiaCPQ_Maintenance_Accreditation__r_Portfolio__c);
+            }
+            set
+            {
+                SetValue(ProposalRelationshipField.NokiaCPQ_Maintenance_Accreditation__r_Portfolio__c, value);
             }
         }
 
@@ -242,7 +353,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_CountryCode__c);
+                return GetValue<string>(ProposalRelationshipField.Apttus_Proposal__Account__r_CountryCode__c);
+            }
+            set
+            {
+                SetValue(ProposalRelationshipField.Apttus_Proposal__Account__r_CountryCode__c, value);
             }
         }
 
@@ -250,7 +365,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<decimal?>(ProposalRelationshipField.NokiaProductAccreditation__r_NokiaCPQ_Incoterm_Percentage__c);
+                return GetLookupValue<decimal?>(ProposalRelationshipField.NokiaProductAccreditation__r_NokiaCPQ_Incoterm_Percentage__c);
+            }
+            set
+            {
+                SetValue(ProposalRelationshipField.NokiaProductAccreditation__r_NokiaCPQ_Incoterm_Percentage__c, value);
             }
         }
 
@@ -258,7 +377,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<bool?>(ProposalRelationshipField.Apttus_Proposal__Account__r_NokiaCPQ_Renewal__c);
+                return GetLookupValue<bool?>(ProposalRelationshipField.Apttus_Proposal__Account__r_NokiaCPQ_Renewal__c);
+            }
+            set
+            {
+                SetValue(ProposalRelationshipField.Apttus_Proposal__Account__r_NokiaCPQ_Renewal__c, value);
             }
         }
 
@@ -266,7 +389,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<bool?>(ProposalRelationshipField.Apttus_Proposal__Account__r_NokiaCPQ_Attachment__c);
+                return GetLookupValue<bool?>(ProposalRelationshipField.Apttus_Proposal__Account__r_NokiaCPQ_Attachment__c);
+            }
+            set
+            {
+                SetValue(ProposalRelationshipField.Apttus_Proposal__Account__r_NokiaCPQ_Attachment__c, value);
             }
         }
 
@@ -274,7 +401,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<bool?>(ProposalRelationshipField.Apttus_Proposal__Account__r_NokiaCPQ_Performance__c);
+                return GetLookupValue<bool?>(ProposalRelationshipField.Apttus_Proposal__Account__r_NokiaCPQ_Performance__c);
+            }
+            set
+            {
+                SetValue(ProposalRelationshipField.Apttus_Proposal__Account__r_NokiaCPQ_Performance__c, value);
             }
         }
 
@@ -282,7 +413,11 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<bool?>(ProposalField.NokiaCPQ_Is_Maintenance_Quote__c);
+                return GetValue<bool?>(ProposalField.NokiaCPQ_Is_Maintenance_Quote__c);
+            }
+            set
+            {
+                SetValue(ProposalField.NokiaCPQ_Is_Maintenance_Quote__c, value);
             }
         }
 
@@ -290,21 +425,12 @@ namespace Apttus.Lightsaber.Nokia.Common
         {
             get
             {
-                return Get<string>(ProposalField.Warranty_Credit__c);
+                return GetValue<string>(ProposalField.Warranty_Credit__c);
             }
-        }
-
-
-        private readonly Dictionary<string, object> proposal;
-
-        public Proposal(Dictionary<string, object> proposal)
-        {
-            this.proposal = proposal;
-        }
-
-        public T Get<T>(string fieldName)
-        {
-            return (T)proposal[fieldName];
+            set
+            {
+                SetValue(ProposalField.Warranty_Credit__c, value);
+            }
         }
     }
 }

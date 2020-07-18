@@ -195,6 +195,16 @@ namespace Apttus.Lightsaber.Nokia.Common
             return lineItemModel.GetLineType();
         }
 
+        public bool IsOptionLineType()
+        {
+            return lineItemModel.GetLineType() == Lightsaber.Pricing.Common.Constants.LineType.Option;
+        }
+
+        public bool IsProductServiceLineType()
+        {
+            return lineItemModel.GetLineType() == Lightsaber.Pricing.Common.Constants.LineType.ProductService;
+        }
+
         public decimal GetExtendedQuantity()
         {
             return lineItemModel.GetExtendedQuantity();
