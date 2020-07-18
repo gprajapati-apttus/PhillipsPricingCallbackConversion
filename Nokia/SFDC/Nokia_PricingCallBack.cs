@@ -2463,8 +2463,8 @@ class Nokia_PricingCallBack
             system.debug(' finishmethode: ');
 
             if (this.proposalSO != null &&
-    (this.proposalSO.Quote_Type__c.equalsIgnoreCase('Direct DS') ||
-     (this.proposalSO.Quote_Type__c.equalsIgnoreCase('Indirect DS'))))
+                (this.proposalSO.Quote_Type__c.equalsIgnoreCase('Direct DS') ||
+                 (this.proposalSO.Quote_Type__c.equalsIgnoreCase('Indirect DS'))))
             {
                 List<Apttus_Config2.LineItem> listLineitems = cart.getLineItems();
                 string Market = this.proposalSO.Account_Market__c;
@@ -2481,6 +2481,7 @@ class Nokia_PricingCallBack
                     calculateEquivalentPrice(allLineitem, Market);
                 }
             }
+
             if (this.proposalSO != null && this.proposalSO.Quote_Type__c.equalsIgnoreCase(Nokia_CPQ_Constants.QUOTE_TYPE_DIRECTCPQ))
             {
                 system.debug('mode in Finish***' + mode);
@@ -3164,14 +3165,16 @@ class Nokia_PricingCallBack
                         String partNumber = getPartNumber(item);
                         if (item.Apttus_Config2__ChargeType__c != NULL && item.Apttus_Config2__ChargeType__c.equalsIgnoreCase(Nokia_CPQ_Constants.NOKIA_YEAR1_MAINTENANCE) && !this.proposalSO.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Nokia_CPQ_Constants.AIRSCALE_WIFI_STRING))
                         {
-                            if (linenumberCarePrice.size() > 0 && linenumberCarePrice.containsKey(item.Apttus_Config2__LineNumber__c) && item.Apttus_Config2__Quantity__c > 0 && linenumberCarePrice.get(item.Apttus_Config2__LineNumber__c) > 0 && linenumberCarePrice.get(item.Apttus_Config2__LineNumber__c) != (item.Apttus_Config2__NetPrice__c / item.Apttus_Config2__Quantity__c))
+                            if (linenumberCarePrice.size() > 0 && linenumberCarePrice.containsKey(item.Apttus_Config2__LineNumber__c) && item.Apttus_Config2__Quantity__c > 0 && linenumberCarePrice.get(item.Apttus_Config2__LineNumber__c) > 0 && 
+                                linenumberCarePrice.get(item.Apttus_Config2__LineNumber__c) != (item.Apttus_Config2__NetPrice__c / item.Apttus_Config2__Quantity__c))
                             {
                                 item.Apttus_Config2__PricingStatus__c = 'Pending';
                             }
                         }
                         if (item.Apttus_Config2__ChargeType__c != NULL && item.Apttus_Config2__ChargeType__c.equalsIgnoreCase(Nokia_CPQ_Constants.NOKIA_SRS) && !this.proposalSO.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Nokia_CPQ_Constants.AIRSCALE_WIFI_STRING))
                         {
-                            if (linenumberSRSPrice.size() > 0 && linenumberSRSPrice.containsKey(item.Apttus_Config2__LineNumber__c) && item.Apttus_Config2__Quantity__c > 0 && linenumberSRSPrice.get(item.Apttus_Config2__LineNumber__c) > 0 && linenumberSRSPrice.get(item.Apttus_Config2__LineNumber__c) != (item.Apttus_Config2__NetPrice__c / item.Apttus_Config2__Quantity__c))
+                            if (linenumberSRSPrice.size() > 0 && linenumberSRSPrice.containsKey(item.Apttus_Config2__LineNumber__c) && item.Apttus_Config2__Quantity__c > 0 && linenumberSRSPrice.get(item.Apttus_Config2__LineNumber__c) > 0 && 
+                                linenumberSRSPrice.get(item.Apttus_Config2__LineNumber__c) != (item.Apttus_Config2__NetPrice__c / item.Apttus_Config2__Quantity__c))
                             {
                                 item.Apttus_Config2__PricingStatus__c = 'Pending';
                             }
@@ -3209,7 +3212,8 @@ class Nokia_PricingCallBack
                         if (this.proposalSO.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Nokia_CPQ_Constants.NOKIA_IP_ROUTING) && !this.proposalSO.Is_List_Price_Only__c)
                         {
                             //system.debug('enterprise 2nd reprice for SSP/SRS' + item.NokiaCPQ_Extended_IRP2__c + '  ' + item.Apttus_Config2__BasePriceOverride__c*item.Apttus_Config2__Quantity__c);
-                            if (partNumber != null && (partNumber.contains(Nokia_CPQ_Constants.SSPCODE) || partNumber.contains(Nokia_CPQ_Constants.SRS)) && item.Apttus_Config2__Quantity__c != null && item.NokiaCPQ_Extended_IRP2__c != (item.Apttus_Config2__BasePriceOverride__c * item.Apttus_Config2__Quantity__c).setScale(2, RoundingMode.HALF_UP))
+                            if (partNumber != null && (partNumber.contains(Nokia_CPQ_Constants.SSPCODE) || partNumber.contains(Nokia_CPQ_Constants.SRS)) && item.Apttus_Config2__Quantity__c != null && 
+                                item.NokiaCPQ_Extended_IRP2__c != (item.Apttus_Config2__BasePriceOverride__c * item.Apttus_Config2__Quantity__c).setScale(2, RoundingMode.HALF_UP))
                             {
                                 item.Apttus_Config2__PricingStatus__c = 'Pending';
                             }

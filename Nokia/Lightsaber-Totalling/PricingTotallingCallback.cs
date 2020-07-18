@@ -1702,20 +1702,14 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             decimal? ExtendedMaintY2Price = totalExtendedMaintY2Price;
             int quantityBundle = 1;
 
-            if (partNumber != null && !partNumber.Contains(Constants.MAINTY1CODE) &&
-                !partNumber.Contains(Constants.MAINTY2CODE) &&
-                !partNumber.Contains(Constants.SSPCODE) &&
-                !partNumber.Contains(Constants.SRS))
+            if (item.IsOptionLineType())
             {
-                if (item.IsOptionLineType())
+                var key = Constants.NOKIA_PRODUCT_SERVICES + Constants.NOKIA_UNDERSCORE + item.GetLineNumber();
+                if (lineItemObjectMap.ContainsKey(key) && lineItemObjectMap[key] != null)
                 {
-                    var key = Constants.NOKIA_PRODUCT_SERVICES + Constants.NOKIA_UNDERSCORE + item.GetLineNumber();
-                    if (lineItemObjectMap.ContainsKey(key) && lineItemObjectMap[key] != null)
+                    if (lineItemObjectMap[key].Quantity != null)
                     {
-                        if (lineItemObjectMap[key].Quantity != null)
-                        {
-                            quantityBundle = Convert.ToInt32(Math.Ceiling(lineItemObjectMap[key].Quantity.Value));
-                        }
+                        quantityBundle = Convert.ToInt32(Math.Ceiling(lineItemObjectMap[key].Quantity.Value));
                     }
                 }
             }
@@ -2095,9 +2089,11 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 //{
                 if (mapLineCategory.ContainsKey(lineitem.Id))
                 {
-                    if (mapcategoryDiscount.ContainsKey(mapLineCategory[lineitem.Id] ?? Constants.NULL_PRODUCT_DISCOUNT_CATEGORY_KEY))
+                    var productDiscCategoryKey = mapLineCategory[lineitem.Id] ?? Constants.NULL_PRODUCT_DISCOUNT_CATEGORY_KEY;
+
+                    if (mapcategoryDiscount.ContainsKey(productDiscCategoryKey))
                     {
-                        decimal? discountPerc = mapcategoryDiscount[mapLineCategory[lineitem.Id]];
+                        decimal? discountPerc = mapcategoryDiscount[productDiscCategoryKey];
                         lineitem.Reference_Price__c = (lineitem.ListPrice - (lineitem.ListPrice * (discountPerc / 100)));
                     }
                     else
