@@ -1747,12 +1747,15 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                             proposal.NokiaCPQ_Maintenance_Type__c?.equalsIgnoreCase("MN GS TSS Enhanced") == true ||
                             proposal.NokiaCPQ_Maintenance_Type__c?.equalsIgnoreCase("MN GS TSS Enhanced Emergency") == true)
                         {
-                            basicYear1 = pricingHelper.ApplyRounding((item.NokiaCPQ_Extended_IRP__c * 0.25m), 2, RoundingMode.HALF_UP);
-                            basicYear2 = 0;
-                            
-                            if (no_of_years > 1)
+                            if (no_of_years == 1)
+                            {
+                                basicYear1 = pricingHelper.ApplyRounding((item.NokiaCPQ_Extended_IRP__c * 0.25m), 2, RoundingMode.HALF_UP);
+                            } 
+                            else if(no_of_years > 1)
                             {
                                 var multiplyingFactor = (no_of_years == 2 || no_of_years == 3) ? 0.85m : 0.70m;
+
+                                basicYear1 = pricingHelper.ApplyRounding((item.NokiaCPQ_Extended_IRP__c * 0.25m), 2, RoundingMode.HALF_UP);
                                 basicYear2 = pricingHelper.ApplyRounding(((basicYear1 * (no_of_years * multiplyingFactor)) - basicYear1), 2, RoundingMode.HALF_UP);
                             }
 
@@ -1763,12 +1766,15 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         if (proposal.NokiaCPQ_Maintenance_Type__c?.equalsIgnoreCase("MN GS TSS Enhanced") == true ||
                             proposal.NokiaCPQ_Maintenance_Type__c?.equalsIgnoreCase("MN GS TSS Enhanced Emergency") == true)
                         {
-                            enhanceYear1 = pricingHelper.ApplyRounding((basicYear1 + (basicYear1 * 0.25m)), 2, RoundingMode.HALF_UP);
-                            enhanceYear2 = 0;
-
-                            if (no_of_years > 1)
+                            if (no_of_years == 1)
+                            {
+                                enhanceYear1 = pricingHelper.ApplyRounding((basicYear1 + (basicYear1 * 0.25m)), 2, RoundingMode.HALF_UP);
+                            }
+                            else if (no_of_years > 1)
                             {
                                 var multiplyingFactor = (no_of_years == 2 || no_of_years == 3) ? 0.85m : 0.70m;
+
+                                enhanceYear1 = pricingHelper.ApplyRounding((basicYear1 + (basicYear1 * 0.25m)), 2, RoundingMode.HALF_UP);
                                 enhanceYear2 = pricingHelper.ApplyRounding((((basicYear1 + (basicYear1 * 0.25m)) * (no_of_years * multiplyingFactor)) - enhanceYear1), 2, RoundingMode.HALF_UP);
                             }
 
@@ -1778,12 +1784,15 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         
                         if (proposal.NokiaCPQ_Maintenance_Type__c?.equalsIgnoreCase("MN GS TSS Enhanced Emergency") == true)
                         {
-                            enhanceEmergencyYear1 = pricingHelper.ApplyRounding((enhanceYear1 + (enhanceYear1 * 0.25m)), 2, RoundingMode.HALF_UP);
-                            enhanceEmergencyYear2 = 0;
-
-                            if (no_of_years > 1)
+                            if (no_of_years == 1)
+                            {
+                                enhanceEmergencyYear1 = pricingHelper.ApplyRounding((enhanceYear1 + (enhanceYear1 * 0.25m)), 2, RoundingMode.HALF_UP);
+                            }
+                            else if (no_of_years > 1)
                             {
                                 var multiplyingFactor = (no_of_years == 2 || no_of_years == 3) ? 0.85m : 0.70m;
+
+                                enhanceEmergencyYear1 = pricingHelper.ApplyRounding((enhanceYear1 + (enhanceYear1 * 0.25m)), 2, RoundingMode.HALF_UP);
                                 enhanceEmergencyYear2 = pricingHelper.ApplyRounding((((enhanceYear1 + (enhanceYear1 * 0.25m)) * (no_of_years * multiplyingFactor)) - enhanceEmergencyYear1), 2, RoundingMode.HALF_UP);
                             }
 
@@ -1797,13 +1806,18 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     if (item.NokiaCPQ_Product_Type__c?.equalsIgnoreCase("Access Point") == true)
                     {
                         var extendedIRP = item.NokiaCPQ_Extended_IRP__c;
-                        item.NokiaCPQ_Maint_Yr1_Extended_Price__c = pricingHelper.ApplyRounding((extendedIRP * 0.02m) + (extendedIRP * 0.053m), 2, RoundingMode.HALF_UP);
                         item.NokiaCPQ_Maint_Yr2_Extended_Price__c = 0;
 
-                        if (no_of_years > 1)
+                        if (no_of_years == 1)
+                        {
+                            item.NokiaCPQ_Maint_Yr1_Extended_Price__c = pricingHelper.ApplyRounding((extendedIRP * 0.02m) + (extendedIRP * 0.053m), 2, RoundingMode.HALF_UP);
+                        }
+                        else if (no_of_years > 1)
                         {
                             var multiplyingFactor1 = (no_of_years == 2 || no_of_years == 3) ? 1.00m : 0.85m;
                             var multiplyingFactor2 = (no_of_years == 2 || no_of_years == 3) ? 0.85m : 0.70m;
+
+                            item.NokiaCPQ_Maint_Yr1_Extended_Price__c = pricingHelper.ApplyRounding((extendedIRP * 0.02m) + (extendedIRP * 0.053m), 2, RoundingMode.HALF_UP);
 
                             item.NokiaCPQ_Maint_Yr2_Extended_Price__c = pricingHelper.ApplyRounding(((extendedIRP * 0.02m * ((no_of_years * multiplyingFactor1) - 1)) + (extendedIRP * 0.053m * ((no_of_years * multiplyingFactor2) - 1))), 2, RoundingMode.HALF_UP);
                             item.NokiaCPQ_Maint_Yr2_Extended_Price__c = pricingHelper.ApplyRounding(((extendedIRP * 0.02m * ((no_of_years * multiplyingFactor1) - 1)) + (extendedIRP * 0.053m * ((no_of_years * multiplyingFactor2) - 1))), 2, RoundingMode.HALF_UP);
@@ -1812,15 +1826,20 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     else if (item.NokiaCPQ_Product_Type__c?.equalsIgnoreCase("Controller") == true)
                     {
                         var extendedIRP = item.NokiaCPQ_Extended_IRP__c;
-                        item.NokiaCPQ_Maint_Yr1_Extended_Price__c = pricingHelper.ApplyRounding(extendedIRP * 0.02m, 2, RoundingMode.HALF_UP);
                         item.NokiaCPQ_Maint_Yr2_Extended_Price__c = 0;
 
-                        if (no_of_years == 2 || no_of_years == 3)
+                        if(no_of_years == 1)
                         {
+                            item.NokiaCPQ_Maint_Yr1_Extended_Price__c = pricingHelper.ApplyRounding(extendedIRP * 0.02m, 2, RoundingMode.HALF_UP);
+                        }
+                        else if (no_of_years == 2 || no_of_years == 3)
+                        {
+                            item.NokiaCPQ_Maint_Yr1_Extended_Price__c = pricingHelper.ApplyRounding(extendedIRP * 0.02m, 2, RoundingMode.HALF_UP);
                             item.NokiaCPQ_Maint_Yr2_Extended_Price__c = pricingHelper.ApplyRounding(extendedIRP * 0.02m * (no_of_years - 1), 2, RoundingMode.HALF_UP);
                         }
                         else if (no_of_years == 4 || no_of_years == 5)
                         {
+                            item.NokiaCPQ_Maint_Yr1_Extended_Price__c = pricingHelper.ApplyRounding(extendedIRP * 0.02m, 2, RoundingMode.HALF_UP);
                             item.NokiaCPQ_Maint_Yr2_Extended_Price__c = pricingHelper.ApplyRounding(extendedIRP * 0.02m * ((no_of_years * 0.85m) - 1), 2, RoundingMode.HALF_UP);
                         }
                     }
