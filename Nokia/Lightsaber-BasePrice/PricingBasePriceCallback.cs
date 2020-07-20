@@ -519,13 +519,10 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                     if (batchLineItem.IsOptionLineType())
                     {
                         var key = Constants.NOKIA_PRODUCT_SERVICES + Constants.NOKIA_UNDERSCORE + batchLineItem.GetLineNumber();
-                        if (lineItemObjectMap.ContainsKey(key) && lineItemObjectMap[key] != null)
+                        if (lineItemObjectMap.ContainsKey(key))
                         {
-                            if (lineItemObjectMap[key].Quantity != null)
-                            {
-                                quantityBundle = Convert.ToInt32(Math.Ceiling(lineItemObjectMap[key].GetQuantity()));
-                                batchLineItem.Total_Option_Quantity__c = quantityBundle * batchLineItem.GetQuantity();
-                            }
+                            quantityBundle = Convert.ToInt32(Math.Ceiling(lineItemObjectMap[key].GetQuantity()));
+                            batchLineItem.Total_Option_Quantity__c = quantityBundle * batchLineItem.GetQuantity();
                         }
                     }
                 }
@@ -594,14 +591,10 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                         int quantityBundle = 1;
                         if (batchLineItem.IsOptionLineType())
                         {
-                            if (lineItemObjectMap.ContainsKey(Constants.NOKIA_PRODUCT_SERVICES + Constants.NOKIA_UNDERSCORE + batchLineItem.GetLineNumber()) &&
-                                lineItemObjectMap[Constants.NOKIA_PRODUCT_SERVICES + Constants.NOKIA_UNDERSCORE + batchLineItem.GetLineNumber()] != null)
+                            if (lineItemObjectMap.ContainsKey(Constants.NOKIA_PRODUCT_SERVICES + Constants.NOKIA_UNDERSCORE + batchLineItem.GetLineNumber()))
                             {
-                                if (lineItemObjectMap[Constants.NOKIA_PRODUCT_SERVICES + Constants.NOKIA_UNDERSCORE + batchLineItem.GetLineNumber()].Quantity != null)
-                                {
-                                    quantityBundle = Convert.ToInt32(Math.Ceiling(lineItemObjectMap[Constants.NOKIA_PRODUCT_SERVICES + Constants.NOKIA_UNDERSCORE + batchLineItem.GetLineNumber()].Quantity.Value));
-                                    batchLineItem.Total_Option_Quantity__c = quantityBundle * batchLineItem.GetQuantity();
-                                }
+                                quantityBundle = Convert.ToInt32(Math.Ceiling(lineItemObjectMap[Constants.NOKIA_PRODUCT_SERVICES + Constants.NOKIA_UNDERSCORE + batchLineItem.GetLineNumber()].Quantity.Value));
+                                batchLineItem.Total_Option_Quantity__c = quantityBundle * batchLineItem.GetQuantity();
                             }
                         }
 
