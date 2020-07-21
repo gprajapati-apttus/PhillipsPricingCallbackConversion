@@ -7,7 +7,7 @@ using Apttus.Lightsaber.Nokia.Common;
 
 namespace Apttus.Lightsaber.Nokia.Pricing
 {
-    class QueryHelper
+    public static class QueryHelper
     {
         public static Query GetDefaultExchangeRateQuery(string CurrencyIsoCode)
         {

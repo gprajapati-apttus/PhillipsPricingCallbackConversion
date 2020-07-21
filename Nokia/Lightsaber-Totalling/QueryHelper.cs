@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Apttus.Lightsaber.Nokia.Totalling
 {
-    class QueryHelper
+    public static class QueryHelper
     {
         public static Query GetDefaultExchangeRateQuery(string CurrencyIsoCode)
         {

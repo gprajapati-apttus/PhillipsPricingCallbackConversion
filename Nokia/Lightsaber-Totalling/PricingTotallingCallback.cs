@@ -555,8 +555,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         {
                             var parentBundleNumber = cartLineItem.ParentBundleNumber.Value;
 
-                            if (lineItemObjectMapDirect.ContainsKey(parentBundleNumber) &&
-                                cartLineItem.ParentBundleNumber.Value != cartLineItem.GetLineNumber())
+                            if (lineItemObjectMapDirect.ContainsKey(parentBundleNumber) && IsOptionLineFromSubBundle(cartLineItem))
                             {
                                 if (lineItemObjectMapDirect[parentBundleNumber].AdjustmentType == Constants.DISCOUNT_PERCENT)
                                 {
@@ -1614,6 +1613,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             return configType;
         }
 
+        //GP: Need to test this function if working properly.
         private bool IsOptionLineFromSubBundle(LineItem lineItem)
         {
             if (!lineItem.IsOptionLineType() || lineItem.GetRootParentLineItem() == null)
