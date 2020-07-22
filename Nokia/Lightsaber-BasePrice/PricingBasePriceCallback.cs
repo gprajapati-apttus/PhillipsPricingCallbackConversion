@@ -28,7 +28,9 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             batchLineItems = batchPriceRequest.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
             cartLineItems = batchPriceRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
 
-            proposal = batchPriceRequest.Cart.Get<Proposal>(Constants.PROPOSAL_CONFIG_RELATIONSHIP_NAME);
+            var proposalEntity = batchPriceRequest.Cart.Get<BaseEntity>(Constants.PROPOSAL_CONFIG_RELATIONSHIP_NAME);
+            proposal = new Proposal(proposalEntity.ToDictionary());
+
             dBHelper = GetDBHelper();
             pricingHelper = GetPricingHelper();
 
