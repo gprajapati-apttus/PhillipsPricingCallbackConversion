@@ -37,9 +37,8 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             HashSet<string> sspFNSet = new HashSet<string>(Labels.FN_SSP_Product);
 
             cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
-            
-            var proposalEntity = aggregateCartRequest.Cart.Get<BaseEntity>(Constants.PROPOSAL_CONFIG_RELATIONSHIP_NAME);
-            proposal = new Proposal(proposalEntity.ToDictionary());
+            proposal = Proposal.Create(aggregateCartRequest.Cart);
+
             dBHelper = GetDBHelper();
             pricingHelper = GetPricingHelper();
 

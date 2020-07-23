@@ -10,8 +10,14 @@ namespace Apttus.Lightsaber.Nokia.Common
     [JsonConverter(typeof(BaseEntitySerializer))]
     public class Proposal : BaseEntity
     {
-        public Proposal() : base(Constants.PROPOSAL) { }
-        public Proposal(Dictionary<string, object> dbObject) : base(Constants.PROPOSAL, dbObject) { }
+        private Proposal() : base(Constants.PROPOSAL) { }
+        private Proposal(Dictionary<string, object> dbObject) : base(Constants.PROPOSAL, dbObject) { }
+
+        public static Proposal Create(ProductConfigurationModel cart)
+        {
+            var proposalEntity = cart.Get<BaseEntity>(Constants.PROPOSAL_CONFIG_RELATIONSHIP_NAME);
+            return new Proposal(proposalEntity.ToDictionary());
+        }
 
         public string NokiaCPQ_Portfolio__c
         {

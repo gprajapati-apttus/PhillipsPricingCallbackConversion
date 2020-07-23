@@ -27,9 +27,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
         {
             batchLineItems = batchPriceRequest.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
             cartLineItems = batchPriceRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
-
-            var proposalEntity = batchPriceRequest.Cart.Get<BaseEntity>(Constants.PROPOSAL_CONFIG_RELATIONSHIP_NAME);
-            proposal = new Proposal(proposalEntity.ToDictionary());
+            proposal = Proposal.Create(batchPriceRequest.Cart);
 
             dBHelper = GetDBHelper();
             pricingHelper = GetPricingHelper();
@@ -125,9 +123,9 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 }
             }
 
-            foreach (var batchLineItem in batchLineItems)
+            if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
             {
-                if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
+                foreach (var batchLineItem in batchLineItems)
                 {
                     productList.Add(batchLineItem.GetProductOrOptionId());
 
@@ -176,6 +174,15 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                             maintenanceSSPRuleMap_EP.Add(key, maintenanceSSPRule);
                         }
                     }
+                }
+
+                var countryPriceListItemQuery = QueryHelper.GetCountryPriceListItemQuery(productList);
+                var countryPriceListItems = await dBHelper.FindAsync<CountryPriceListItemQueryModel>(countryPriceListItemQuery);
+
+                foreach (CountryPriceListItemQueryModel pli in countryPriceListItems)
+                {
+                    productPriceMap.TryAdd(pli.Apttus_Config2__ProductId__c, pli.Apttus_Config2__ListPrice__c);
+                    productCostMap.TryAdd(pli.Apttus_Config2__ProductId__c, pli.Apttus_Config2__Cost__c);
                 }
             }
 
@@ -235,15 +242,6 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                         mapPliType.Add(priceList.Id, priceList.PriceList_Type__c);
                     }
                 }
-            }
-
-            var countryPriceListItemQuery = QueryHelper.GetCountryPriceListItemQuery(productList);
-            var countryPriceListItems = await dBHelper.FindAsync<CountryPriceListItemQueryModel>(countryPriceListItemQuery);
-
-            foreach (CountryPriceListItemQueryModel pli in countryPriceListItems)
-            {
-                productPriceMap.TryAdd(pli.Apttus_Config2__ProductId__c, pli.Apttus_Config2__ListPrice__c);
-                productCostMap.TryAdd(pli.Apttus_Config2__ProductId__c, pli.Apttus_Config2__Cost__c);
             }
 
             //GP: OnPriceItemSet method
