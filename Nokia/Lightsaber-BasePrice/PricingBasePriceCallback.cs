@@ -513,7 +513,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 }
 
                 //DSI-811 for DS Team Option Quantity to be calculated from the bundle
-                if (proposal.Quote_Type__c.equalsIgnoreCase(Constants.Direct_DS))
+                if (Constants.Direct_DS.equalsIgnoreCase(proposal.Quote_Type__c))
                 {
                     int quantityBundle = 1;
                     if (batchLineItem.IsOptionLineType())
@@ -527,7 +527,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                     }
                 }
 
-                if (proposal.Quote_Type__c.equalsIgnoreCase(Constants.QUOTE_TYPE_INDIRECTCPQ))
+                if (Constants.QUOTE_TYPE_INDIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
                 {
                     if (batchLineItem.Is_Custom_Product__c == true)
                     {
@@ -541,17 +541,8 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                         }
                     }
 
-                    /*Start Performance Formula Fields*/
-                    string dummyBundleLI = string.Empty;
-                    if (batchLineItem.IsProductServiceLineType())
-                    {
-                        dummyBundleLI = batchLineItem.Apttus_Config2__ProductId__r_Is_Dummy_Bundle_CPQ__c;
-                    }
-                    else
-                    {
-                        dummyBundleLI = batchLineItem.Apttus_Config2__OptionId__r_Is_Dummy_Bundle_CPQ__c;
-                    }
-                    /*End Performance Formula Fields*/
+                    string dummyBundleLI = batchLineItem.IsProductServiceLineType() ? 
+                        batchLineItem.Apttus_Config2__ProductId__r_Is_Dummy_Bundle_CPQ__c : batchLineItem.Apttus_Config2__OptionId__r_Is_Dummy_Bundle_CPQ__c;
 
                     if (Constants.DEFAULTPENDING.equals(batchLineItem.Apttus_Config2__ConfigStatus__c) && Constants.NOKIA_YES.equals(dummyBundleLI) &&
                         batchLineItem.IsOptionLineType())
