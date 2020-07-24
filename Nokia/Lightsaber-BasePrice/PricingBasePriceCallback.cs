@@ -17,16 +17,14 @@ namespace Apttus.Lightsaber.Nokia.Pricing
 {
     public class PricingBasePriceCallback : CodeExtensibility, IPricingBasePriceCallback
     {
-        private List<LineItem> batchLineItems = null;
-        private List<LineItem> cartLineItems = null;
         private Proposal proposal = null;
         private IDBHelper dBHelper = null;
         private IPricingHelper pricingHelper = null;
 
         public async Task BeforePricingBatchAsync(BatchPriceRequest batchPriceRequest)
         {
-            batchLineItems = batchPriceRequest.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
-            cartLineItems = batchPriceRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
+            var batchLineItems = batchPriceRequest.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
+            var cartLineItems = batchPriceRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
             proposal = Proposal.Create(batchPriceRequest.Cart);
 
             dBHelper = GetDBHelper();
@@ -114,6 +112,9 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             Dictionary<string, List<decimal?>> tierDiscountRuleMap = new Dictionary<string, List<decimal?>>();
             List<SSPSRSDefaultValuesQueryModel> sspSRSDefaultsList = new List<SSPSRSDefaultValuesQueryModel>();
             Dictionary<string, string> mapPliType = new Dictionary<string, string>();
+
+            var batchLineItems = batchPriceRequest.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
+            var cartLineItems = batchPriceRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
 
             foreach (var lineItem in cartLineItems)
             {
