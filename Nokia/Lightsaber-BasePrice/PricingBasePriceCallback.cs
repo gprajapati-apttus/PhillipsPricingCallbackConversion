@@ -41,7 +41,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                         batchLineItem.BasePrice = pricingHelper.ApplyRounding(batchLineItem.BasePrice.Value, 2, RoundingMode.HALF_UP);
                     }
 
-                    string partNumber = getPartNumber(batchLineItem);
+                    string partNumber = GetPartNumber(batchLineItem);
 
                     if (partNumber != null && partNumber.equalsIgnoreCase(Constants.MAINTY2CODE))
                     {
@@ -77,7 +77,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
 
                 foreach (var batchLineItem in batchLineItems)
                 {
-                    string configType = getConfigType(batchLineItem);
+                    string configType = GetConfigType(batchLineItem);
                     if (batchLineItem.IsOptionLineType() && Constants.BUNDLE.equalsIgnoreCase(configType))
                     {
                         if (batchLineItem.AdjustmentType == Constants.DISCOUNT_AMOUNT)
@@ -251,9 +251,9 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 PriceListItemModel priceListItemModel = batchLineItem.GetPriceListItem();
                 PriceListItem priceListItemEntity = priceListItemModel.Entity;
 
-                string partNumber = getPartNumber(batchLineItem);
-                string productDiscountCat = getProductDiscountCategory(batchLineItem);
-                string configType = getConfigType(batchLineItem);
+                string partNumber = GetPartNumber(batchLineItem);
+                string productDiscountCat = GetProductDiscountCategory(batchLineItem);
+                string configType = GetConfigType(batchLineItem);
 
                 if (Constants.QUOTE_TYPE_INDIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c) ||
                     Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
@@ -763,7 +763,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
 
                         //Varsha: start: Changes for Req #4920
                         //Removed item.portfolio formula field and used proposal.NokiaCPQ_Portfolio__c
-                        string portfolioFromProduct = getPortfolio(batchLineItem);
+                        string portfolioFromProduct = GetPortfolio(batchLineItem);
                         if (!sspSRSDefaultsList.isEmpty() && !string.IsNullOrEmpty(portfolioFromProduct) && sspSRSDefaultsList[0].Portfolio__c.equalsIgnoreCase(portfolioFromProduct))
                         {
 
@@ -974,7 +974,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 && Constants.NOKIA_1YEAR.equalsIgnoreCase(proposal.NokiaCPQ_No_Of_Years__c);
         }
 
-        private string getPartNumber(LineItem lineItemModel)
+        private string GetPartNumber(LineItem lineItemModel)
         {
             string partNumber = string.Empty;
             if (lineItemModel.Is_Custom_Product__c == true)
@@ -996,7 +996,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             return partNumber;
         }
 
-        string getConfigType(LineItem lineItem)
+        string GetConfigType(LineItem lineItem)
         {
             string configType = string.Empty;
 
@@ -1012,7 +1012,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             return configType;
         }
 
-        private string getProductDiscountCategory(LineItem lineItem)
+        private string GetProductDiscountCategory(LineItem lineItem)
         {
             string productDiscountCat = string.Empty;
 
@@ -1036,7 +1036,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             return lineItem.ParentBundleNumber != lineItem.GetRootParentLineItem().GetPrimaryLineNumber();
         }
 
-        private string getPortfolio(LineItem item)
+        private string GetPortfolio(LineItem item)
         {
             string portfolio = string.Empty;
             if (item.ProductId != null && item.Apttus_Config2__ProductId__r_Portfolio__c != null)

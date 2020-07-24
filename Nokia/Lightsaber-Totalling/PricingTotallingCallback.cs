@@ -205,7 +205,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     //    item.Apttus_Config2__LineSequence__c = 999;
                     //}
 
-                    string productDiscountCat = getProductDiscountCategory(cartLineItem);
+                    string productDiscountCat = GetProductDiscountCategory(cartLineItem);
                     if ((cartLineItem.BasePrice.HasValue &&
                         cartLineItem.BasePrice.Value > 0 &&
                         cartLineItem.NokiaCPQ_Spare__c == false) ||
@@ -260,7 +260,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
                 foreach (var cartLineItem in cartLineItems)
                 {
-                    string partNumber = getPartNumber(cartLineItem);
+                    string partNumber = GetPartNumber(cartLineItem);
                     bool isUpdate = false;
 
                     //Execute third time only for Product/Service lines to complete price calculations after quantity update
@@ -396,7 +396,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
                 foreach (var cartLineItem in cartLineItems)
                 {
-                    string partNumber = getPartNumber(cartLineItem);
+                    string partNumber = GetPartNumber(cartLineItem);
 
                     //Logic from Workflow: Enable Manual Adjustment For Options
                     if ((proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_SOFTWARE) ||
@@ -462,7 +462,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 {
                     foreach (var cartLineItem in cartLineItems)
                     {
-                        string partNumber = getPartNumber(cartLineItem);
+                        string partNumber = GetPartNumber(cartLineItem);
 
                         //Piece of code written below calculates Maintenance for each line item and saves it on line item for Direct Enterprise
                         if (partNumber != null &&
@@ -471,7 +471,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                               !partNumber.Contains(Constants.SSPCODE) &&
                               !partNumber.Contains(Constants.SRS) && cartLineItem.Is_List_Price_Only__c == false)
                         {
-                            calculateMaintenance_EP_Direct(cartLineItem, ref totalExtendedMaintY1Price, ref totalExtendedMaintY2Price, partNumber);
+                            CalculateMaintenanceEPDirect(cartLineItem, ref totalExtendedMaintY1Price, ref totalExtendedMaintY2Price, partNumber);
                         }
 
                         //Map Of Miantenance Line items for IP routing- Enterprise
@@ -548,8 +548,8 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 {
                     foreach (var cartLineItem in cartLineItems)
                     {
-                        string partNumber = getPartNumber(cartLineItem);
-                        string configType = getConfigType(cartLineItem);
+                        string partNumber = GetPartNumber(cartLineItem);
+                        string configType = GetConfigType(cartLineItem);
 
                         if (!configType.equalsIgnoreCase("Bundle") && cartLineItem.IsOptionLineType() && lineItemObjectMapDirect != null && 
                             cartLineItem.Advanced_Pricing_Done__c == false)
@@ -587,7 +587,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         //Piece of cde written below calculates Maintenance for each line item and saves it on line item for Airscale Wifi
                         if (partNumber != null && !partNumber.Contains(Constants.MAINTY1CODE) && !partNumber.Contains(Constants.MAINTY2CODE))
                         {
-                            calculateMaintenance_MN_Direct(cartLineItem, ref totalExtendedMaintY1Price, ref totalExtendedMaintY2Price, partNumber, configType);
+                            CalculateMaintenanceMNDirect(cartLineItem, ref totalExtendedMaintY1Price, ref totalExtendedMaintY2Price, partNumber, configType);
                         }
                         //if (cartLineItem.ChargeType != null && !cartLineItem.ChargeType.equalsIgnoreCase(Constants.STANDARD) && cartLineItem.GetLineType() == LineType.ProductService)
                         //{
@@ -601,7 +601,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
                     foreach (var cartLineItem in cartLineItems)
                     {
-                        string configType = getConfigType(cartLineItem);
+                        string configType = GetConfigType(cartLineItem);
 
                         /**Piyush Tawari Start**/
                         //Req-6228 MN Airscale wifi - Price for the groups to be aggregated from SI
@@ -729,7 +729,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         {
                             if (item.ChargeType.equalsIgnoreCase(Constants.STANDARD) && lineItemIRPMapDirect.ContainsKey(item.GetLineNumber() + "_" + item.ChargeType))
                             {
-                                careSRSList = careSRSCalculationForNSW(item);
+                                careSRSList = CareSRSCalculationForNSW(item);
                                 if (!careSRSList.isEmpty())
                                 {
                                     BundleCareSRSPriceMap.Add(item.GetLineNumber(), careSRSList);
@@ -800,7 +800,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
         {
             if (proposal.Quote_Type__c.equalsIgnoreCase("Direct DS") || proposal.Quote_Type__c.equalsIgnoreCase("Indirect DS"))
             {
-                await calculateEquivalentPrice();
+                await CalculateEquivalentPrice();
             }
 
             if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
@@ -858,8 +858,8 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 Dictionary<string, List<LineItem>> primaryNoLineItemList1 = new Dictionary<string, List<LineItem>>();
                 foreach (var item in cartLineItems)
                 {
-                    string partNumber = getPartNumber(item);
-                    string configType = getConfigType(item);
+                    string partNumber = GetPartNumber(item);
+                    string configType = GetConfigType(item);
 
                     if (configType.equalsIgnoreCase(Constants.BUNDLE) && !proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING))
                     {
@@ -1078,7 +1078,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     item.NokiaCPQ_IRP_Discount__c = pricingHelper.ApplyRounding(item.NokiaCPQ_IRP_Discount__c, 2, RoundingMode.HALF_UP);
 
                     //CPQ Requirement : Traffic Light calculations For MN Direct, NSW, Enterprise, QTC
-                    deal_Guidance_Calculator(item, configType, pricingGuidanceSettingThresold);
+                    DealGuidanceCalculator(item, configType, pricingGuidanceSettingThresold);
 
                     //Care Cost
                     if (item.Advanced_Pricing_Done__c == false && !portfolioSettingList.isEmpty() && portfolioSettingList[0].Cost_Calculation_In_PCB__c == false && 
@@ -1110,7 +1110,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 {
                     foreach (var item in cartLineItems)
                     {
-                        string configType = getConfigType(item);
+                        string configType = GetConfigType(item);
                         //Piyush Tawari Start
                         //Req-6228 MN Airscale wifi - Price for the groups to be aggregated from SI
                         //For Direct MN Airscale Wifi
@@ -1214,7 +1214,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     Dictionary<string, LineItem> ssp_srsLinesMap_EP = new Dictionary<string, LineItem>();
                     foreach (LineItem item in cartLineItems)
                     {
-                        string configType = getConfigType(item);
+                        string configType = GetConfigType(item);
                         decimal? CareDiscCalc = 0;
                         decimal? SRSDiscCalc = 0;
 
@@ -1232,8 +1232,8 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                                 {
                                     if (optionLineItem.ParentBundleNumber == item.PrimaryLineNumber)
                                     {
-                                        string classification = getClassification(optionLineItem);
-                                        string itemType = getItemType(optionLineItem);
+                                        string classification = GetClassification(optionLineItem);
+                                        string itemType = GetItemType(optionLineItem);
 
                                         if (item.ChargeType == "Standard Price")
                                         {
@@ -1312,7 +1312,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
                         //R-6508 --ssp and SRS calculation for Enterprise
                         int quantityBundle = 1;
-                        string partNumber = getPartNumber(item);
+                        string partNumber = GetPartNumber(item);
 
                         if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_IP_ROUTING) && proposal.Is_List_Price_Only__c == false)
                         {
@@ -1439,7 +1439,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 Dictionary<decimal?, decimal?> mainBundleToGroupCUPMap = new Dictionary<decimal?, decimal?>();
                 foreach (var item in cartLineItems)
                 {
-                    string configType = getConfigType(item);
+                    string configType = GetConfigType(item);
                     if (item.ChargeType != null && item.ChargeType.equalsIgnoreCase(Constants.NOKIA_YEAR1_MAINTENANCE) && !item.IsProductServiceLineType() && 
                         proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase("Nokia Software"))
                     {
@@ -1524,8 +1524,8 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
                 foreach (var item in mainBundleMap.Values)
                 {
-                    string configType = getConfigType(item);
-                    string partNumber = getPartNumber(item);
+                    string configType = GetConfigType(item);
+                    string partNumber = GetPartNumber(item);
                     if (item.ChargeType != null && item.ChargeType.equalsIgnoreCase(Constants.NOKIA_YEAR1_MAINTENANCE) && !proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING))
                     {
                         if (linenumberCarePrice.Count > 0 && linenumberCarePrice.ContainsKey(item.LineNumber) && item.Quantity > 0 && linenumberCarePrice[item.LineNumber] > 0 && linenumberCarePrice[item.LineNumber] != (item.NetPrice / item.Quantity))
@@ -1623,7 +1623,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             return lineItem.ParentBundleNumber != lineItem.GetRootParentLineItem().GetPrimaryLineNumber();
         }
 
-        private string getPartNumber(LineItem lineItem)
+        private string GetPartNumber(LineItem lineItem)
         {
             string partNumber = string.Empty;
             if (lineItem.Is_Custom_Product__c == true)
@@ -1645,25 +1645,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             return partNumber;
         }
 
-        string getConfigType(LineItem lineItem)
-        {
-            string configType = string.Empty;
-
-            if (lineItem.IsProductServiceLineType())
-            {
-                configType = lineItem.Apttus_Config2__ProductId__r_Apttus_Config2__ConfigurationType__c;
-                //configType = String.valueOf(item.Apttus_Config2__ProductId__r.Apttus_Config2__ConfigurationType__c);
-            }
-            else
-            {
-                configType = lineItem.Apttus_Config2__OptionId__r_Apttus_Config2__ConfigurationType__c;
-                //configType = String.valueOf(item.Apttus_Config2__OptionId__r.Apttus_Config2__ConfigurationType__c);
-            }
-
-            return configType;
-        }
-
-        private string getProductDiscountCategory(LineItem lineItemModel)
+        private string GetProductDiscountCategory(LineItem lineItemModel)
         {
             string productDiscountCat = string.Empty;
 
@@ -1683,7 +1665,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
         /* Method Name   : calculateMaintenance_EP_Direct
         * Developer	  : Accenture
         * Description	:  The method calculates Maintenance per line item for Direct Enterprise Quotes */
-        private void calculateMaintenance_EP_Direct(LineItem item, ref decimal? totalExtendedMaintY1Price, ref decimal? totalExtendedMaintY2Price, string partNumber)
+        private void CalculateMaintenanceEPDirect(LineItem item, ref decimal? totalExtendedMaintY1Price, ref decimal? totalExtendedMaintY2Price, string partNumber)
         {
             int quantityBundle = 1;
 
@@ -1706,14 +1688,14 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             totalExtendedMaintY2Price = totalExtendedMaintY2Price + pricingHelper.ApplyRounding(item.NokiaCPQ_Maint_Yr2_Extended_Price__c, 2, RoundingMode.HALF_UP);
         }
 
-        private void calculateMaintenance_MN_Direct(LineItem item, ref decimal? totalExtendedMaintY1Price, ref decimal? totalExtendedMaintY2Price, string partNumber, string configType)
+        private void CalculateMaintenanceMNDirect(LineItem item, ref decimal? totalExtendedMaintY1Price, ref decimal? totalExtendedMaintY2Price, string partNumber, string configType)
         {
             decimal? groupQuantity = 1;
             decimal? mainBundleQuantity = 1;
 
             if (item.NokiaCPQ_Spare__c == false)
             {
-                string itemType = getItemType(item);
+                string itemType = GetItemType(item);
                 if (item.IsOptionLineType() && Constants.NOKIA_STANDALONE.equalsIgnoreCase(configType))
                 {
                     if (lineItemObjectMap.ContainsKey(Constants.NOKIA_PRODUCT_SERVICES + Constants.NOKIA_UNDERSCORE + item.GetLineNumber()))
@@ -1866,7 +1848,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             totalExtendedMaintY2Price = totalExtendedMaintY2Price + pricingHelper.ApplyRounding((item.NokiaCPQ_Maint_Yr2_Extended_Price__c * groupQuantity * mainBundleQuantity), 2, RoundingMode.HALF_UP);
         }
 
-        private string getItemType(LineItem item)
+        private string GetItemType(LineItem item)
         {
             string itemType = item.IsProductServiceLineType() ? 
                 item.Apttus_Config2__ProductId__r_NokiaCPQ_Item_Type__c : item.Apttus_Config2__OptionId__r_NokiaCPQ_Item_Type__c;
@@ -1877,7 +1859,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
         /*  Method Name : careSRSCalculationForNSW
 	        Description : The method calculates Care/SRS for NSW quotes
 	        */
-        List<decimal?> careSRSCalculationForNSW(LineItem item)
+        List<decimal?> CareSRSCalculationForNSW(LineItem item)
         {
             List<decimal?> careSRSList = new List<decimal?>();
             decimal? sumOfCareItemsRTUOEM = 0;
@@ -1886,9 +1868,9 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
             foreach (var optionLineItem in lineItemIRPMapDirect[item.GetLineNumber() + "_" + item.ChargeType])
             {
-                string classification = getClassification(optionLineItem);
-                string itemType = getItemType(optionLineItem);
-                string licenseUsage = getLicenseUsage(optionLineItem);
+                string classification = GetClassification(optionLineItem);
+                string itemType = GetItemType(optionLineItem);
+                string licenseUsage = GetLicenseUsage(optionLineItem);
                 if (itemType == "Hardware" && classification == "Base")
                 {
                     if (optionLineItem.BasePriceOverride != null && optionLineItem.Quantity != null)
@@ -1934,7 +1916,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             return careSRSList;
         }
 
-        private string getClassification(LineItem item)
+        private string GetClassification(LineItem item)
         {
             string classification = item.IsProductServiceLineType() ?
                 item.Apttus_Config2__ProductId__r_NokiaCPQ_Classification2__c : item.Apttus_Config2__OptionId__r_NokiaCPQ_Classification2__c;
@@ -1942,7 +1924,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             return classification;
         }
 
-        private string getLicenseUsage(LineItem item)
+        private string GetLicenseUsage(LineItem item)
         {
             string licenseUsage = string.Empty;
 
@@ -1958,8 +1940,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             return licenseUsage;
         }
 
-
-        private async Task calculateEquivalentPrice()
+        private async Task CalculateEquivalentPrice()
         {
             var allLineItems = cartLineItems;
             string market = proposal.Account_Market__c;
@@ -1998,7 +1979,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
             foreach (var lineitem in cartLineItems)
             {
-                String productCatDiscount = getProductDiscountCategory(lineitem);
+                String productCatDiscount = GetProductDiscountCategory(lineitem);
 
                 if (ContractedPriceItems.Contains(lineitem.PriceListItemId))
                 {
@@ -2065,7 +2046,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
             foreach (var lineitem in nonContractedLines)
             {
-                string configType = getConfigType(lineitem);
+                string configType = GetConfigType(lineitem);
                 decimal? bundleRefPrice = 0;
                 if (mapBundlelineOption.ContainsKey(lineitem.GetLineNumber()) && configType.equalsIgnoreCase("Bundle"))
                 {
@@ -2104,15 +2085,15 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             }
         }
 
-        private void deal_Guidance_Calculator(LineItem item, string configType, decimal? pricingGuidanceSettingThresold)
+        private void DealGuidanceCalculator(LineItem item, string configType, decimal? pricingGuidanceSettingThresold)
         {
             //CPQ Requirement : Traffic Light calculations For MN Direct
             if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING) && !configType.equalsIgnoreCase(Constants.BUNDLE))
             {
-                bool? contractedPL = getCLP(item);
-                bool? isOEM = getOEM(item);
-                decimal? maxIRPDiscount = getMaximumIRPDiscount(item);
-                string itemType = getItemType(item);
+                bool? contractedPL = IsCLP(item);
+                bool? isOEM = IsOEM(item);
+                decimal? maxIRPDiscount = GetMaximumIRPDiscount(item);
+                string itemType = GetItemType(item);
 
                 if (item.ChargeType != Constants.STANDARD_PRICE && item.IsProductServiceLineType())
                 {
@@ -2170,9 +2151,9 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             //CPQ Requirement : Traffic Light calculations For Direct NSW
             else if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_SOFTWARE) && !configType.equalsIgnoreCase(Constants.BUNDLE))
             {
-                bool? contractedPL = getCLP(item);
-                decimal? maxIRPDiscount = getMaximumIRPDiscount(item);
-                decimal? minSalesMargin = getMinimumSalesMargin(item);
+                bool? contractedPL = IsCLP(item);
+                decimal? maxIRPDiscount = GetMaximumIRPDiscount(item);
+                decimal? minSalesMargin = GetMinimumSalesMargin(item);
 
                 if (item.NokiaCPQ_Is_Direct_Option__c == true && ((item.NetAdjustmentPercent != 0 && item.NetAdjustmentPercent != null) ||
                     ((item.NetAdjustmentPercent == null || item.NetAdjustmentPercent == 0) && contractedPL == false)) && item.Item_Type_From_CAT__c == "PS")
@@ -2235,7 +2216,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
         && item.Is_Custom_Product__c == false))
             {
                 //system.debug('Entered guidance for Enterprise');
-                bool? contractedPL = getCLP(item);
+                bool? contractedPL = IsCLP(item);
                 if (contractedPL == true && item.NetAdjustmentPercent == 0)
                 {
                     item.NokiaCPQ_Light_Color__c = Constants.GREEN;
@@ -2263,7 +2244,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             }
         }
 
-        private bool? getCLP(LineItem item)
+        private bool? IsCLP(LineItem item)
         {
             bool? clp = false;
             PriceListItemModel priceListItem = item.GetPriceListItem();
@@ -2281,13 +2262,13 @@ namespace Apttus.Lightsaber.Nokia.Totalling
         }
 
         /*Start: Methods for replacing usage of formula fields for improving performance*/
-        private bool? getOEM(LineItem item)
+        private bool? IsOEM(LineItem item)
         {
             bool? oem = item.IsProductServiceLineType() ? item.Apttus_Config2__ProductId__r_NokiaCPQ_OEM__c : item.Apttus_Config2__OptionId__r_NokiaCPQ_OEM__c;
             return oem;
         }
 
-        private decimal? getMaximumIRPDiscount(LineItem item)
+        private decimal? GetMaximumIRPDiscount(LineItem item)
         {
             decimal? maximumIRPDiscount = item.IsProductServiceLineType() ? 
                     item.Apttus_Config2__ProductId__r_NokiaCPQ_Maximum_IRP_Discount__c : item.Apttus_Config2__OptionId__r_NokiaCPQ_Maximum_IRP_Discount__c;
@@ -2295,7 +2276,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             return maximumIRPDiscount ?? 0;
         }
 
-        private decimal? getMinimumSalesMargin(LineItem item)
+        private decimal? GetMinimumSalesMargin(LineItem item)
         {
             decimal? salesMargin = 0;
             if (item.NokiaCPQ_Account_Region__c == "RG_NAM")
