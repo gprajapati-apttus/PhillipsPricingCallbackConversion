@@ -1,0 +1,4 @@
+NokiaCPQ_Static_Bundle_Option__c = IF(NokiaCPQ_Configuration_Type__c ='Standalone', Apttus_Config2__ProductOptionId__r.Apttus_Config2__ParentProductId__r.NokiaCPQ_Static_Bundle_Option__c,IF(Text(Apttus_Config2__LineType__c)='Option'
+,Apttus_Config2__ProductOptionId__r.Apttus_Config2__ParentProductId__r.NokiaCPQ_Static_Bundle_Option__c,Apttus_Config2__ProductId__r.NokiaCPQ_Static_Bundle_Option__c))
+
+NokiaCPQ_Configuration_Type__c = IF(TEXT(Apttus_Config2__LineType__c) ="Product/Service", TEXT(Apttus_Config2__ProductId__r.Apttus_Config2__ConfigurationType__c ), TEXT(Apttus_Config2__OptionId__r.Apttus_Config2__ConfigurationType__c) )

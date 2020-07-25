@@ -1,0 +1,2 @@
+SELECT Id FROM Apttus_Config2__ProductConfiguration__c WHERE 
+Apttus_QPConfig__Proposald__c = 'a3k550000009SIwAAM'

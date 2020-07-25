@@ -1,0 +1,34 @@
+a3k3h00000001rzAAA
+a683h00000000YSAAY	
+
+Apttus__APTS_Agreement__c
+SELECT Apttus_Config2__PriceListId__r.APTS_Related_Agreement__c
+FROM Apttus_Config2__PriceListItem__c LIMIT 1
+
+Nuage
+a3k3h00000002NvAAI
+a683h00000000euAAA
+
+Fixed Access - FBA
+a3k550000008zV6AAI
+a6855000000AFnCAAW
+
+QTC
+a3k55000000Zrn1AAC
+a68550000006GqIAAU
+
+Nokia Software
+a3k3h00000004BcAAI
+a683h00000001Q5AAI
+
+a3k550000008ykqAAA
+a6855000000AFWsAAO
+
+SELECT
+Id,
+Apttus_Config2__LineNumber__c, Apttus_Config2__LineType__c, Apttus_Config2__ChargeType__c,  Apttus_Config2__ParentBundleNumber__c,
+Apttus_Config2__ProductId__r.Id, Apttus_Config2__OptionId__r.Id,
+Apttus_Config2__ProductId__r.Apttus_Config2__ConfigurationType__c,
+Apttus_Config2__OptionId__r.Apttus_Config2__ConfigurationType__c
+FROM Apttus_Config2__LineItem__c
+WHERE Apttus_Config2__ConfigurationId__c = 'a6855000000AFWsAAO'

@@ -1,0 +1,4 @@
+SELECT Apttus_Config2__ConfigurationId__r.Apttus_QPConfig__Proposald__r.Id, Apttus_Config2__ConfigurationId__r.Id ConfigurationId, COUNT(Id) LineItemCount
+FROM Apttus_Config2__LineItem__c
+WHERE Apttus_Config2__ConfigurationId__r.Apttus_QPConfig__Proposald__r.Id= 'a3k550000008yJsAAI'
+GROUP BY ROLLUP(Apttus_Config2__ConfigurationId__r.Apttus_QPConfig__Proposald__r.Id, Apttus_Config2__ConfigurationId__r.Id)

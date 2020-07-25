@@ -1,0 +1,1 @@
+NokiaCPQ_Maximum_IRP_Discount__c = Apttus_Config2__OptionId__r.NokiaCPQ_Maximum_IRP_Discount__c

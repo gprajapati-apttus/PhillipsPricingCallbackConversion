@@ -2303,5 +2303,98 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
             return salesMargin ?? 0;
         }
+
+        private decimal? CalculatePartnerPrice(LineItem item)
+        {
+            var configType = GetConfigType(item);
+            decimal? partnerPrice;
+
+            if (configType.equals(Constants.BUNDLE))
+            {
+                partnerPrice = item.NCPQ_Unitary_CLP__c;
+            }
+            else
+            {
+                partnerPrice = item.BasePriceOverride ?? item.BasePrice;
+            }
+
+            return partnerPrice;
+        }
+
+        private decimal? CalculateExtendedCLP(LineItem item)
+        {
+            decimal? partnerPrice = CalculatePartnerPrice(item);
+            return partnerPrice * item.Quantity;
+        }
+
+        private decimal? CalculateExtendedIRP(LineItem item)
+        {
+            decimal? unitaryIRPPrice;
+
+            if (proposal.Quote_Type__c == Constants.QUOTE_TYPE_DIRECTCPQ && proposal.NokiaCPQ_Portfolio__c == Constants.AIRSCALE_WIFI_STRING)
+            {
+                unitaryIRPPrice = item.NokiaCPQ_Unitary_IRP__c;
+            }
+            else
+            {
+                if (item.ChargeType == Constants.STANDARD_PRICE)
+                {
+                    unitaryIRPPrice = item.NokiaCPQ_Unitary_IRP__c;
+                }
+                else
+                {
+                    unitaryIRPPrice = CalculatePartnerPrice(item);
+                }
+            }
+
+            return unitaryIRPPrice * item.Quantity;
+        }
+
+        private decimal? CalculateExtendedPriceCUP(LineItem item)
+        {
+            var configType = GetConfigType(item);
+            if (proposal.NokiaCPQ_Portfolio__c == Constants.AIRSCALE_WIFI_STRING && configType == Constants.NOKIA_STANDALONE && item.IsOptionLineType())
+            {
+                if(item.ExtendedQuantity != null && item.ExtendedQuantity != 0)
+                {
+                    return (item.AdjustedPrice / item.ExtendedQuantity) * item.Quantity;
+                }
+                else
+                {
+                    return item.AdjustedPrice;
+                }
+            }
+            else
+            {
+                if(configType.equals(Constants.BUNDLE))
+                {
+                    if(item.IsProductServiceLineType())
+                    {
+                        return item.NokiaCPQ_Extended_CUP__c * item.Quantity;
+                    }
+                    else
+                    {
+                        return item.NokiaCPQ_Extended_CUP__c;
+                    }
+                }
+                else
+                {
+                    return item.AdjustedPrice;
+                }
+            }
+        }
+
+        private decimal? CalculateExtendedCost(LineItem item)
+        {
+            var configType = GetConfigType(item);
+            if ((configType.equals(Constants.BUNDLE) && item.IsOptionLineType()) || item.NokiaCPQ_IsArcadiaBundle__c == true)
+            {
+                return item.NokiaCPQ_Unitary_Cost__c;
+            }
+            else
+            {
+                return item.NokiaCPQ_Unitary_Cost__c * item.Quantity;
+            }
+        }
     }
 }

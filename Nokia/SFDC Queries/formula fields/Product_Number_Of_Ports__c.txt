@@ -1,0 +1,1 @@
+Product_Number_Of_Ports__c = IF(TEXT(Apttus_Config2__LineType__c) = 'Option',Apttus_Config2__OptionId__r.Number_of_GE_Ports__c,Apttus_Config2__ProductId__r.Number_of_GE_Ports__c)

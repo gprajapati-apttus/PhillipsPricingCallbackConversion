@@ -1,0 +1,2 @@
+SELECT Id, Apttus_Config2__PriceListId__c, Apttus_Config2__EffectivePriceListId__c
+FROM Apttus_Config2__ProductConfiguration__c WHERE Id = 'a443i000000YcI2AAK'

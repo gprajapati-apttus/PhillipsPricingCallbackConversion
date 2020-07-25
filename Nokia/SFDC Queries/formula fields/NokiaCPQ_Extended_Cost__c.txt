@@ -1,0 +1,7 @@
+NokiaCPQ_Extended_Cost__c = IF(
+(Contains(NokiaCPQ_Configuration_Type__c,'Bundle') && TEXT(Apttus_Config2__LineType__c)='Option') || NokiaCPQ_IsArcadiaBundle__c = true,
+NokiaCPQ_Unitary_Cost__c,
+ROUND(NokiaCPQ_Unitary_Cost__c * Apttus_Config2__Quantity__c,2)
+)
+
+NokiaCPQ_Configuration_Type__c = IF(TEXT(Apttus_Config2__LineType__c) ="Product/Service", TEXT(Apttus_Config2__ProductId__r.Apttus_Config2__ConfigurationType__c ), TEXT(Apttus_Config2__OptionId__r.Apttus_Config2__ConfigurationType__c) )

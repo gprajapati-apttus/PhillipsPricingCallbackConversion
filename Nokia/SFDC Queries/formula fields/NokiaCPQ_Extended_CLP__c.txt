@@ -1,0 +1,24 @@
+NokiaCPQ_Extended_CLP__c = NokiaCPQ_Partner_Price__c * NokiaCPQ_Quantity_Int__c
+
+NokiaCPQ_Partner_Price__c =
+If(
+ISBLANK(Apttus_Config2__BasePriceOverride__c),
+If(
+NokiaCPQ_Configuration_Type__c =='Bundle',
+NCPQ_Unitary_CLP__c,
+ROUND(Apttus_Config2__BasePrice__c ,2)
+),
+If(
+TEXT(Apttus_Config2__ChargeType__c)!='Standard Price' && NokiaCPQ_Configuration_Type__c !='Bundle',
+Apttus_Config2__BasePriceOverride__c,
+If(
+NokiaCPQ_Configuration_Type__c =='Bundle',
+NCPQ_Unitary_CLP__c,
+Apttus_Config2__BasePriceOverride__c
+)
+)
+)
+
+NokiaCPQ_Quantity_Int__c = Apttus_Config2__Quantity__c
+
+NokiaCPQ_Configuration_Type__c = IF(TEXT(Apttus_Config2__LineType__c) ="Product/Service", TEXT(Apttus_Config2__ProductId__r.Apttus_Config2__ConfigurationType__c ), TEXT(Apttus_Config2__OptionId__r.Apttus_Config2__ConfigurationType__c) )

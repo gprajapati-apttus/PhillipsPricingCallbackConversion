@@ -1,0 +1,1 @@
+NokiaCPQ_Category__c = If(is_Custom_Product__c == true , "Custom Product",IF(TEXT(Apttus_Config2__LineType__c) = 'Option',TEXT(Apttus_Config2__OptionId__r.NokiaCPQ_Category__c),TEXT(Apttus_Config2__ProductId__r.NokiaCPQ_Category__c)))

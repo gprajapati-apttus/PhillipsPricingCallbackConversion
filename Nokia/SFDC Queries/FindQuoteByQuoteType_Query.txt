@@ -1,0 +1,2 @@
+SELECT Id, Quote_Type__c 
+FROM Apttus_Proposal__Proposal__c WHERE Quote_Type__c = 'Direct DS' LIMIT 1000

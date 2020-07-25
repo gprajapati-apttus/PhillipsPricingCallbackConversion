@@ -1,0 +1,4 @@
+NokiaCPQ_ExtendedPrice_CUP__c = IF(AND( Portfolio_from_Quote_Line_Item__c = 'Airscale Wifi', Contains(NokiaCPQ_Configuration_Type__c,'Standalone'), ISPICKVAL(Apttus_Config2__LineType__c, 'Option' ) ),IF(AND(!ISNULL(Apttus_Config2__ExtendedQuantity__c),Apttus_Config2__ExtendedQuantity__c!= 0),((Apttus_Config2__AdjustedPrice__c/Apttus_Config2__ExtendedQuantity__c)* Apttus_Config2__Quantity__c),Apttus_Config2__AdjustedPrice__c ),IF( (Contains(NokiaCPQ_Configuration_Type__c,'Bundle')),If(TEXT(Apttus_Config2__LineType__c) = 'Product/Service',NokiaCPQ_Extended_CUP__c* ROUND(Apttus_Config2__Quantity__c,2),NokiaCPQ_Extended_CUP__c),Apttus_Config2__AdjustedPrice__c))
+
+
+NokiaCPQ_Configuration_Type__c = IF(TEXT(Apttus_Config2__LineType__c) ="Product/Service", TEXT(Apttus_Config2__ProductId__r.Apttus_Config2__ConfigurationType__c ), TEXT(Apttus_Config2__OptionId__r.Apttus_Config2__ConfigurationType__c) )

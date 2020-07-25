@@ -81,6 +81,9 @@
         public const string Product_Number_Of_Ports__c = "Product_Number_Of_Ports__c";
         public const string Is_FBA__c = "Is_FBA__c";
         public const string Is_P2P__c = "Is_P2P__c";
+        public const string Portfolio_from_Quote_Line_Item__c = "Portfolio_from_Quote_Line_Item__c";
+        public const string NokiaCPQ_Configuration_Type__c = "NokiaCPQ_Configuration_Type__c";
+        public const string Quote_Type__c = "Quote_Type__c";
 
         public const string NokiaCPQ_SRSBasePrice__c = "NokiaCPQ_SRSBasePrice__c";
         public const string NokiaCPQ_CareSRSBasePrice__c = "NokiaCPQ_CareSRSBasePrice__c";
