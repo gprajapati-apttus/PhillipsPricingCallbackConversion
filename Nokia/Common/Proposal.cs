@@ -16,7 +16,14 @@ namespace Apttus.Lightsaber.Nokia.Common
         public static Proposal Create(ProductConfigurationModel cart)
         {
             var proposalEntity = cart.Get<BaseEntity>(Constants.PROPOSAL_CONFIG_RELATIONSHIP_NAME);
-            return new Proposal(proposalEntity.ToDictionary());
+            var proposalEntityDict = new Dictionary<string, object>();
+
+            if (proposalEntity != null)
+            {
+                proposalEntityDict = proposalEntity.ToDictionary();
+            }
+
+            return new Proposal(proposalEntityDict);
         }
 
         public string NokiaCPQ_Portfolio__c

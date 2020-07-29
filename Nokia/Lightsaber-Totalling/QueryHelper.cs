@@ -8,6 +8,18 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 {
     public static class QueryHelper
     {
+        public static Query GetContractedPriceListItemQuery(HashSet<string> priceListItemIds)
+        {
+            Query query = new Query();
+            query.EntityName = "Apttus_Config2__PriceListItem__c";
+            query.Conditions = new List<FilterCondition>()
+                {
+                        new FilterCondition() { FieldName = "Id", Value = new List<string>(priceListItemIds), ComparisonOperator = ConditionOperator.In},
+                };
+            query.Fields = new string[] { "Id", "Apttus_Config2__PriceListId__c", "Contracted__c", "Partner_Price__c" };
+            return query;
+        }
+
         public static Query GetDefaultExchangeRateQuery(string CurrencyIsoCode)
         {
             Query query = new Query();

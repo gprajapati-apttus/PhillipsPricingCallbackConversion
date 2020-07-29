@@ -23,8 +23,22 @@ namespace Apttus.Lightsaber.Nokia.Totalling
         private Dictionary<string, List<LineItem>> lineItemIRPMapDirect = new Dictionary<string, List<LineItem>>();
         private Dictionary<string, List<LineItem>> primaryNoLineItemList = new Dictionary<string, List<LineItem>>();
         private Dictionary<string, LineItem> lineItemObjectMap = new Dictionary<string, LineItem>();
+        private Dictionary<string, ContractedPriceListItemQueryModel> ContractedPriceListItemMap = new Dictionary<string, ContractedPriceListItemQueryModel>();
 
         public async Task BeforePricingCartAdjustmentAsync(AggregateCartRequest aggregateCartRequest)
+        {
+            var productLineItemModel = aggregateCartRequest.CartContext.LineItems.FirstOrDefault();
+            bool isValidPricingRequest = IsValidPricingRequest(productLineItemModel);
+
+            if (isValidPricingRequest)
+            {
+                await ProcessBeforePricingCartAdjustmentAsync(aggregateCartRequest);
+            }
+
+            await Task.CompletedTask;
+        }
+
+        public async Task ProcessBeforePricingCartAdjustmentAsync(AggregateCartRequest aggregateCartRequest)
         {
             //GP: Start Method
             decimal? minMaintPrice_EP = null;
@@ -33,6 +47,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             string maintenanceType = string.Empty;
 
             HashSet<string> sspFNSet = new HashSet<string>(Labels.FN_SSP_Product);
+            HashSet<string> priceListItemIds = new HashSet<string>();
 
             var cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
             proposal = Proposal.Create(aggregateCartRequest.Cart);
@@ -42,10 +57,19 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
             foreach (var lineItem in cartLineItems)
             {
+                priceListItemIds.Add(lineItem.PriceListItemId);
                 if (lineItem.IsProductServiceLineType())
                 {
                     lineItemObjectMap.TryAdd(Constants.NOKIA_PRODUCT_SERVICES + Constants.NOKIA_UNDERSCORE + lineItem.GetLineNumber(), lineItem);
                 }
+            }
+
+            var contractedPriceListItemsQuery = QueryHelper.GetContractedPriceListItemQuery(priceListItemIds);
+            var contractedPriceListItems = await dBHelper.FindAsync<ContractedPriceListItemQueryModel>(contractedPriceListItemsQuery);
+
+            foreach(var contractedPriceListItem in contractedPriceListItems)
+            {
+                ContractedPriceListItemMap.Add(contractedPriceListItem.Id, contractedPriceListItem);
             }
 
             if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
@@ -271,7 +295,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     if (cartLineItem.Is_Custom_Product__c == false && cartLineItem.Is_Contract_Pricing_2__c == true &&
                         cartLineItem.PriceListItemId != null)
                     {
-                        cartLineItem.BasePriceOverride = cartLineItem.Apttus_Config2__PriceListItemId__r_Partner_Price__c;
+                        cartLineItem.BasePriceOverride = ContractedPriceListItemMap[cartLineItem.PriceListItemId].Partner_Price__c;
                         cartLineItem.BasePrice = cartLineItem.BasePriceOverride;
                         isUpdate = true;
                     }
@@ -394,6 +418,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
                 foreach (var cartLineItem in cartLineItems)
                 {
+                    var priceListItem = cartLineItem.GetPriceListItem();
                     string partNumber = GetPartNumber(cartLineItem);
 
                     //Logic from Workflow: Enable Manual Adjustment For Options
@@ -410,14 +435,14 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         decimal? convertedBasePriceTwoDecimal = pricingHelper.ApplyRounding((cartLineItem.BasePrice / conversionRate) * (proposal.Exchange_Rate__c), 2, RoundingMode.HALF_UP);
                         decimal? convertedBasePriceFiveDecimal = pricingHelper.ApplyRounding((cartLineItem.BasePrice / conversionRate) * (proposal.Exchange_Rate__c), 5, RoundingMode.HALF_UP);
 
-                        if (cartLineItem.PriceListId == cartLineItem.Apttus_Config2__PriceListItemId__r_Apttus_Config2__PriceListId__c &&
+                        if (cartLineItem.PriceListId == priceListItem.Entity?.PriceListId &&
                             cartLineItem.BasePriceOverride != convertedBasePriceTwoDecimal)
                         {
                             cartLineItem.BasePriceOverride = convertedBasePriceFiveDecimal;
                             cartLineItem.BasePriceOverride = convertedBasePriceTwoDecimal;
                             cartLineItem.UpdatePrice(pricingHelper);
                         }
-                        else if (cartLineItem.PriceListId != cartLineItem.Apttus_Config2__PriceListItemId__r_Apttus_Config2__PriceListId__c &&
+                        else if (cartLineItem.PriceListId != priceListItem.Entity?.PriceListId &&
                             cartLineItem.BasePriceOverride != pricingHelper.ApplyRounding(cartLineItem.BasePrice, 2, RoundingMode.HALF_UP))
                         {
                             cartLineItem.BasePriceOverride = pricingHelper.ApplyRounding(cartLineItem.BasePrice, 5, RoundingMode.HALF_UP);
@@ -667,8 +692,9 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         if (maintenanceLinesMap.ContainsKey("Year1"))
                         {
                             lineItemVarSO = maintenanceLinesMap["Year1"];
+                            var y1PriceListItem = lineItemVarSO.GetPriceListItem();
 
-                            if (lineItemVarSO.PriceListId == lineItemVarSO.Apttus_Config2__PriceListItemId__r_Apttus_Config2__PriceListId__c)
+                            if (lineItemVarSO.PriceListId == y1PriceListItem.Entity?.PriceListId)
                             {
                                 lineItemVarSO.BasePriceOverride = totalExtendedMaintY1Price;
                                 lineItemVarSO.NokiaCPQ_Unitary_IRP__c = totalExtendedMaintY1Price;
@@ -687,7 +713,8 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
                             if (!string.IsNullOrWhiteSpace(proposal.NokiaCPQ_No_Of_Years__c) && Convert.ToDecimal(proposal.NokiaCPQ_No_Of_Years__c) > 1)
                             {
-                                if (lineItemVarSO.PriceListId == lineItemVarSO.Apttus_Config2__PriceListItemId__r_Apttus_Config2__PriceListId__c)
+                                var y2PriceListItem = lineItemVarSO.GetPriceListItem();
+                                if (lineItemVarSO.PriceListId == y2PriceListItem.Entity?.PriceListId)
                                 {
                                     lineItemVarSO.BasePriceOverride = totalExtendedMaintY2Price;
                                     lineItemVarSO.NokiaCPQ_Unitary_IRP__c = totalExtendedMaintY2Price;
@@ -796,6 +823,19 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
         public async Task AfterPricingCartAdjustmentAsync(AggregateCartRequest aggregateCartRequest)
         {
+            var productLineItemModel = aggregateCartRequest.CartContext.LineItems.FirstOrDefault();
+            bool isValidPricingRequest = IsValidPricingRequest(productLineItemModel);
+
+            if (isValidPricingRequest)
+            {
+                await ProcessAfterPricingCartAdjustmentAsync(aggregateCartRequest);
+            }
+
+            await Task.CompletedTask;
+        }
+
+        public async Task ProcessAfterPricingCartAdjustmentAsync(AggregateCartRequest aggregateCartRequest)
+        {
             var cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
 
             if (proposal.Quote_Type__c.equalsIgnoreCase("Direct DS") || proposal.Quote_Type__c.equalsIgnoreCase("Indirect DS"))
@@ -831,6 +871,19 @@ namespace Apttus.Lightsaber.Nokia.Totalling
         }
 
         public async Task OnCartPricingCompleteAsync(AggregateCartRequest aggregateCartRequest)
+        {
+            var productLineItemModel = aggregateCartRequest.CartContext.LineItems.FirstOrDefault();
+            bool isValidPricingRequest = IsValidPricingRequest(productLineItemModel);
+
+            if (isValidPricingRequest)
+            {
+                await ProcessOnCartPricingCompleteAsync(aggregateCartRequest);
+            }
+
+            await Task.CompletedTask;
+        }
+
+        public async Task ProcessOnCartPricingCompleteAsync(AggregateCartRequest aggregateCartRequest)
         {
             var cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
 
@@ -2251,7 +2304,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             bool? clp = false;
             PriceListItemModel priceListItem = item.GetPriceListItem();
 
-            if (item.PriceListId != priceListItem.Entity.PriceListId && item.Apttus_Config2__PriceListItemId__r_Contracted__c == Constants.YES_STRING)
+            if (item.PriceListId != priceListItem.Entity.PriceListId && ContractedPriceListItemMap[item.PriceListItemId].Contracted__c == Constants.YES_STRING)
             {
                 clp = true;
             }
@@ -2303,6 +2356,16 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 salesMargin = item.Apttus_Config2__OptionId__r_NokiaCPQ_Min_SM_Europe__c;
 
             return salesMargin ?? 0;
+        }
+
+        private bool IsValidPricingRequest(ProductLineItemModel productLineItemModel)
+        {
+            if (productLineItemModel.ChargeLines.Exists(l => l.Entity.ChargeType == null && l.Entity.IsOptional == null))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
