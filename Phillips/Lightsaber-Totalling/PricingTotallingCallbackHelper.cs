@@ -19,9 +19,9 @@ namespace Apttus.Lightsaber.Phillips.Totalling
         private IDBHelper dBHelper = null;
         private IPricingHelper pricingHelper = null;
 
-        public PricingTotallingCallbackHelper(Dictionary<string, object> proposal, IDBHelper dBHelper, IPricingHelper pricingHelper)
+        public PricingTotallingCallbackHelper(Proposal proposal, IDBHelper dBHelper, IPricingHelper pricingHelper)
         {
-            this.proposal = new Proposal(proposal);
+            this.proposal = proposal;
             this.dBHelper = dBHelper;
             this.pricingHelper = pricingHelper;
         }

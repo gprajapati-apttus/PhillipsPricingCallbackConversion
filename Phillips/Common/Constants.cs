@@ -5,6 +5,7 @@ namespace Apttus.Lightsaber.Phillips.Common
     class Constants
     {
         public const string PROPOSAL = "Apttus_Proposal__Proposal__c";
+        public const string PROPOSAL_CONFIG_RELATIONSHIP_NAME = "Apttus_QPConfig__Proposald__r";
 
         public const string PRICE_OVERRIDE = "Price Override";
         public const string DISCOUNT_AMOUNT = "Discount Amount";

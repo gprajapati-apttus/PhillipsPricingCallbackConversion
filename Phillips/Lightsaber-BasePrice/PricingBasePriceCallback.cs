@@ -14,13 +14,12 @@ namespace Apttus.Lightsaber.Phillips.Pricing
     public class PricingBasePriceCallback : CodeExtensibility, IPricingBasePriceCallback
     {
         private PricingBasePriceCallbackHelper pcbHelper = null;
-        private List<LineItem> batchLineItems = null;
 
         public async Task BeforePricingBatchAsync(BatchPriceRequest batchPriceRequest)
         {
-            batchLineItems = batchPriceRequest.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
+            var batchLineItems = batchPriceRequest.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
 
-            var proposalSO = batchPriceRequest.Cart.Get<Dictionary<string, object>>(Constants.PROPOSAL);
+            var proposalSO = Proposal.Create(batchPriceRequest.Cart); 
             pcbHelper = new PricingBasePriceCallbackHelper(proposalSO, GetDBHelper(), GetPricingHelper());
 
             await pcbHelper.PopulateExtendedQuantity(batchLineItems);
@@ -28,11 +27,12 @@ namespace Apttus.Lightsaber.Phillips.Pricing
 
         public async Task OnPricingBatchAsync(BatchPriceRequest batchPriceRequest)
         {
+            var batchLineItems = batchPriceRequest.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
+
             var namBundleDictionary = await pcbHelper.QueryAndPopulateNAMBundleDictionary(batchPriceRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList());
             var pliSPOODictionary = await pcbHelper.PopulateSPOOPLIDictionary(batchLineItems);
             var pliDictionary = await pcbHelper.QueryAndPopulatePliCustomFields(batchLineItems);
             var agreementTierDictionary = await pcbHelper.QueryAndPopulateAgreementTiers(pliDictionary);
-
 
             foreach (var batchLineItem in batchLineItems)
             {

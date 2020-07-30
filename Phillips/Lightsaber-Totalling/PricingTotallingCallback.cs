@@ -13,12 +13,11 @@ namespace Apttus.Lightsaber.Phillips.Totalling
     public class PricingTotallingCallback : CodeExtensibility, IPricingTotallingCallback
     {
         private PricingTotallingCallbackHelper pcbHelper = null;
-        private List<LineItem> cartLineItems = null;
 
         public async Task BeforePricingCartAdjustmentAsync(AggregateCartRequest aggregateCartRequest)
         {
-            cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
-            var proposalSO = aggregateCartRequest.Cart.Get<Dictionary<string, object>>(Constants.PROPOSAL);
+            var cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
+            var proposalSO = Proposal.Create(aggregateCartRequest.Cart);
             pcbHelper = new PricingTotallingCallbackHelper(proposalSO, GetDBHelper(), GetPricingHelper());
 
             await pcbHelper.IncentiveAdjustmentUnitRounding(cartLineItems);
@@ -27,6 +26,8 @@ namespace Apttus.Lightsaber.Phillips.Totalling
 
         public async Task AfterPricingCartAdjustmentAsync(AggregateCartRequest aggregateCartRequest)
         {
+            var cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
+
             await pcbHelper.PopulatePLICustomFields(cartLineItems);
             await pcbHelper.ComputeNetPriceAndNetAdjustment(cartLineItems);
             await pcbHelper.CalculatePricePointsForBundle(cartLineItems);
@@ -34,6 +35,8 @@ namespace Apttus.Lightsaber.Phillips.Totalling
 
         public async Task OnCartPricingCompleteAsync(AggregateCartRequest aggregateCartRequest)
         {
+            var cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
+
             await pcbHelper.PopulateCustomFields(cartLineItems);
             await pcbHelper.SetRollupsAndThresholdFlags(aggregateCartRequest.Cart, cartLineItems);
         }

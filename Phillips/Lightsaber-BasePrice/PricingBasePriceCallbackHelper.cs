@@ -19,9 +19,9 @@ namespace Apttus.Lightsaber.Phillips.Pricing
         private readonly IDBHelper dBHelper = null;
         private readonly IPricingHelper pricingHelper = null;
 
-        public PricingBasePriceCallbackHelper(Dictionary<string, object> proposal, IDBHelper dBHelper, IPricingHelper pricingHelper)
+        public PricingBasePriceCallbackHelper(Proposal proposal, IDBHelper dBHelper, IPricingHelper pricingHelper)
         {
-            this.proposal = new Proposal(proposal);
+            this.proposal = proposal;
             this.dBHelper = dBHelper;
             this.pricingHelper = pricingHelper;
         }
