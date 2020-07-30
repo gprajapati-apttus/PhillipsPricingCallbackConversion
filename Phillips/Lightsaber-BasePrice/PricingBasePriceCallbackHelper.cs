@@ -149,9 +149,9 @@ namespace Apttus.Lightsaber.Phillips.Pricing
                 targetPriceMultiplier = pliSPOODictionary[priceListItemEntity.Id].GetTargetPriceMultipler();
                 escPriceMultiplier = pliSPOODictionary[priceListItemEntity.Id].GetEscalationPriceMultiplier();
 
-                costPrice = batchLineItem.GetValuetOrDefault(LineItemStandardRelationshipField.Apttus_Config2__AttributeValueId__r_APTS_Cost_Price__c, 0);
-                fairMarketValue = batchLineItem.GetValuetOrDefault(LineItemStandardRelationshipField.Apttus_Config2__AttributeValueId__r_APTS_Fair_Market_Value__c, 0);
-                listPrice = batchLineItem.GetValuetOrDefault(LineItemStandardRelationshipField.Apttus_Config2__AttributeValueId__r_APTS_List_Price__c, 0);
+                costPrice = batchLineItem.GetValuetOrDefault(LineItemField.Apttus_Config2__AttributeValueId__r_APTS_Cost_Price__c, 0);
+                fairMarketValue = batchLineItem.GetValuetOrDefault(LineItemField.Apttus_Config2__AttributeValueId__r_APTS_Fair_Market_Value__c, 0);
+                listPrice = batchLineItem.GetValuetOrDefault(LineItemField.Apttus_Config2__AttributeValueId__r_APTS_List_Price__c, 0);
 
                 if (lineItemSPOOType == Constants.SYSTEM_TYPE_SERVICE)
                 {
@@ -260,11 +260,11 @@ namespace Apttus.Lightsaber.Phillips.Pricing
                 }
 
                 decimal sellingTerm = batchLineItem.GetValuetOrDefault(LineItemPropertyNames.SellingTerm, 1);
-                decimal sapListPrice = batchLineItem.GetValuetOrDefault(LineItemCustomField.APTS_Service_List_Price__c, 0);
+                decimal sapListPrice = batchLineItem.GetValuetOrDefault(LineItemField.APTS_Service_List_Price__c, 0);
                 decimal? extPrice = sapListPrice * batchLineItem.APTS_Extended_Quantity__c * sellingTerm;
                 batchLineItem.APTS_Extended_List_Price__c = extPrice;
 
-                decimal lineExtQ = batchLineItem.GetValuetOrDefault(LineItemCustomField.APTS_Extended_Quantity__c, 0);
+                decimal lineExtQ = batchLineItem.GetValuetOrDefault(LineItemField.APTS_Extended_Quantity__c, 0);
                 decimal lineQ = batchLineItem.GetQuantity();
                 batchLineItem.APTS_Option_Unit_Price__c = (sapListPrice * lineExtQ) / lineQ;
             }
@@ -273,7 +273,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
 
                 decimal sellingTerm = batchLineItem.GetValuetOrDefault(LineItemPropertyNames.SellingTerm, 1);
                 decimal? sapListPrice = priceListItemEntity.ListPrice;
-                decimal lineExtQ = batchLineItem.GetValuetOrDefault(LineItemCustomField.APTS_Extended_Quantity__c, 0);
+                decimal lineExtQ = batchLineItem.GetValuetOrDefault(LineItemField.APTS_Extended_Quantity__c, 0);
                 decimal? extPrice = sapListPrice * lineExtQ * sellingTerm;
                 batchLineItem.APTS_Extended_List_Price__c = extPrice;
 

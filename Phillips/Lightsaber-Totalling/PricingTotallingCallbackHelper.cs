@@ -536,7 +536,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
             foreach (var cartLineItem in cartLineItems)
             {
                 decimal? sellingTerm = cartLineItem.SellingTerm;
-                decimal? extQty = cartLineItem.GetValuetOrDefault(LineItemCustomField.APTS_Extended_Quantity__c, 1);
+                decimal? extQty = cartLineItem.GetValuetOrDefault(LineItemField.APTS_Extended_Quantity__c, 1);
                 string uniqIdentifier = cartLineItem.GetLineNumber() + cartLineItem.ChargeType;
                 uniqIdentifier_li = uniqIdentifier;
 
