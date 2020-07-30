@@ -11,7 +11,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
             query.EntityName = "Apttus_Config2__PriceListItem__c";
             query.Conditions = new List<FilterCondition>()
                 {
-                        new FilterCondition() { FieldName = "Id", Value = priceListItemIdSet, ComparisonOperator = ConditionOperator.In}
+                        new FilterCondition() { FieldName = "Id", Value = new List<string>(priceListItemIdSet), ComparisonOperator = ConditionOperator.In}
                 };
             query.Fields = new string[] { "Id", "APTS_Country_Pricelist_List_Price__c", "Apttus_Config2__PriceListId__r.Apttus_Config2__ContractNumber__c", "Apttus_Config2__PriceListId__r.APTS_Payment_Term_Credit_Terms__c", "Apttus_Config2__PriceListId__r.APTS_Inco_Terms__c"
                                         };

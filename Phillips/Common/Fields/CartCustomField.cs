@@ -1,4 +1,4 @@
-﻿namespace Apttus.Lightsaber.Phillips.Totalling
+﻿namespace Apttus.Lightsaber.Phillips.Common
 {
     public class CartCustomField
     {

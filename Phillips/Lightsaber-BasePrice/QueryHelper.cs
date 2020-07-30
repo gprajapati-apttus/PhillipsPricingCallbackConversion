@@ -14,7 +14,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
             query.EntityName = "Apttus_Config2__PriceListItem__c";
             query.Conditions = new List<FilterCondition>()
                 {
-                        new FilterCondition() { FieldName = "Apttus_Config2__ProductId__c", Value = spooProdIds, ComparisonOperator = ConditionOperator.In}
+                        new FilterCondition() { FieldName = "Apttus_Config2__ProductId__c", Value = new List<string>(spooProdIds), ComparisonOperator = ConditionOperator.In}
                 };
             query.Fields = new string[] { "Id", "Apttus_Config2__ProductId__c", "APTS_List_Price_Multiplier__c", "APTS_Target_Price_Multiplier__c", "APTS_Escalation_Price_Multiplier__c", "APTS_Minimum_Price_Multiplier__c" };
 
@@ -27,7 +27,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
             query.EntityName = "Apttus_Config2__PriceListItem__c";
             query.Conditions = new List<FilterCondition>()
                 {
-                        new FilterCondition() { FieldName = "Id", Value = priceListItemIdSet, ComparisonOperator = ConditionOperator.In}
+                        new FilterCondition() { FieldName = "Id", Value = new List<string>(priceListItemIdSet), ComparisonOperator = ConditionOperator.In}
                 };
             query.Fields = new string[] { "Id", "APTS_Country_Pricelist_List_Price__c", "APTS_Agreement_Group__c", "Apttus_Config2__ProductId__c", "APTS_Tier_1_List_Price__c", "APTS_Tier_2_List_Price__c",
                                           "APTS_Tier_3_List_Price__c", "APTS_Tier_4_List_Price__c", "Apttus_Config2__PriceListId__r.APTS_Related_Agreement__c"
@@ -74,7 +74,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
             query.Conditions = new List<FilterCondition>()
                 {
                         new FilterCondition() { FieldName = "APTS_Local_Bundle_Header__r.APTS_Active__c", Value = true, ComparisonOperator = ConditionOperator.EqualTo},
-                        new FilterCondition() { FieldName = "APTS_Local_Bundle_Header__r.APTS_Parent_Local_Bundle__c", Value = localBundleOptionSet, ComparisonOperator = ConditionOperator.In}
+                        new FilterCondition() { FieldName = "APTS_Local_Bundle_Header__r.APTS_Parent_Local_Bundle__c", Value = new List<string>(localBundleOptionSet), ComparisonOperator = ConditionOperator.In}
                 };
             query.Fields = new string[] {
                                             "Id", "APTS_Local_Bundle_Header__r.APTS_Local_Bundle__c", "APTS_Local_Bundle_Header__r.APTS_Parent_Bundle__c", "APTS_Local_Bundle_Header__r.APTS_Parent_Local_Bundle__c","APTS_Local_Bundle_Header__r.Id",
