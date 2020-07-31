@@ -1,6 +1,6 @@
 ﻿namespace Apttus.Lightsaber.Phillips.Pricing
 {
-    public class PriceListItemQueryModel
+    public class PriceListItemSpooQueryModel
     {
         public string Id { get; set; }
 
@@ -34,7 +34,7 @@
 
         public decimal? APTS_Tier_4_Discount__c { get; set; }
 
-        public PriceListQueryModel Apttus_Config2__PriceListId__r { get; set; }
+        public PriceListSpooQueryModel Apttus_Config2__PriceListId__r { get; set; }
 
         public decimal GetListPriceMultipler()
         {
