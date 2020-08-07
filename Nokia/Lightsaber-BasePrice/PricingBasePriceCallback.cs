@@ -595,7 +595,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                     //Req : 5260
                     if (batchLineItem.PriceListId != priceListItemEntity.PriceListId)
                     {
-                        if (mapPliType.ContainsKey(batchLineItem.PriceListId) && mapPliType[batchLineItem.PriceListId] == "Indirect Market")
+                        if (mapPliType.ContainsKey(priceListItemEntity.PriceListId) && mapPliType[priceListItemEntity.PriceListId] == "Indirect Market")
                         {
                             batchLineItem.Is_Contract_Pricing_2__c = false;
                         }
