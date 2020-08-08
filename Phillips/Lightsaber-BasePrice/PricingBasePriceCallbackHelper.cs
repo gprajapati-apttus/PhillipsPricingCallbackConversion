@@ -53,10 +53,10 @@ namespace Apttus.Lightsaber.Phillips.Pricing
             await Task.CompletedTask;
         }
 
-        internal async Task<Dictionary<string, PriceListItemSpooQueryModel>> PopulateSPOOPLIDictionary(List<LineItem> batchLineItems)
+        internal async Task<Dictionary<string, PriceListItemQueryModel>> PopulateSPOOPLIDictionary(List<LineItem> batchLineItems)
         {
             HashSet<string> spooProdIds = new HashSet<string>();
-            Dictionary<string, PriceListItemSpooQueryModel>  pliSPOODictionary = new Dictionary<string, PriceListItemSpooQueryModel>();
+            Dictionary<string, PriceListItemQueryModel>  pliSPOODictionary = new Dictionary<string, PriceListItemQueryModel>();
 
             foreach (LineItem batchLineItem in batchLineItems)
             {
@@ -68,7 +68,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
             {
                 var query = QueryHelper.GetPLIPriceMultiplierQuery(spooProdIds);
 
-                List<PriceListItemSpooQueryModel> spooPriceListItems = await dBHelper.FindAsync<PriceListItemSpooQueryModel>(query);
+                List<PriceListItemQueryModel> spooPriceListItems = await dBHelper.FindAsync<PriceListItemQueryModel>(query);
                 foreach (var spooPriceListItem in spooPriceListItems)
                 {
                     pliSPOODictionary.Add(spooPriceListItem.Id, spooPriceListItem);
@@ -133,7 +133,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
             await Task.CompletedTask;
         }
 
-        public async Task CalculateSPOOPricing(LineItem batchLineItem, Dictionary<string, PriceListItemSpooQueryModel>  pliSPOODictionary)
+        public async Task CalculateSPOOPricing(LineItem batchLineItem, Dictionary<string, PriceListItemQueryModel>  pliSPOODictionary)
         {
             PriceListItemModel priceListItemModel = batchLineItem.GetPriceListItem();
             PriceListItem priceListItemEntity = priceListItemModel.Entity;
@@ -284,7 +284,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
             await Task.CompletedTask;
         }
 
-        public async Task PopulateTier(LineItem batchLineItem, Dictionary<string, PriceListItemSpooQueryModel> pliDictionary, Dictionary<string, string> agreementTierDictionary)
+        public async Task PopulateTier(LineItem batchLineItem, Dictionary<string, PriceListItemQueryModel> pliDictionary, Dictionary<string, string> agreementTierDictionary)
         
         {
             PriceListItemModel priceListItemModel = batchLineItem.GetPriceListItem();
@@ -322,9 +322,9 @@ namespace Apttus.Lightsaber.Phillips.Pricing
             await Task.CompletedTask;
         }
 
-        public async Task<Dictionary<string, PriceListItemSpooQueryModel>> QueryAndPopulatePliCustomFields(List<LineItem> lineItems)
+        public async Task<Dictionary<string, PriceListItemQueryModel>> QueryAndPopulatePliCustomFields(List<LineItem> lineItems)
         {
-            Dictionary<string, PriceListItemSpooQueryModel> pliDictionary = new Dictionary<string, PriceListItemSpooQueryModel>();
+            Dictionary<string, PriceListItemQueryModel> pliDictionary = new Dictionary<string, PriceListItemQueryModel>();
             HashSet<string> prodIds = new HashSet<string>();
             HashSet<string> contractNumberSet = new HashSet<string>();
             var priceListItemIdSet = lineItems.Select(li => li.GetPriceListItem().Entity.Id).ToHashSet();
@@ -333,7 +333,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
             {
                 var pliTierQuery = QueryHelper.GetPLITierQuery(priceListItemIdSet);
 
-                List<PriceListItemSpooQueryModel> pliTierDetails = await dBHelper.FindAsync<PriceListItemSpooQueryModel>(pliTierQuery);
+                List<PriceListItemQueryModel> pliTierDetails = await dBHelper.FindAsync<PriceListItemQueryModel>(pliTierQuery);
                 foreach (var pliTierDetail in pliTierDetails)
                 {
                     pliDictionary.Add(pliTierDetail.Id, pliTierDetail);
@@ -343,7 +343,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
             return pliDictionary;
         }
 
-        public async Task<Dictionary<string, string>> QueryAndPopulateAgreementTiers(Dictionary<string, PriceListItemSpooQueryModel> pliDictionary)
+        public async Task<Dictionary<string, string>> QueryAndPopulateAgreementTiers(Dictionary<string, PriceListItemQueryModel> pliDictionary)
         {
             Dictionary<string, string> agreementTierDictionary = new Dictionary<string, string>();
             

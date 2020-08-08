@@ -29,6 +29,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
             var cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
 
             await pcbHelper.PopulatePLICustomFields(cartLineItems);
+            await pcbHelper.SetPLIModel(cartLineItems);
             await pcbHelper.ComputeNetPriceAndNetAdjustment(cartLineItems);
             await pcbHelper.CalculatePricePointsForBundle(cartLineItems);
         }
@@ -37,6 +38,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
         {
             var cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
 
+            await pcbHelper.SetPLIModel(cartLineItems);
             await pcbHelper.PopulateCustomFields(cartLineItems);
             await pcbHelper.SetRollupsAndThresholdFlags(aggregateCartRequest.Cart, cartLineItems);
         }

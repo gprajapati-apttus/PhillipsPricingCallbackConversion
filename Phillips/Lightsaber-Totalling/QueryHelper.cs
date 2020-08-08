@@ -13,7 +13,10 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                 {
                         new FilterCondition() { FieldName = "Id", Value = new List<string>(priceListItemIdSet), ComparisonOperator = ConditionOperator.In}
                 };
-            query.Fields = new string[] { "Id", "APTS_Country_Pricelist_List_Price__c", "Apttus_Config2__PriceListId__r.Apttus_Config2__ContractNumber__c", "Apttus_Config2__PriceListId__r.APTS_Payment_Term_Credit_Terms__c", "Apttus_Config2__PriceListId__r.APTS_Inco_Terms__c"
+            query.Fields = new string[] { "Id", "APTS_Country_Pricelist_List_Price__c", "Apttus_Config2__PriceListId__r.Apttus_Config2__ContractNumber__c", "Apttus_Config2__PriceListId__r.Apttus_Config2__Type__c","Apttus_Config2__PriceListId__r.APTS_Payment_Term_Credit_Terms__c", "Apttus_Config2__PriceListId__r.APTS_Inco_Terms__c",
+                "APTS_Dynamic_Price_Points__c","APTS_Related_Agreement__c","APTS_Tier_1_Target_Price__c", "APTS_Tier_2_Target_Price__c", "APTS_Tier_3_Target_Price__c", "APTS_Tier_4_Target_Price__c",
+                "APTS_Country_Target_Price__c", "APTS_Tier_1_Pre_Escalation_Price__c", "APTS_Tier_2_Pre_Escalation_Price__c", "APTS_Tier_3_Pre_Escalation_Price__c", "APTS_Tier_4_Pre_Escalation_Price__c",
+                "APTS_Country_Pre_Escalation_Price__c", "APTS_Tier_1_Minimum_Price__c", "APTS_Tier_2_Minimum_Price__c", "APTS_Tier_3_Minimum_Price__c", "APTS_Tier_4_Minimum_Price__c"
                                         };
 
             return query;

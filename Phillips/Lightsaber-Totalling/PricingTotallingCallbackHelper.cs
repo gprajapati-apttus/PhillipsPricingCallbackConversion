@@ -733,6 +733,16 @@ namespace Apttus.Lightsaber.Phillips.Totalling
             }
         }
 
+        public async Task SetPLIModel(List<LineItem> cartLineItems)
+        {
+            foreach (var lineItem in cartLineItems)
+            {
+                lineItem.PLIModel = pliDictionary[lineItem.PriceListItemId];
+            }
+
+            await Task.CompletedTask;
+        }
+
         public async Task PopulateCustomFields(List<LineItem> cartLineItems)
         {
             foreach (var cartLineItem in cartLineItems)

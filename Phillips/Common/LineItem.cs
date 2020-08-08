@@ -1,9 +1,11 @@
 ﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Extension;
+using Apttus.Lightsaber.Phillips.Totalling;
 using Apttus.Lightsaber.Pricing.Common.Constants;
 using Apttus.Lightsaber.Pricing.Common.Entities;
 using Apttus.Lightsaber.Pricing.Common.Models;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 
 namespace Apttus.Lightsaber.Phillips.Common
@@ -12,10 +14,13 @@ namespace Apttus.Lightsaber.Phillips.Common
     {
         private readonly LineItemModel lineItemModel;
 
+        public PriceListItemQueryModel PLIModel { get; set; }
+
         public LineItem(LineItemModel lineItemModel)
         {
             this.lineItemModel = lineItemModel;
         }
+
 
         public string Id { get { return lineItemModel.Entity.Id; } set { lineItemModel.Entity.Id = value; } }
         public string Name { get { return lineItemModel.Entity.Name; } set { lineItemModel.Entity.Name = value; } }
@@ -194,6 +199,16 @@ namespace Apttus.Lightsaber.Phillips.Common
             return lineItemModel.GetLineType();
         }
 
+        public bool IsOptionLineType()
+        {
+            return lineItemModel.GetLineType() == Lightsaber.Pricing.Common.Constants.LineType.Option;
+        }
+
+        public bool IsProductServiceLineType()
+        {
+            return lineItemModel.GetLineType() == Lightsaber.Pricing.Common.Constants.LineType.ProductService;
+        }
+
         #region Custom & Not available Standard LineItem Fields
 
         public string Apttus_Config2__Description__c { get { return lineItemModel.Get<string>(LineItemField.Apttus_Config2__Description__c); } set { lineItemModel.Set(LineItemField.Apttus_Config2__Description__c, value); } }
@@ -217,28 +232,19 @@ namespace Apttus.Lightsaber.Phillips.Common
         public bool? APTS_Local_Bundle_Component_Flag__c { get { return lineItemModel.Get<bool?>(LineItemField.APTS_Local_Bundle_Component_Flag__c); } set { lineItemModel.Set(LineItemField.APTS_Local_Bundle_Component_Flag__c, value); } }
         public decimal? APTS_Unit_Incentive_Adj_Amount__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Unit_Incentive_Adj_Amount__c); } set { lineItemModel.Set(LineItemField.APTS_Unit_Incentive_Adj_Amount__c, value); } }
         public decimal? APTS_Promotion_Discount_Amount_c__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Promotion_Discount_Amount_c__c); } set { lineItemModel.Set(LineItemField.APTS_Promotion_Discount_Amount_c__c, value); } }
-        public decimal? APTS_Solution_Offered_Price__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Solution_Offered_Price__c); } set { lineItemModel.Set(LineItemField.APTS_Solution_Offered_Price__c, value); } }
-        public decimal? APTS_Offered_Price_c__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Offered_Price_c__c); } set { lineItemModel.Set(LineItemField.APTS_Offered_Price_c__c, value); } }
-        public decimal? APTS_Item_List_Price__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Item_List_Price__c); } set { lineItemModel.Set(LineItemField.APTS_Item_List_Price__c, value); } }
         public decimal? APTS_Solution_list_Price_c__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Solution_list_Price_c__c); } set { lineItemModel.Set(LineItemField.APTS_Solution_list_Price_c__c, value); } }
-        public decimal? APTS_Philips_List_Price__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Philips_List_Price__c); } set { lineItemModel.Set(LineItemField.APTS_Philips_List_Price__c, value); } }
         public decimal? APTS_Net_Adjustment_Percent_c__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Net_Adjustment_Percent_c__c); } set { lineItemModel.Set(LineItemField.APTS_Net_Adjustment_Percent_c__c, value); } }
         public decimal? APTS_Contract_Discount_Amount__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Contract_Discount_Amount__c); } set { lineItemModel.Set(LineItemField.APTS_Contract_Discount_Amount__c, value); } }
         public string APTS_Billing_Plan__c { get { return lineItemModel.Get<string>(LineItemField.APTS_Billing_Plan__c); } set { lineItemModel.Set(LineItemField.APTS_Billing_Plan__c, value); } }
         public decimal? APTS_Unit_Strategic_Discount_Amount__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Unit_Strategic_Discount_Amount__c); } set { lineItemModel.Set(LineItemField.APTS_Unit_Strategic_Discount_Amount__c, value); } }
         public decimal? APTS_Strategic_Discount_Amount_c__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Strategic_Discount_Amount_c__c); } set { lineItemModel.Set(LineItemField.APTS_Strategic_Discount_Amount_c__c, value); } }
         public decimal? APTS_SAP_List_Price__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_SAP_List_Price__c); } set { lineItemModel.Set(LineItemField.APTS_SAP_List_Price__c, value); } }
-        public decimal? APTS_Target_Price__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Target_Price__c); } set { lineItemModel.Set(LineItemField.APTS_Target_Price__c, value); } }
-        public decimal? APTS_Minimum_Price__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Minimum_Price__c); } set { lineItemModel.Set(LineItemField.APTS_Minimum_Price__c, value); } }
-        public decimal? APTS_Escalation_Price__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Escalation_Price__c); } set { lineItemModel.Set(LineItemField.APTS_Escalation_Price__c, value); } }
-        public decimal? APTS_Contract_Net_Price__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Contract_Net_Price__c); } set { lineItemModel.Set(LineItemField.APTS_Contract_Net_Price__c, value); } }
         public decimal? APTS_Escalation_Price_Attainment_c__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Escalation_Price_Attainment_c__c); } set { lineItemModel.Set(LineItemField.APTS_Escalation_Price_Attainment_c__c, value); } }
         public decimal? APTS_Target_Price_Attainment__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Target_Price_Attainment__c); } set { lineItemModel.Set(LineItemField.APTS_Target_Price_Attainment__c, value); } }
         public decimal? APTS_Minimum_Price_Attainment_c__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Minimum_Price_Attainment_c__c); } set { lineItemModel.Set(LineItemField.APTS_Minimum_Price_Attainment_c__c, value); } }
         public string APTS_Price_Attainment_Color__c { get { return lineItemModel.Get<string>(LineItemField.APTS_Price_Attainment_Color__c); } set { lineItemModel.Set(LineItemField.APTS_Price_Attainment_Color__c, value); } }
         public decimal? APTS_Minimum_Price_Bundle__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Minimum_Price_Bundle__c); } set { lineItemModel.Set(LineItemField.APTS_Minimum_Price_Bundle__c, value); } }
         public decimal? APTS_Escalation_Price_Bundle__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Escalation_Price_Bundle__c); } set { lineItemModel.Set(LineItemField.APTS_Escalation_Price_Bundle__c, value); } }
-        public decimal? APTS_Country_Target_Price__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Country_Target_Price__c); } set { lineItemModel.Set(LineItemField.APTS_Country_Target_Price__c, value); } }
         public decimal? APTS_Target_Price_Bundle__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Target_Price_Bundle__c); } set { lineItemModel.Set(LineItemField.APTS_Target_Price_Bundle__c, value); } }
         public decimal? APTS_Option_List_Price__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Option_List_Price__c); } set { lineItemModel.Set(LineItemField.APTS_Option_List_Price__c, value); } }
         public decimal? APTS_Solution_Contract_Discount_Amount__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Solution_Contract_Discount_Amount__c); } set { lineItemModel.Set(LineItemField.APTS_Solution_Contract_Discount_Amount__c, value); } }
@@ -250,13 +256,342 @@ namespace Apttus.Lightsaber.Phillips.Common
         public string APTS_Solution_Price_Attainment_Color__c { get { return lineItemModel.Get<string>(LineItemField.APTS_Solution_Price_Attainment_Color__c); } set { lineItemModel.Set(LineItemField.APTS_Solution_Price_Attainment_Color__c, value); } }
         public string APTS_Payment_Term__c { get { return lineItemModel.Get<string>(LineItemField.APTS_Payment_Term__c); } set { lineItemModel.Set(LineItemField.APTS_Payment_Term__c, value); } }
         public string APTS_Inco_Term__c { get { return lineItemModel.Get<string>(LineItemField.APTS_Inco_Term__c); } set { lineItemModel.Set(LineItemField.APTS_Inco_Term__c, value); } }
-        public decimal? APTS_Escalation_Price_Attainment__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Escalation_Price_Attainment__c); } set { lineItemModel.Set(LineItemField.APTS_Escalation_Price_Attainment__c, value); } }
-        public decimal? APTS_Minimum_Price_Attainment__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Minimum_Price_Attainment__c); } set { lineItemModel.Set(LineItemField.APTS_Minimum_Price_Attainment__c, value); } }
         public string APTS_MAG__c { get { return lineItemModel.Get<string>(LineItemField.APTS_MAG__c); } set { lineItemModel.Set(LineItemField.APTS_MAG__c, value); } }
         public string APTS_Business_Unit__c { get { return lineItemModel.Get<string>(LineItemField.APTS_Business_Unit__c); } set { lineItemModel.Set(LineItemField.APTS_Business_Unit__c, value); } }
         public bool? APTS_Is_Escalation_Price_Attained__c { get { return lineItemModel.Get<bool?>(LineItemField.APTS_Is_Escalation_Price_Attained__c); } set { lineItemModel.Set(LineItemField.APTS_Is_Escalation_Price_Attained__c, value); } }
         public bool? APTS_Is_Minimum_Price_Attained__c { get { return lineItemModel.Get<bool?>(LineItemField.APTS_Is_Minimum_Price_Attained__c); } set { lineItemModel.Set(LineItemField.APTS_Is_Minimum_Price_Attained__c, value); } }
         public bool? APTS_Procurement_approval_needed__c { get { return lineItemModel.Get<bool?>(LineItemField.APTS_Procurement_approval_needed__c); } set { lineItemModel.Set(LineItemField.APTS_Procurement_approval_needed__c, value); } }
+        public decimal? APTS_Base_Price__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Base_Price__c); } set { lineItemModel.Set(LineItemField.APTS_Base_Price__c, value); } }
+        public decimal? APTS_Target_Price_Service__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Target_Price_Service__c); } set { lineItemModel.Set(LineItemField.APTS_Target_Price_Service__c, value); } }
+        public decimal? APTS_Escalation_Price_Service__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Escalation_Price_Service__c); } set { lineItemModel.Set(LineItemField.APTS_Escalation_Price_Service__c, value); } }
+        public decimal? APTS_Dynamic_Minimum_Price__c { get { return lineItemModel.Get<decimal?>(LineItemField.APTS_Dynamic_Minimum_Price__c); } set { lineItemModel.Set(LineItemField.APTS_Dynamic_Minimum_Price__c, value); } }
+
+        public decimal? APTS_Solution_Offered_Price__c { get { return Calculate_Solution_Offered_Price(); } }
+        public decimal? APTS_Offered_Price_c__c { get { return Calculate_Offered_Price(); } }
+        public decimal? APTS_Item_List_Price__c { get { return Calculate_Item_List_Price(); } }
+        public decimal? APTS_Philips_List_Price__c { get { return Calculate_Philips_List_Price(); } }
+        public decimal? APTS_Target_Price__c { get { return Calculate_Target_Price(); } }
+        public decimal? APTS_Minimum_Price__c { get { return Calculate_Minimum_Price(); } }
+        public decimal? APTS_Escalation_Price__c { get { return Calculate_Escalation_Price(); } }
+        public decimal? APTS_Contract_Net_Price__c { get { return Calculate_Contract_Net_Price(); } }
+        public decimal? APTS_Country_Target_Price__c { get { return Calculate_Country_Target_Price(); } }
+        public decimal? APTS_Escalation_Price_Attainment__c { get { return Calculate_Escalation_Price_Attainment(); } }
+        public decimal? APTS_Minimum_Price_Attainment__c { get { return Calculate_Minimum_Price_Attainment(); } }
+        
+        #endregion
+
+        #region Formula Fields
+
+        private decimal? Calculate_Solution_Offered_Price()
+        {
+            decimal? solutionOfferedPrice = null;
+
+            if(IsProductServiceLineType() || (IsOptionLineType() && Apttus_Config2__OptionId__r_Apttus_Config2__ConfigurationType__c == "Bundle"))
+            {
+                if (IsOptional == true)
+                {
+                    solutionOfferedPrice = APTS_Solution_Offered_Price_c__c;
+                }
+                else
+                {
+                    solutionOfferedPrice = APTS_Solution_Offered_Price_c__c + APTS_Offered_Price_c__c;
+                }
+            }
+
+            return solutionOfferedPrice;
+        }
+
+        private decimal? Calculate_Offered_Price()
+        {
+            if (IsOptionLineType() && AdjustmentType == "Price Override")
+            {
+                return APTS_Extended_List_Price__c - APTS_Strategic_Discount_Amount_c__c - APTS_Contract_Discount_Amount__c - ((-1) * IncentiveAdjustmentAmount * APTS_Bundle_Quantity__c);
+            }
+            else
+            {
+                return APTS_Extended_List_Price__c - APTS_Strategic_Discount_Amount_c__c - APTS_Contract_Discount_Amount__c - ((-1) * IncentiveAdjustmentAmount);
+            }
+        }
+
+        private decimal? Calculate_Item_List_Price()
+        {
+            //var dynamicPricePointsValue = priceListItem.GetValue<string>("APTS_Dynamic_Price_Points__c");
+
+            if (PLIModel.APTS_Dynamic_Price_Points__c == "Yes")
+            {
+                return BasePriceOverride;
+            }
+
+            decimal? itemListPrice = 0;
+
+            if (APTS_Local_Bundle_Component_Flag__c != true)
+            {
+                if((Apttus_Config2__ProductId__r_APTS_SPOO_Type__c == string.Empty && Apttus_Config2__OptionId__r_APTS_SPOO_Type__c == string.Empty &&
+                    Apttus_Config2__ProductId__r_Apttus_Config2__ProductType__c != "Service") || Apttus_Config2__OptionId__r_APTS_ISEE_Product_Type__c == "SMA")
+                {
+                    if(APTS_Base_Price__c != null && APTS_Base_Price__c != 0)
+                    {
+                        itemListPrice = APTS_Base_Price__c;
+                    }
+                    else
+                    {
+                        var pliItem = GetPriceListItem();
+                        itemListPrice = pliItem.Entity.ListPrice;
+                    }
+                }
+                else
+                {
+                    itemListPrice = APTS_Extended_List_Price__c / Quantity / SellingTerm;
+                }
+            }
+
+            return itemListPrice;
+        }
+
+        private decimal? Calculate_Philips_List_Price()
+        {
+            //if (Apttus_Config2__PriceListItemId__r_APTS_Dynamic_Price_Points__c == "Yes")
+            if (PLIModel.APTS_Dynamic_Price_Points__c == "Yes")
+            {
+                return BasePriceOverride * Quantity * Calculate_Selling_Term();
+            }
+            else
+            {
+                return APTS_Extended_List_Price__c;
+            }
+        }
+
+        private decimal? Calculate_Contract_Net_Price()
+        {
+            decimal? contractNetPrice = null;
+            //if(Apttus_Config2__PriceListItemId__r.Apttus_Config2__PriceListId__r.Apttus_Config2__Type__c == "Standard")
+            if (PLIModel.Apttus_Config2__PriceListId__r.Apttus_Config2__Type__c == "Standard")
+            {
+                contractNetPrice = APTS_Philips_List_Price__c - APTS_Contract_Discount_Amount__c;
+            }
+
+            return contractNetPrice;
+        }
+
+        private decimal? Calculate_Country_Target_Price()
+        {
+            if (APTS_Local_Bundle_Component_Flag__c != true)
+            {
+                if((IsProductServiceLineType() && Apttus_Config2__ProductId__r_APTS_SPOO_Type__c == string.Empty) ||
+                    (IsOptionLineType() && Apttus_Config2__OptionId__r_APTS_SPOO_Type__c == string.Empty))
+                {
+                    //if(Apttus_Config2__PriceListItemId__r.APTS_Dynamic_Price_Points__c == "Yes" || (APTS_Target_Price_SPOO__c != null && APTS_Target_Price_SPOO__c > 0))
+                    if (PLIModel.APTS_Dynamic_Price_Points__c == "Yes" || (APTS_Target_Price_SPOO__c != null && APTS_Target_Price_SPOO__c > 0))
+                    {
+                        return APTS_Target_Price_SPOO__c;
+                    }
+                    else
+                    {
+                        if(Apttus_Config2__ProductId__r_Apttus_Config2__ProductType__c == "Service")
+                        {
+                            return APTS_Target_Price_Service__c;
+                        }
+                        else
+                        {
+                            //if(Apttus_Config2__PriceListItemId__r.APTS_Related_Agreement__c != null)
+                            if (PLIModel.APTS_Related_Agreement__c != null)
+                            {
+                                if(APTS_VolumeTier__c == "Tier 1")
+                                {
+                                    return PLIModel.APTS_Tier_1_Target_Price__c;
+                                }
+                                if (APTS_VolumeTier__c == "Tier 2")
+                                {
+                                    return PLIModel.APTS_Tier_2_Target_Price__c;
+                                }
+                                if (APTS_VolumeTier__c == "Tier 3")
+                                {
+                                    return PLIModel.APTS_Tier_3_Target_Price__c;
+                                }
+                                if (APTS_VolumeTier__c == "Tier 4")
+                                {
+                                    return PLIModel.APTS_Tier_4_Target_Price__c;
+                                }
+                            }
+
+                            return PLIModel.APTS_Country_Target_Price__c;
+                        }
+                    }
+                }
+                else
+                {
+                    return APTS_Target_Price_SPOO__c;
+                }
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        private decimal? Calculate_Escalation_Price()
+        {
+            if(Apttus_Config2__ProductId__r_Apttus_Config2__ProductType__c == "Service")
+            {
+                return APTS_Escalation_Price_Service__c * APTS_Extended_Quantity__c * Calculate_Selling_Term();
+            }
+            else
+            {
+                if(APTS_Local_Bundle_Component_Flag__c != true)
+                {
+                    return Calculate_Country_Pre_Escalation_Price() * APTS_Extended_Quantity__c * Calculate_Selling_Term();
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+
+        private decimal? Calculate_Country_Pre_Escalation_Price()
+        {
+            if(APTS_Local_Bundle_Component_Flag__c != true)
+            {
+                if((IsProductServiceLineType() && Apttus_Config2__ProductId__r_APTS_SPOO_Type__c == string.Empty) ||
+                    (IsOptionLineType() && Apttus_Config2__ProductId__r_APTS_SPOO_Type__c == string.Empty))
+                {
+                    if(PLIModel.APTS_Dynamic_Price_Points__c == "Yes" || (APTS_Escalation_Price_SPOO__c != null && APTS_Escalation_Price_SPOO__c > 0))
+                    {
+                        return APTS_Escalation_Price_SPOO__c;
+                    }
+                    else
+                    {
+                        if (Apttus_Config2__ProductId__r_Apttus_Config2__ProductType__c == "Service")
+                        {
+                            return APTS_Escalation_Price_Service__c;
+                        }
+                        else
+                        {
+                            if (PLIModel.APTS_Related_Agreement__c != null)
+                            {
+                                if (APTS_VolumeTier__c == "Tier 1")
+                                {
+                                    return PLIModel.APTS_Tier_1_Pre_Escalation_Price__c;
+                                }
+                                if (APTS_VolumeTier__c == "Tier 2")
+                                {
+                                    return PLIModel.APTS_Tier_2_Pre_Escalation_Price__c;
+                                }
+                                if (APTS_VolumeTier__c == "Tier 3")
+                                {
+                                    return PLIModel.APTS_Tier_3_Pre_Escalation_Price__c;
+                                }
+                                if (APTS_VolumeTier__c == "Tier 4")
+                                {
+                                    return PLIModel.APTS_Tier_4_Pre_Escalation_Price__c;
+                                }
+                            }
+
+                            return PLIModel.APTS_Country_Pre_Escalation_Price__c;
+                        }
+                    }
+                }
+                else
+                {
+                    return APTS_Escalation_Price_SPOO__c;
+                }
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        private decimal? Calculate_Escalation_Price_Attainment()
+        {
+            if(APTS_Local_Bundle_Component_Flag__c != true)
+            {
+                return APTS_Escalation_Price_Attainment_c__c != null ? Math.Abs(APTS_Escalation_Price_Attainment_c__c.Value) : APTS_Escalation_Price_Attainment_c__c;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        private decimal? Calculate_Minimum_Price()
+        {
+            if(Apttus_Config2__ProductId__r_Apttus_Config2__ProductType__c == "Service")
+            {
+                return APTS_Minimum_Price_Service__c * APTS_Extended_Quantity__c * SellingTerm;
+            }
+            else
+            {
+                if(APTS_Local_Bundle_Component_Flag__c != true)
+                {
+                    if(PLIModel.APTS_Dynamic_Price_Points__c == "Yes")
+                    {
+                        return APTS_Dynamic_Minimum_Price__c * APTS_Extended_Quantity__c * SellingTerm;
+                    }
+                    else
+                    {
+                        decimal? minimumTierPrice = MinPrice;
+                        if (PLIModel.APTS_Related_Agreement__c != null)
+                        {
+                            if (APTS_VolumeTier__c == "Tier 1")
+                            {
+                                minimumTierPrice = PLIModel.APTS_Tier_1_Minimum_Price__c;
+                            }
+                            if (APTS_VolumeTier__c == "Tier 2")
+                            {
+                                minimumTierPrice = PLIModel.APTS_Tier_2_Minimum_Price__c;
+                            }
+                            if (APTS_VolumeTier__c == "Tier 3")
+                            {
+                                minimumTierPrice = PLIModel.APTS_Tier_3_Minimum_Price__c;
+                            }
+                            if (APTS_VolumeTier__c == "Tier 4")
+                            {
+                                minimumTierPrice = PLIModel.APTS_Tier_4_Minimum_Price__c;
+                            }
+                        }
+
+                        return minimumTierPrice * APTS_Extended_Quantity__c * SellingTerm;
+                    }
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+
+        private decimal? Calculate_Minimum_Price_Attainment()
+        {
+            if(APTS_Local_Bundle_Component_Flag__c != true)
+            {
+                return APTS_Minimum_Price_Attainment_c__c != null ? Math.Abs(APTS_Minimum_Price_Attainment_c__c.Value) : APTS_Minimum_Price_Attainment_c__c;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        private decimal? Calculate_Selling_Term()
+        {
+            if(SellingTerm != null && SellingTerm != 0 && PriceType == "Recurring")
+            {
+                return SellingTerm;
+            }
+
+            return 1;
+        }
+
+        private decimal? Calculate_Target_Price()
+        {
+            if(APTS_Local_Bundle_Component_Flag__c != true)
+            {
+                return APTS_Country_Target_Price__c * APTS_Extended_Quantity__c * Calculate_Selling_Term();
+            }
+
+            return 0;
+        }
 
         #endregion
 
@@ -265,6 +600,7 @@ namespace Apttus.Lightsaber.Phillips.Common
         public string Apttus_Config2__ProductId__r_ProductCode { get { return lineItemModel.GetLookupValue<string>(LineItemField.Apttus_Config2__ProductId__r_ProductCode); } }
         public string Apttus_Config2__ProductId__r_Apttus_Config2__ProductType__c { get { return lineItemModel.GetLookupValue<string>(LineItemField.Apttus_Config2__ProductId__r_Apttus_Config2__ProductType__c); } }
         public string Apttus_Config2__ProductId__r_APTS_SPOO_Type__c { get { return lineItemModel.GetLookupValue<string>(LineItemField.Apttus_Config2__ProductId__r_APTS_SPOO_Type__c); } }
+        public string Apttus_Config2__OptionId__r_APTS_SPOO_Type__c { get { return lineItemModel.GetLookupValue<string>(LineItemField.Apttus_Config2__OptionId__r_APTS_SPOO_Type__c); } }
         public decimal? Apttus_Config2__AttributeValueId__r_APTS_Cost_Price__c { get { return lineItemModel.GetLookupValue<decimal?>(LineItemField.Apttus_Config2__AttributeValueId__r_APTS_Cost_Price__c); } }
         public decimal? Apttus_Config2__AttributeValueId__r_APTS_Fair_Market_Value__c { get { return lineItemModel.GetLookupValue<decimal?>(LineItemField.Apttus_Config2__AttributeValueId__r_APTS_Fair_Market_Value__c); } }
         public decimal? Apttus_Config2__AttributeValueId__r_APTS_List_Price__c { get { return lineItemModel.GetLookupValue<decimal?>(LineItemField.Apttus_Config2__AttributeValueId__r_APTS_List_Price__c); } }
@@ -280,7 +616,7 @@ namespace Apttus.Lightsaber.Phillips.Common
         public string Apttus_Config2__ProductId__r_Business_Unit_ID__c { get { return lineItemModel.GetLookupValue<string>(LineItemField.Apttus_Config2__ProductId__r_Business_Unit_ID__c); } }
         public string Apttus_Config2__ProductId__r_APTS_Type__c { get { return lineItemModel.GetLookupValue<string>(LineItemField.Apttus_Config2__ProductId__r_APTS_Type__c); } }
         public string Apttus_Config2__ProductId__r_APTS_CLOGS__c { get { return lineItemModel.GetLookupValue<string>(LineItemField.Apttus_Config2__ProductId__r_APTS_CLOGS__c); } }
-
+        public string Apttus_Config2__OptionId__r_APTS_ISEE_Product_Type__c { get { return lineItemModel.GetLookupValue<string>(LineItemField.Apttus_Config2__OptionId__r_APTS_ISEE_Product_Type__c); } }
         #endregion
     }
 }
