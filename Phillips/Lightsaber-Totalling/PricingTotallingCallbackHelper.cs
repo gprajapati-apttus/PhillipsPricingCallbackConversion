@@ -876,9 +876,11 @@ namespace Apttus.Lightsaber.Phillips.Totalling
                     PM_Percentage_Threshold = objApprTH.APTS_PM_Percentage_Threshold__c;
 
                 decimal? thresholdmgrvalue = 0;
-                if (cart.Get<decimal?>(CartCustomField.APTS_Offer_Price__c).HasValue && cart.Get<decimal?>(CartCustomField.APTS_Offer_Price__c).Value > 0)
+                decimal? cartOfferPrice = CalculateCartOfferPrice(cartLineItems);
+
+                if (cartOfferPrice.HasValue && cartOfferPrice > 0)
                 {
-                    thresholdmgrvalue = CalculatedThreshold_prjmgr / cart.Get<decimal?>(CartCustomField.APTS_Offer_Price__c).Value;
+                    thresholdmgrvalue = CalculatedThreshold_prjmgr / cartOfferPrice;
                 }
 
                 if (CalculatedThreshold_prjmgr > Install_Threshold || thresholdmgrvalue > PM_Percentage_Threshold)
@@ -939,6 +941,21 @@ namespace Apttus.Lightsaber.Phillips.Totalling
         {
             var result = pricingHelper.ApplyRounding(fieldValue, 2, RoundingMode.UP);
             return result.Value;
+        }
+
+        private decimal? CalculateCartOfferPrice(List<LineItem> cartLineItems)
+        {
+            decimal? totalOfferPrice = 0;
+
+            foreach (var lineItem in cartLineItems)
+            {
+                if(lineItem.IsOptional == false && lineItem.APTS_Valuation_Class__c == "ZTRA")
+                {
+                    totalOfferPrice += lineItem.APTS_Offered_Price_c__c;
+                }
+            }
+
+            return totalOfferPrice;
         }
     }
 }
