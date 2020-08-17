@@ -3,7 +3,6 @@
     public class ProposalField
     {
         public const string Id = "Id";
-        //GP: This field is not available on the Proposal object
         public const string NokiaCPQ_LEO_Discount__c = "NokiaCPQ_LEO_Discount__c";
         public const string NokiaCPQ_Maintenance_Level__c = "NokiaCPQ_Maintenance_Level__c";
         public const string Is_List_Price_Only__c = "Is_List_Price_Only__c";

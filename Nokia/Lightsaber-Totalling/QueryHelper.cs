@@ -48,7 +48,6 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             return query;
         }
 
-        //GP: Result of this query can cached to improve callback performance.
         public static Query GetDirectPortfolioGeneralSettingQuery(string portfolio)
         {
             Query query = new Query();
@@ -63,7 +62,6 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             return query;
         }
 
-        //GP: Result of this query can cached to improve callback performance.
         public static Query GetDirectCareCostPercentageQuery(string accountMarket)
         {
             Query query = new Query();

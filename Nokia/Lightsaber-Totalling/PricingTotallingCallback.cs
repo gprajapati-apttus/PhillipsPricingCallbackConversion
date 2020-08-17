@@ -311,7 +311,6 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                             }
                         }
 
-                        //GP: Instead of looking up on the cart lineitem, we are using proposal for same
                         if (proposal.Maintenance_Y1__c != null)
                         {
                             cartLineItem.BasePriceOverride = proposal.Maintenance_Y1__c;
@@ -1669,7 +1668,6 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             return configType;
         }
 
-        //GP: Need to test this function if working properly.
         private bool IsOptionLineFromSubBundle(LineItem lineItem)
         {
             if (!lineItem.IsOptionLineType() || lineItem.GetRootParentLineItem() == null)
@@ -2075,9 +2073,6 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
             foreach (var lineitem in nonContractedLines)
             {
-                //GP: Can LineType be Bundle ????
-                //if (!(lineitem.Apttus_Config2__LineType__c.equalsIgnoreCase('Bundle')))
-                //{
                 if (mapLineCategory.ContainsKey(lineitem.Id))
                 {
                     var productDiscCategoryKey = mapLineCategory[lineitem.Id] ?? Constants.NULL_PRODUCT_DISCOUNT_CATEGORY_KEY;
@@ -2096,7 +2091,6 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 {
                     lineitem.Reference_Price__c = lineitem.ListPrice;
                 }
-                //}
             }
 
             foreach (var lineitem in nonContractedLines)

@@ -54,7 +54,6 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             return query;
         }
 
-        //GP: Result of this query can cached to improve callback performance.
         public static Query GetMNDirectProductMapQuery()
         {
             Query query = new Query();
@@ -64,7 +63,6 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             return query;
         }
 
-        //GP: Result of this query can cached to improve callback performance.
         public static Query GetDirectPortfolioGeneralSettingQuery(string portfolio)
         {
             Query query = new Query();
@@ -79,7 +77,6 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             return query;
         }
 
-        //GP: Result of this query can cached to improve callback performance.
         public static Query GetMaintenanceAndSSPRuleQuery(string region, string maintenanceType)
         {
             Query query = new Query();
@@ -106,7 +103,6 @@ namespace Apttus.Lightsaber.Nokia.Pricing
 
             pricingCluster = proposal.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Cluster__c ?? proposal.NokiaProductAccreditation__r_Pricing_Cluster__c;
 
-            //GP: Why can't we use proposal.NokiaCPQ_Maintenance_Type__c instead of this logic?
             if (proposal.NokiaCPQ_LEO_Discount__c == true && proposal.NokiaCPQ_Portfolio__c != Constants.NOKIA_NUAGE)
             {
                 maintenanceType = proposal.NokiaCPQ_Maintenance_Type__c;
