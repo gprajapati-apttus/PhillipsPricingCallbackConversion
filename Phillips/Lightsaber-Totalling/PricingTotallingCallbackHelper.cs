@@ -17,12 +17,14 @@ namespace Apttus.Lightsaber.Phillips.Totalling
         private Proposal proposal;
         private Dictionary<string, PriceListItemQueryModel> pliDictionary;
         private IDBHelper dBHelper = null;
+        private DataAccess dataAccess = null;
         private IPricingHelper pricingHelper = null;
 
         public PricingTotallingCallbackHelper(Proposal proposal, IDBHelper dBHelper, IPricingHelper pricingHelper)
         {
             this.proposal = proposal;
             this.dBHelper = dBHelper;
+            this.dataAccess = new DataAccess(dBHelper);
             this.pricingHelper = pricingHelper;
         }
 
@@ -724,9 +726,7 @@ namespace Apttus.Lightsaber.Phillips.Totalling
             pliDictionary = new Dictionary<string, PriceListItemQueryModel>();
             var priceListItemIdSet = cartLineItems.Select(li => li.GetPriceListItem().Entity.Id).ToHashSet();
 
-            var pliQuery = QueryHelper.GetPLIQuery(priceListItemIdSet);
-
-            List<PriceListItemQueryModel> pliDetails = await dBHelper.FindAsync<PriceListItemQueryModel>(pliQuery);
+            List<PriceListItemQueryModel> pliDetails = await dataAccess.GetPLI(priceListItemIdSet);
             foreach (var pliDetail in pliDetails)
             {
                 pliDictionary.Add(pliDetail.Id, pliDetail);
@@ -799,11 +799,9 @@ namespace Apttus.Lightsaber.Phillips.Totalling
         {
             Dictionary<string, decimal?> mapClogToThresoldValue = new Dictionary<string, decimal?>();
 
-            var thresholdApproversQuery = QueryHelper.GetThresholdApproversQuery(cart.Get<string>(CartCustomField.APTS_Sales_Organization__c));
-            List<ThresholdApproverQueryModel> thresoldApprovers = await dBHelper.FindAsync<ThresholdApproverQueryModel>(thresholdApproversQuery);
+            List<ThresholdApproverQueryModel> thresoldApprovers = await dataAccess.GetThresholdApprovers(cart.Get<string>(CartCustomField.APTS_Sales_Organization__c));
 
-            var procurementApprovalQuery = QueryHelper.GetProcurementApprovalQuery(cart.Get<string>(CartCustomField.APTS_Sales_Organization__c));
-            List<ProcurementApprovalQueryModel> procurementApprovals = await dBHelper.FindAsync<ProcurementApprovalQueryModel>(procurementApprovalQuery);
+            List<ProcurementApprovalQueryModel> procurementApprovals = await dataAccess.GetProcurementApproval(cart.Get<string>(CartCustomField.APTS_Sales_Organization__c));
 
             foreach (ProcurementApprovalQueryModel proc in procurementApprovals)
             {

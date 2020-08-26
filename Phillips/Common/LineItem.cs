@@ -1,12 +1,8 @@
 ﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Extension;
 using Apttus.Lightsaber.Phillips.Totalling;
 using Apttus.Lightsaber.Pricing.Common.Constants;
-using Apttus.Lightsaber.Pricing.Common.Entities;
 using Apttus.Lightsaber.Pricing.Common.Models;
 using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text;
 
 namespace Apttus.Lightsaber.Phillips.Common
 {

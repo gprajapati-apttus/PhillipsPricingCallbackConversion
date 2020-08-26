@@ -17,12 +17,14 @@ namespace Apttus.Lightsaber.Phillips.Pricing
         private readonly Proposal proposal = null;
         HashSet<decimal> lineNumWithLocalBundleSet = new HashSet<decimal>();
         private readonly IDBHelper dBHelper = null;
+        private readonly DataAccess dataAccess = null;
         private readonly IPricingHelper pricingHelper = null;
 
         public PricingBasePriceCallbackHelper(Proposal proposal, IDBHelper dBHelper, IPricingHelper pricingHelper)
         {
             this.proposal = proposal;
             this.dBHelper = dBHelper;
+            this.dataAccess = new DataAccess(dBHelper);
             this.pricingHelper = pricingHelper;
         }
 
@@ -66,9 +68,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
 
             if (spooProdIds.Count > 0)
             {
-                var query = QueryHelper.GetPLIPriceMultiplierQuery(spooProdIds);
-
-                List<PriceListItemQueryModel> spooPriceListItems = await dBHelper.FindAsync<PriceListItemQueryModel>(query);
+                List<PriceListItemQueryModel> spooPriceListItems = await dataAccess.GetPLIPriceMultiplier(spooProdIds);
                 foreach (var spooPriceListItem in spooPriceListItems)
                 {
                     pliSPOODictionary.Add(spooPriceListItem.Id, spooPriceListItem);
@@ -92,9 +92,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
                 }
             }
 
-            var query = QueryHelper.GetNAMBundleQuery(localBundleOptionSet);
-
-            List<LocalBundleHeaderQueryModel> namBundleItems = await dBHelper.FindAsync<LocalBundleHeaderQueryModel>(query);
+            List<LocalBundleHeaderQueryModel> namBundleItems = await dataAccess.GetNAMBundle(localBundleOptionSet);
             foreach (var namBundleItem in namBundleItems)
             {
                 namBundleDictionary.Add(namBundleItem.APTS_Component__c + namBundleItem.APTS_Local_Bundle_Header__r.APTS_Parent_Bundle__c, namBundleItem);
@@ -331,9 +329,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
 
             if (proposal.Account_Sold_to__c != null)
             {
-                var pliTierQuery = QueryHelper.GetPLITierQuery(priceListItemIdSet);
-
-                List<PriceListItemQueryModel> pliTierDetails = await dBHelper.FindAsync<PriceListItemQueryModel>(pliTierQuery);
+                List<PriceListItemQueryModel> pliTierDetails = await dataAccess.GetPLITier(priceListItemIdSet);
                 foreach (var pliTierDetail in pliTierDetails)
                 {
                     pliDictionary.Add(pliTierDetail.Id, pliTierDetail);
@@ -352,7 +348,7 @@ namespace Apttus.Lightsaber.Phillips.Pricing
                 HashSet<string> pliRelatedAgreementSet = pliDictionary.Values.Where(pli => pli.Apttus_Config2__PriceListId__r.APTS_Related_Agreement__c != null).
                                                         Select(pli => pli.Apttus_Config2__PriceListId__r.APTS_Related_Agreement__c).ToHashSet();
 
-                List<AccountContractQueryModel> agreementTierDetails = await QueryHelper.ExecuteAgreementTierQuery(dBHelper, pliRelatedAgreementSet, proposal.Account_Sold_to__c);
+                List<AccountContractQueryModel> agreementTierDetails = await dataAccess.GetAgreementTier(pliRelatedAgreementSet, proposal.Account_Sold_to__c);
                 foreach (var agreementTierDetail in agreementTierDetails)
                 {
                     agreementTierDictionary.Add(agreementTierDetail.APTS_Agreement_Group__c, agreementTierDetail.APTS_Volume_Tier__c);
