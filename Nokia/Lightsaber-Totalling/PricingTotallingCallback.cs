@@ -17,7 +17,8 @@ namespace Apttus.Lightsaber.Nokia.Totalling
     public class PricingTotallingCallback : CodeExtensibility, IPricingTotallingCallback
     {
         private Proposal proposal = null;
-        private IDBHelper dBHelper = null;
+        private IDBHelper dbHelper = null;
+        private DataAccess dataAccess = null;
         private IPricingHelper pricingHelper = null;
         private decimal? conversionRate;
         private Dictionary<string, List<LineItem>> lineItemIRPMapDirect = new Dictionary<string, List<LineItem>>();
@@ -52,7 +53,8 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             var cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
             proposal = Proposal.Create(aggregateCartRequest.Cart);
 
-            dBHelper = GetDBHelper();
+            dbHelper = GetDBHelper();
+            dataAccess = new DataAccess(dbHelper);
             pricingHelper = GetPricingHelper();
 
             foreach (var lineItem in cartLineItems)
@@ -64,8 +66,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 }
             }
 
-            var contractedPriceListItemsQuery = QueryHelper.GetContractedPriceListItemQuery(priceListItemIds);
-            var contractedPriceListItems = await dBHelper.FindAsync<ContractedPriceListItemQueryModel>(contractedPriceListItemsQuery);
+            var contractedPriceListItems = await dataAccess.GetContractedPriceListItem(priceListItemIds);
 
             foreach(var contractedPriceListItem in contractedPriceListItems)
             {
@@ -74,13 +75,11 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
             if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
             {
-                var defaultExchangeRateQuery = QueryHelper.GetDefaultExchangeRateQuery(proposal.CurrencyIsoCode);
-                conversionRate = (await dBHelper.FindAsync<CurrencyTypeQueryModel>(defaultExchangeRateQuery)).FirstOrDefault()?.ConversionRate;
+                conversionRate = await dataAccess.GetDefaultExchangeRate(proposal.CurrencyIsoCode);
 
                 if (proposal.NokiaCPQ_Portfolio__c == Constants.NOKIA_IP_ROUTING && proposal.Is_List_Price_Only__c == false)
                 {
-                    var shippingLocationQuery = QueryHelper.GetShippingLocationForDirectQuoteQuery(proposal.NokiaCPQ_Portfolio__c, proposal.NokiaCPQ_Maintenance_Type__c);
-                    var shippingLocations = await dBHelper.FindAsync<ShippingLocationQueryModel>(shippingLocationQuery);
+                    var shippingLocations = await dataAccess.GetShippingLocationForDirectQuote(proposal.NokiaCPQ_Portfolio__c, proposal.NokiaCPQ_Maintenance_Type__c);
 
                     if (shippingLocations != null && shippingLocations.Count != 0)
                     {
@@ -103,10 +102,8 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
             if (Constants.QUOTE_TYPE_INDIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
             {
-                var shippingLocationQuery = QueryHelper.GetShippingLocationForIndirectQuoteQuery(proposal.NokiaCPQ_Maintenance_Accreditation__r_Portfolio__c,
+                var shippingLocations = await dataAccess.GetShippingLocationForIndirectQuote(proposal.NokiaCPQ_Maintenance_Accreditation__r_Portfolio__c,
                     proposal.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Cluster__c);
-
-                var shippingLocations = await dBHelper.FindAsync<ShippingLocationQueryModel>(shippingLocationQuery);
 
                 if (shippingLocations != null && shippingLocations.Count != 0)
                 {
@@ -895,15 +892,11 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             {
                 if (UsePricingGuidanceSettingThresold())
                 {
-                    var pricingGuidanceSettingQuery = QueryHelper.GetPricingGuidanceSettingQuery(proposal.NokiaCPQ_Portfolio__c);
-                    pricingGuidanceSettingThresold = (await dBHelper.FindAsync<PricingGuidanceSettingQueryModel>(pricingGuidanceSettingQuery)).FirstOrDefault()?.Threshold__c;
+                    pricingGuidanceSettingThresold = await dataAccess.GetPricingGuidanceSetting(proposal.NokiaCPQ_Portfolio__c);
                 }
 
-                var directPortfolioGeneralSettingQuery = QueryHelper.GetDirectPortfolioGeneralSettingQuery(proposal.NokiaCPQ_Portfolio__c);
-                portfolioSettingList = await dBHelper.FindAsync<DirectPortfolioGeneralSettingQueryModel>(directPortfolioGeneralSettingQuery);
-
-                var directCareCostPercentageQuery = QueryHelper.GetDirectCareCostPercentageQuery(proposal.Account_Market__c);
-                careCostPercentList = await dBHelper.FindAsync<DirectCareCostPercentageQueryModel>(directCareCostPercentageQuery);
+                portfolioSettingList = await dataAccess.GetDirectPortfolioGeneralSetting(proposal.NokiaCPQ_Portfolio__c);
+                careCostPercentList = await dataAccess.GetDirectCareCostPercentage(proposal.Account_Market__c);
             }
 
             //GP:finish method start
@@ -2060,7 +2053,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 mapBundlelineOption[lineitem.GetLineNumber()] = optionlinelist;
             }
 
-            productDisc = await QueryHelper.ExecuteProductDiscountQuery(dBHelper, market, discountCatgories);
+            productDisc = await dataAccess.GetProductDiscount(market, discountCatgories);
 
             foreach (var categorydiscount in productDisc)
             {

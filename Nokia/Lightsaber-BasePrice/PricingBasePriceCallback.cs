@@ -18,7 +18,8 @@ namespace Apttus.Lightsaber.Nokia.Pricing
     public class PricingBasePriceCallback : CodeExtensibility, IPricingBasePriceCallback
     {
         private Proposal proposal = null;
-        private IDBHelper dBHelper = null;
+        private IDBHelper dbHelper = null;
+        private DataAccess dataAccess = null;
         private IPricingHelper pricingHelper = null;
 
         public async Task BeforePricingBatchAsync(BatchPriceRequest batchPriceRequest)
@@ -40,7 +41,8 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             var cartLineItems = batchPriceRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
             proposal = Proposal.Create(batchPriceRequest.Cart);
 
-            dBHelper = GetDBHelper();
+            dbHelper = GetDBHelper();
+            dataAccess = new DataAccess(dbHelper);
             pricingHelper = GetPricingHelper();
 
             if (Constants.QUOTE_TYPE_INDIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
@@ -131,9 +133,9 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             List<string> productList = new List<string>();
             Dictionary<string, decimal?> productPriceMap = new Dictionary<string, decimal?>();
             Dictionary<string, decimal?> productCostMap = new Dictionary<string, decimal?>();
-            HashSet<string> ProductId_set = new HashSet<string>();
+            HashSet<string> productId_set = new HashSet<string>();
             Dictionary<string, ProductExtensionsQueryModel> productExtensitonMap = new Dictionary<string, ProductExtensionsQueryModel>();
-            List<MNDirectProductMapQueryModel> MN_Direct_Products_List = new List<MNDirectProductMapQueryModel>();
+            List<MNDirectProductMapQueryModel> mn_Direct_Products_List = new List<MNDirectProductMapQueryModel>();
             List<DirectPortfolioGeneralSettingQueryModel> portfolioSettingList = new List<DirectPortfolioGeneralSettingQueryModel>();
             Dictionary<string, MaintenanceAndSSPRuleQueryModel> maintenanceSSPRuleMap_EP = new Dictionary<string, MaintenanceAndSSPRuleQueryModel>();
             Dictionary<string, List<NokiaMaintenanceAndSSPRulesQueryModel>> maintenanceSSPRuleMap = new Dictionary<string, List<NokiaMaintenanceAndSSPRulesQueryModel>>();
@@ -162,38 +164,32 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                         (proposal.NokiaCPQ_Portfolio__c == Constants.NOKIA_IP_ROUTING &&
                         proposal.Is_List_Price_Only__c == false))
                     {
-                        ProductId_set.Add(batchLineItem.GetProductOrOptionId());
+                        productId_set.Add(batchLineItem.GetProductOrOptionId());
                     }
                 }
             }
 
             if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
             {
-                var defaultExchangeRateQuery = QueryHelper.GetDefaultExchangeRateQuery(proposal.CurrencyIsoCode);
-                defaultExchangeRate = (await dBHelper.FindAsync<CurrencyTypeQueryModel>(defaultExchangeRateQuery)).FirstOrDefault()?.ConversionRate;
+                defaultExchangeRate = await dataAccess.GetDefaultExchangeRate(proposal.CurrencyIsoCode);
 
-                var productExtensionsQuery = QueryHelper.GetProductExtensionsQuery(ProductId_set, proposal.CurrencyIsoCode);
-                List<ProductExtensionsQueryModel> Prod_extList = await dBHelper.FindAsync<ProductExtensionsQueryModel>(productExtensionsQuery);
+                List<ProductExtensionsQueryModel> prod_extList = await dataAccess.GetProductExtensions(productId_set, proposal.CurrencyIsoCode);
 
-                foreach (ProductExtensionsQueryModel Prod_ext in Prod_extList)
+                foreach (ProductExtensionsQueryModel prod_ext in prod_extList)
                 {
-                    productExtensitonMap.Add(Prod_ext.Product__c, Prod_ext);
+                    productExtensitonMap.Add(prod_ext.Product__c, prod_ext);
                 }
 
                 if (Constants.AIRSCALE_WIFI_STRING.equalsIgnoreCase(proposal.NokiaCPQ_Portfolio__c))
                 {
-                    var mnDirectProductMapQuery = QueryHelper.GetMNDirectProductMapQuery();
-                    MN_Direct_Products_List = await dBHelper.FindAsync<MNDirectProductMapQueryModel>(mnDirectProductMapQuery);
+                    mn_Direct_Products_List = await dataAccess.GetMNDirectProductMap();
                 }
 
-                var directPortfolioGeneralSettingQuery = QueryHelper.GetDirectPortfolioGeneralSettingQuery(proposal.NokiaCPQ_Portfolio__c);
-                portfolioSettingList = await dBHelper.FindAsync<DirectPortfolioGeneralSettingQueryModel>(directPortfolioGeneralSettingQuery);
+                portfolioSettingList = await dataAccess.GetDirectPortfolioGeneralSetting(proposal.NokiaCPQ_Portfolio__c);
 
                 if (Constants.NOKIA_IP_ROUTING.equalsIgnoreCase(proposal.NokiaCPQ_Portfolio__c) && proposal.Is_List_Price_Only__c == false)
                 {
-                    var maintenanceAndSSPRuleQuery = QueryHelper.GetMaintenanceAndSSPRuleQuery(
-                        proposal.Apttus_Proposal__Account__r_GEOLevel1ID__c, proposal.NokiaCPQ_Maintenance_Type__c);
-                    var maintenanceSSPRuleList = await dBHelper.FindAsync<MaintenanceAndSSPRuleQueryModel>(maintenanceAndSSPRuleQuery);
+                    var maintenanceSSPRuleList = await dataAccess.GetMaintenanceAndSSPRule(proposal.Apttus_Proposal__Account__r_GEOLevel1ID__c, proposal.NokiaCPQ_Maintenance_Type__c);
 
                     foreach (var maintenanceSSPRule in maintenanceSSPRuleList)
                     {
@@ -205,8 +201,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                     }
                 }
 
-                var countryPriceListItemQuery = QueryHelper.GetCountryPriceListItemQuery(productList);
-                var countryPriceListItems = await dBHelper.FindAsync<CountryPriceListItemQueryModel>(countryPriceListItemQuery);
+                var countryPriceListItems = await dataAccess.GetCountryPriceListItem(productList);
 
                 foreach (CountryPriceListItemQueryModel pli in countryPriceListItems)
                 {
@@ -217,8 +212,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
 
             if (Constants.QUOTE_TYPE_INDIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
             {
-                var nokiaMaintenanceAndSSPRulesQuery = QueryHelper.GetNokiaMaintenanceAndSSPRulesQuery(proposal);
-                var nokiaMaintenanceSSPRules = await dBHelper.FindAsync<NokiaMaintenanceAndSSPRulesQueryModel>(nokiaMaintenanceAndSSPRulesQuery);
+                var nokiaMaintenanceSSPRules = await dataAccess.GetNokiaMaintenanceAndSSPRules(proposal);
                 var pricingCluster = proposal.NokiaCPQ_Maintenance_Accreditation__r_Pricing_Cluster__c ?? proposal.NokiaProductAccreditation__r_Pricing_Cluster__c;
 
                 foreach (var nokiaMaintenanceSSPRule in nokiaMaintenanceSSPRules)
@@ -235,10 +229,8 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                     }
                 }
 
-                var tierDiscountDetailQuery = QueryHelper.GetTierDiscountDetailQuery(proposal.Apttus_Proposal__Account__r_Partner_Program__c,
+                var tierDiscountDetailQueryModels = await dataAccess.GetTierDiscountDetail(proposal.Apttus_Proposal__Account__r_Partner_Program__c,
                     proposal.Apttus_Proposal__Account__r_Partner_Type__c);
-
-                var tierDiscountDetailQueryModels = await dBHelper.FindAsync<TierDiscountDetailQueryModel>(tierDiscountDetailQuery);
 
                 foreach (var tierDiscountDetailQueryModel in tierDiscountDetailQueryModels)
                 {
@@ -253,8 +245,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                     tierDiscountRuleMap.Add(key, tierDiscountRuleList);
                 }
 
-                var sspSRSDefaultValuesQuery = QueryHelper.GetSSPSRSDefaultValuesQuery(proposal.NokiaCPQ_Portfolio__c);
-                sspSRSDefaultsList = await dBHelper.FindAsync<SSPSRSDefaultValuesQueryModel>(sspSRSDefaultValuesQuery);
+                sspSRSDefaultsList = await dataAccess.GetSSPSRSDefaultValues(proposal.NokiaCPQ_Portfolio__c);
 
                 var portfolio = proposal.NokiaCPQ_Portfolio__c;
 
@@ -262,9 +253,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                     portfolio.equalsIgnoreCase(Constants.NOKIA_FIXED_ACCESS_FBA)) ||
                     portfolio.equalsIgnoreCase(Constants.Nokia_FASTMILE))
                 {
-
-                    var indirectMarketPriceListQuery = QueryHelper.GetIndirectMarketPriceListQuery();
-                    var priceListCollection = await dBHelper.FindAsync<PriceListQueryModel>(indirectMarketPriceListQuery);
+                    var priceListCollection = await dataAccess.GetIndirectMarketPriceList();
 
                     foreach (var priceList in priceListCollection)
                     {
@@ -531,7 +520,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                     //The piece of code mentioned below is used fro addingm Maintenance line on MN Direct quotes
                     if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING))
                     {
-                        foreach (MNDirectProductMapQueryModel MN_Direct_rec in MN_Direct_Products_List)
+                        foreach (MNDirectProductMapQueryModel MN_Direct_rec in mn_Direct_Products_List)
                         {
                             if (MN_Direct_rec.NokiaCPQ_Product_Code__c.Contains(partNumber))
                             {
