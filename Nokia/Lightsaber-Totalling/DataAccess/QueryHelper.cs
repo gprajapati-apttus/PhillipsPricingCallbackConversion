@@ -1,6 +1,5 @@
 ﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Common;
 using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

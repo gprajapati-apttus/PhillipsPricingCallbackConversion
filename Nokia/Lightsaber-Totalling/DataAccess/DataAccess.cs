@@ -1,9 +1,6 @@
 ﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
-using Apttus.Lightsaber.Nokia.Common;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Apttus.Lightsaber.Nokia.Totalling
