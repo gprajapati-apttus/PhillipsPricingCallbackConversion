@@ -344,7 +344,6 @@ namespace Apttus.Lightsaber.Nokia.Common
         public string Portfolio_from_Quote_Line_Item__c { get { return lineItemModel.Get<string>(LineItemField.Portfolio_from_Quote_Line_Item__c); } }
         public string NokiaCPQ_Configuration_Type__c { get { return lineItemModel.Get<string>(LineItemField.NokiaCPQ_Configuration_Type__c); } }
         public string Quote_Type__c { get { return lineItemModel.Get<string>(LineItemField.Quote_Type__c); } }
-        public decimal? NokiaCPQ_Maximum_IRP_Discount__c { get { return lineItemModel.Get<decimal?>(LineItemField.NokiaCPQ_Maximum_IRP_Discount__c); } }
         public bool? NokiaCPQ_Static_Bundle_Option__c { get { return lineItemModel.Get<bool?>(LineItemField.NokiaCPQ_Static_Bundle_Option__c); }}
         public string NokiaCPQ_Category__c { get { return lineItemModel.Get<string>(LineItemField.NokiaCPQ_Category__c); } }
         public decimal? Product_Number_Of_Ports__c { get { return lineItemModel.Get<decimal?>(LineItemField.Product_Number_Of_Ports__c); } }

@@ -881,6 +881,15 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
         public async Task ProcessOnCartPricingCompleteAsync(AggregateCartRequest aggregateCartRequest)
         {
+            Dictionary<string, ProductLineItemModel> lineItemIdToProductLineItemModelMap = new Dictionary<string, ProductLineItemModel>();
+            foreach(var productLineItem in aggregateCartRequest.CartContext.LineItems)
+            {
+                foreach (var lineItem in productLineItem.ChargeLines)
+                {
+                    lineItemIdToProductLineItemModelMap.Add(lineItem.Entity.Id, productLineItem);
+                }
+            }
+
             var cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
 
             decimal? pricingGuidanceSettingThresold = null;
@@ -1577,14 +1586,16 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     {
                         if (linenumberCarePrice.Count > 0 && linenumberCarePrice.ContainsKey(item.LineNumber) && item.Quantity > 0 && linenumberCarePrice[item.LineNumber] > 0 && linenumberCarePrice[item.LineNumber] != (item.NetPrice / item.Quantity))
                         {
-                            item.PricingStatus = "Pending";
+                            lineItemIdToProductLineItemModelMap[item.Id]?.SetToRePricing();
+                            //item.PricingStatus = "Pending";
                         }
                     }
                     if (item.ChargeType != null && item.ChargeType.equalsIgnoreCase(Constants.NOKIA_SRS) && !proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING))
                     {
                         if (linenumberSRSPrice.Count > 0 && linenumberSRSPrice.ContainsKey(item.LineNumber) && item.Quantity > 0 && linenumberSRSPrice[item.LineNumber] > 0 && linenumberSRSPrice[item.LineNumber] != (item.NetPrice / item.Quantity))
                         {
-                            item.PricingStatus = "Pending";
+                            lineItemIdToProductLineItemModelMap[item.Id]?.SetToRePricing();
+                            //item.PricingStatus = "Pending";
                         }
                     }
                     //Stamping at main bundle
@@ -1621,7 +1632,8 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         if (partNumber != null && (partNumber.Contains(Constants.SSPCODE) || partNumber.Contains(Constants.SRS)) && item.Quantity != null &&
                             item.NokiaCPQ_Extended_IRP2__c != pricingHelper.ApplyRounding((item.BasePriceOverride * item.Quantity), 2, RoundingMode.HALF_UP))
                         {
-                            item.PricingStatus = "Pending";
+                            lineItemIdToProductLineItemModelMap[item.Id]?.SetToRePricing();
+                            //item.PricingStatus = "Pending";
                         }
                     }
                 }

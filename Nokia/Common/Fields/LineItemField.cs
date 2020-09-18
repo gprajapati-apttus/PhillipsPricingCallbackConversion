@@ -23,7 +23,6 @@
         public const string NokiaCPQ_AdvancePricing_CUP__c = "NokiaCPQ_AdvancePricing_CUP__c";
         public const string NokiaCPQAdv_Net_Price__c = "NokiaCPQAdv_Net_Price__c";
         public const string NokiaCPQ_ExtendedPrice_CNP__c = "NokiaCPQ_ExtendedPrice_CNP__c";
-        public const string NokiaCPQ_ExtendedAdvance_NP__c = "NokiaCPQ_ExtendedAdvance_NP__c";
         public const string Advanced_Pricing_Done__c = "Advanced_pricing_done__c";
         public const string NokiaCPQ_AdvancePricing_NP__c = "NokiaCPQ_AdvancePricing_NP__c";
         public const string NokiaCPQ_Extended_CUP__c = "NokiaCPQ_Extended_CUP__c";
@@ -31,10 +30,7 @@
         public const string NokiaCPQ_Extended_CLP__c = "NokiaCPQ_Extended_CLP__c";
         public const string NokiaCPQ_Extended_IRP__c = "NokiaCPQ_Extended_IRP__c";
         public const string NokiaCPQ_ExtendedPrice_CUP__c = "NokiaCPQ_ExtendedPrice_CUP__c";
-        public const string NokiaCPQ_Is_CLP__c = "NokiaCPQ_Is_CLP__c";
-        public const string OEM__c = "OEM__c";
         public const string NokiaCPQ_Light_Color__c = "NokiaCPQ_Light_Color__c";
-        public const string NokiaCPQ_Maximum_IRP_Discount__c = "NokiaCPQ_Maximum_IRP_Discount__c";
         public const string NokiaCPQ_IRP_Discount__c = "NokiaCPQ_IRP_Discount__c";
         public const string NokiaCPQ_Account_Region__c = "NokiaCPQ_Account_Region__c";
         public const string NokiaCPQ_Org__c = "NokiaCPQ_Org__c";
@@ -111,8 +107,6 @@
         public const string Apttus_Config2__OptionId__r_NokiaCPQ_Item_Type__c = "Apttus_Config2__OptionId__r.NokiaCPQ_Item_Type__c";
         public const string Apttus_Config2__ProductId__r_NokiaCPQ_License_Usage__c = "Apttus_Config2__ProductId__r.NokiaCPQ_License_Usage__c";
         public const string Apttus_Config2__OptionId__r_NokiaCPQ_License_Usage__c = "Apttus_Config2__OptionId__r.NokiaCPQ_License_Usage__c";
-        public const string Apttus_Config2__ProductId__r_Id = "Apttus_Config2__ProductId__r.Id";
-        public const string Apttus_Config2__OptionId__r_Id = "Apttus_Config2__OptionId__r.Id";
         public const string Apttus_Config2__ProductId__r_ProductCode = "Apttus_Config2__ProductId__r.ProductCode";
         public const string Apttus_Config2__OptionId__r_ProductCode = "Apttus_Config2__OptionId__r.ProductCode";
         public const string Apttus_Config2__ProductId__r_Family = "Apttus_Config2__ProductId__r.Family";
