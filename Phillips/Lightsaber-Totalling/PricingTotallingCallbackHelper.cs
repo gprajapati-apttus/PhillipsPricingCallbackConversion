@@ -1,13 +1,9 @@
-﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Extension;
-using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
+﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
 using Apttus.Lightsaber.Pricing.Common.Constants;
-using Apttus.Lightsaber.Pricing.Common.Entities;
 using Apttus.Lightsaber.Pricing.Common.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Apttus.Lightsaber.Phillips.Common;
-using LineItem = Apttus.Lightsaber.Phillips.Common.LineItem;
 using LineItemPropertyNames = Apttus.Lightsaber.Pricing.Common.Entities.LineItem.PropertyNames;
 
 namespace Apttus.Lightsaber.Phillips.Totalling

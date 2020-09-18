@@ -1,13 +1,10 @@
-﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Extension;
-using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
+﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
 using Apttus.Lightsaber.Pricing.Common.Constants;
 using Apttus.Lightsaber.Pricing.Common.Entities;
 using Apttus.Lightsaber.Pricing.Common.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Apttus.Lightsaber.Phillips.Common;
-using LineItem = Apttus.Lightsaber.Phillips.Common.LineItem;
 using LineItemPropertyNames = Apttus.Lightsaber.Pricing.Common.Entities.LineItem.PropertyNames;
 
 namespace Apttus.Lightsaber.Phillips.Pricing
@@ -16,15 +13,15 @@ namespace Apttus.Lightsaber.Phillips.Pricing
     {
         private readonly Proposal proposal = null;
         HashSet<decimal> lineNumWithLocalBundleSet = new HashSet<decimal>();
-        private readonly IDBHelper dBHelper = null;
+        private readonly IDBHelper dbHelper = null;
         private readonly DataAccess dataAccess = null;
         private readonly IPricingHelper pricingHelper = null;
 
-        public PricingBasePriceCallbackHelper(Proposal proposal, IDBHelper dBHelper, IPricingHelper pricingHelper)
+        public PricingBasePriceCallbackHelper(Proposal proposal, IDBHelper dbHelper, IPricingHelper pricingHelper)
         {
             this.proposal = proposal;
-            this.dBHelper = dBHelper;
-            this.dataAccess = new DataAccess(dBHelper);
+            this.dbHelper = dbHelper;
+            this.dataAccess = new DataAccess(dbHelper);
             this.pricingHelper = pricingHelper;
         }
 

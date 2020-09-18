@@ -3,11 +3,8 @@ using Apttus.Lightsaber.Pricing.Common.Callback;
 using Apttus.Lightsaber.Pricing.Common.Entities;
 using Apttus.Lightsaber.Pricing.Common.Messages;
 using Apttus.Lightsaber.Pricing.Common.Models;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Apttus.Lightsaber.Phillips.Common;
-using LineItem = Apttus.Lightsaber.Phillips.Common.LineItem;
 
 namespace Apttus.Lightsaber.Phillips.Pricing
 {
