@@ -51,7 +51,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             HashSet<string> priceListItemIds = new HashSet<string>();
 
             var cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
-            proposal = Proposal.Create(aggregateCartRequest.Cart);
+            proposal = new Proposal(aggregateCartRequest.Cart);
 
             dbHelper = GetDBHelper();
             dataAccess = new DataAccess(dbHelper);

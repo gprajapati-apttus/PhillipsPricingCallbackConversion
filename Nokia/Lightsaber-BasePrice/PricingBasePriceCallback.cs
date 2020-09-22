@@ -39,7 +39,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
         {
             var batchLineItems = batchPriceRequest.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
             var cartLineItems = batchPriceRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
-            proposal = Proposal.Create(batchPriceRequest.Cart);
+            proposal = new Proposal(batchPriceRequest.Cart);
 
             dbHelper = GetDBHelper();
             dataAccess = new DataAccess(dbHelper);
@@ -512,7 +512,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                     if (batchLineItem.NokiaCPQ_Unitary_Cost__c != null)
                         batchLineItem.NokiaCPQ_Unitary_Cost__c = pricingHelper.ApplyRounding(batchLineItem.NokiaCPQ_Unitary_Cost__c, 2, RoundingMode.HALF_UP);
 
-                    if (!IsOptionLineFromSubBundle(batchLineItem))
+                    if (batchLineItem.IsOptionLineType() && !IsOptionLineFromSubBundle(batchLineItem))
                     {
                         batchLineItem.NokiaCPQ_Is_Direct_Option__c = true;
                     }
