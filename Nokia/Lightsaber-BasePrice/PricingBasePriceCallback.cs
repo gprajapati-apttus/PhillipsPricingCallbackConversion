@@ -416,7 +416,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                             if (batchLineItem.Is_Custom_Product__c == false)
                             {
                                 batchLineItem.NokiaCPQ_Unitary_IRP__c =
-                                    pricingHelper.ApplyRounding((batchLineItem.ListPrice * (proposal.Exchange_Rate__c)), 5, RoundingMode.HALF_UP);
+                                    pricingHelper.ApplyRounding((priceListItemEntity.ListPrice * (proposal.Exchange_Rate__c)), 5, RoundingMode.HALF_UP);
                             }
                         }
 
