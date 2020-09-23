@@ -425,12 +425,12 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                         {
                             batchLineItem.NokiaCPQ_Unitary_Cost__c = 0;
 
-                            if (batchLineItem.Cost != null)
+                            if (priceListItemEntity.Cost != null)
                             {
                                 if (batchLineItem.Advanced_Pricing_Done__c == false)
                                 {
                                     batchLineItem.NokiaCPQ_Unitary_Cost__c =
-                                        pricingHelper.ApplyRounding(((batchLineItem.Cost / defaultExchangeRate) * (proposal.Exchange_Rate__c)), 5, RoundingMode.HALF_UP);
+                                        pricingHelper.ApplyRounding(((priceListItemEntity.Cost / defaultExchangeRate) * (proposal.Exchange_Rate__c)), 5, RoundingMode.HALF_UP);
                                 }
                                 else if (batchLineItem.Advanced_Pricing_Done__c == true &&
                                     batchLineItem.NokiaCPQ_Unitary_Cost__c != null)
