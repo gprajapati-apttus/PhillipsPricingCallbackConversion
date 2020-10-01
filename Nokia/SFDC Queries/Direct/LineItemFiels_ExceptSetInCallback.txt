@@ -205,6 +205,15 @@ NokiaCPQ_IncotermNew__c,
 NokiaCPQ_Account_Region__c,
 Nokia_Pricing_Cluster__c,
 Quote_Type__c,
+Nokia_Maint_Y1_Per__c,
+Nokia_Maint_Y2_Per__c,
+NokiaCPQ_SSP_Rate__c,
+Total_Option_Quantity__c,
+Nokia_SSP_Base_Extended_Price__c,
+NokiaCPQ_Maint_Yr1_Extended_Price__c,
+NokiaCPQ_Maint_Yr2_Extended_Price__c,
+Nokia_SRS_Base_Extended_Price__c,
+NokiaCPQ_Configuration_Type__c,
 
 Apttus_Config2__ProductId__r.NokiaCPQ_Item_Type__c,
 Apttus_Config2__ProductId__r.Business_Group__c,
@@ -243,4 +252,4 @@ Apttus_Config2__ProductId__r.NokiaCPQ_OEM__c,
 Apttus_Config2__OptionId__r.NokiaCPQ_OEM__c
 
 FROM Apttus_Config2__LineItem__c
-WHERE Apttus_Config2__ConfigurationId__c = 'a6855000000BVluAAG'
+WHERE Apttus_Config2__ConfigurationId__c = 'a6855000000Ax02AAC'
