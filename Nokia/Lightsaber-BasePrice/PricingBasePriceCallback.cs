@@ -95,7 +95,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                 foreach (var batchLineItem in batchLineItems)
                 {
                     string configType = GetConfigType(batchLineItem);
-                    if (batchLineItem.IsOptionLineType() && Constants.BUNDLE.equalsIgnoreCase(configType))
+                    if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING) && batchLineItem.IsOptionLineType() && Constants.BUNDLE.equalsIgnoreCase(configType))
                     {
                         if (batchLineItem.AdjustmentType == Constants.DISCOUNT_AMOUNT)
                             batchLineItem.BasePriceOverride = batchLineItem.AdjustmentAmount;
