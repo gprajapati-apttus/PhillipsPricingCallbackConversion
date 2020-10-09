@@ -67,5 +67,12 @@ namespace Apttus.Lightsaber.Nokia.Totalling
         {
             return await QueryHelper.ExecuteProductDiscountQuery(dbHelper, market, discountCategories);
         }
+
+        public async Task<List<DiscountCategoryPriceListItemQueryModel>> GetDiscountCategoryPriceListItem(HashSet<string> discountCategories, string priceListName)
+        {
+            var discountCategoryPriceListItemQuery = QueryHelper.GetDiscountCategoryPriceListItemQuery(discountCategories, priceListName);
+            var discountCategoryPriceListItems = await dbHelper.FindAsync<DiscountCategoryPriceListItemQueryModel>(discountCategoryPriceListItemQuery);
+            return discountCategoryPriceListItems;
+        }
     }
 }

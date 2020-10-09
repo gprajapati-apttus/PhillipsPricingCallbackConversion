@@ -6,13 +6,13 @@ namespace Apttus.Lightsaber.Nokia.Pricing
 {
     public static class QueryHelper
     {
-        public static Query GetDefaultExchangeRateQuery(string CurrencyIsoCode)
+        public static Query GetDefaultExchangeRateQuery(string currencyIsoCode)
         {
             Query query = new Query();
             query.EntityName = "CurrencyType";
             query.Conditions = new List<FilterCondition>()
                 {
-                        new FilterCondition() { FieldName = "IsoCode", Value = CurrencyIsoCode, ComparisonOperator = ConditionOperator.EqualTo}
+                        new FilterCondition() { FieldName = "IsoCode", Value = currencyIsoCode, ComparisonOperator = ConditionOperator.EqualTo}
                 };
             query.Fields = new string[] { "Id", "ConversionRate" };
             query.Limit = 1;
@@ -20,7 +20,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             return query;
         }
 
-        public static Query GetCountryPriceListItemQuery(List<string> productList)
+        public static Query GetCountryPriceListItemQuery(List<string> productList, string currencyIsoCode)
         {
             Query query = new Query();
             query.EntityName = "Apttus_Config2__PriceListItem__c";
@@ -29,7 +29,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                         new FilterCondition() { FieldName = "Apttus_Config2__PriceListId__r.PriceList_Type__c", Value = "CPQ", ComparisonOperator = ConditionOperator.EqualTo},
                         new FilterCondition() { FieldName = "Apttus_Config2__ProductId__c", Value = productList, ComparisonOperator = ConditionOperator.In},
                         new FilterCondition() { FieldName = "Apttus_Config2__PriceListId__r.Apttus_Config2__BasedOnPriceListId__c", Value = null, ComparisonOperator = ConditionOperator.EqualTo},
-                        new FilterCondition() { FieldName = "CurrencyIsoCode", Value = "EUR", ComparisonOperator = ConditionOperator.EqualTo}
+                        new FilterCondition() { FieldName = "CurrencyIsoCode", Value = currencyIsoCode, ComparisonOperator = ConditionOperator.EqualTo}
                 };
             query.Fields = new string[] { "Id", "Apttus_Config2__ListPrice__c", "Apttus_Config2__ProductId__c", "Apttus_Config2__ProductActive__c",
                 "Apttus_Config2__ProductId__r.Portfolio__c", "Apttus_Config2__Cost__c" };

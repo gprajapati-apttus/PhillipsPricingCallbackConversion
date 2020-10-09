@@ -7,6 +7,7 @@ namespace Apttus.Lightsaber.Nokia.Common
         public Proposal(ProductConfigurationModel cart)
         {
             CurrencyIsoCode = cart.GetLookupValue<string>($"{Constants.PROPOSAL_CONFIG_RELATIONSHIP_NAME}.{ProposalField.CurrencyIsoCode}");
+            Price_List__c = cart.GetLookupValue<string>($"{Constants.PROPOSAL_CONFIG_RELATIONSHIP_NAME}.{ProposalField.Price_List__c}");
             NokiaCPQ_Portfolio__c = cart.GetLookupValue<string>($"{Constants.PROPOSAL_CONFIG_RELATIONSHIP_NAME}.{ProposalField.NokiaCPQ_Portfolio__c}");
             NokiaCPQ_LEO_Discount__c = cart.GetLookupValue<bool?>($"{Constants.PROPOSAL_CONFIG_RELATIONSHIP_NAME}.{ProposalField.NokiaCPQ_LEO_Discount__c}");
             NokiaCPQ_No_Of_Years__c = cart.GetLookupValue<string>($"{Constants.PROPOSAL_CONFIG_RELATIONSHIP_NAME}.{ProposalField.NokiaCPQ_No_Of_Years__c}");
@@ -47,6 +48,7 @@ namespace Apttus.Lightsaber.Nokia.Common
 
         public string CurrencyIsoCode { get; private set; }
 
+        public string Price_List__c { get; private set; }
 
         public string NokiaCPQ_Portfolio__c { get; private set; }
 

@@ -15,16 +15,16 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             this.dbHelper = dbHelper;
         }
 
-        public async Task<decimal?> GetDefaultExchangeRate(string CurrencyIsoCode)
+        public async Task<decimal?> GetDefaultExchangeRate(string currencyIsoCode)
         {
-            var defaultExchangeRateQuery = QueryHelper.GetDefaultExchangeRateQuery(CurrencyIsoCode);
+            var defaultExchangeRateQuery = QueryHelper.GetDefaultExchangeRateQuery(currencyIsoCode);
             var defaultExchangeRate = (await dbHelper.FindAsync<CurrencyTypeQueryModel>(defaultExchangeRateQuery)).FirstOrDefault()?.ConversionRate;
             return defaultExchangeRate;
         }
 
-        public async Task<List<CountryPriceListItemQueryModel>> GetCountryPriceListItem(List<string> productList)
+        public async Task<List<CountryPriceListItemQueryModel>> GetCountryPriceListItem(List<string> productList, string currencyIsoCode)
         {
-            var countryPriceListItemQuery = QueryHelper.GetCountryPriceListItemQuery(productList);
+            var countryPriceListItemQuery = QueryHelper.GetCountryPriceListItemQuery(productList, currencyIsoCode);
             var countryPriceListItems = await dbHelper.FindAsync<CountryPriceListItemQueryModel>(countryPriceListItemQuery);
             return countryPriceListItems;
         }

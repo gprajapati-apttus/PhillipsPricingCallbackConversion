@@ -105,10 +105,25 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             return query;
         }
 
+        public static Query GetDiscountCategoryPriceListItemQuery(HashSet<string> discountCategories, string priceListName)
+        {
+            Query query = new Query();
+            query.EntityName = "Apttus_Config2__PriceListItem__c";
+            query.Conditions = new List<FilterCondition>()
+                {
+                        new FilterCondition() { FieldName = "Apttus_Config2__ProductId__r.NokiaCPQ_Product_Discount_Category__c", Value = new List<string>(discountCategories), ComparisonOperator = ConditionOperator.In},
+                        new FilterCondition() { FieldName = "Apttus_Config2__PriceListId__r.Name", Value = priceListName, ComparisonOperator = ConditionOperator.EqualTo},
+                        new FilterCondition() { FieldName = "Contracted__c", Value = "Yes", ComparisonOperator = ConditionOperator.EqualTo}
+                };
+            query.Fields = new string[] { "Id", "Apttus_Config2__ProductId__r.NokiaCPQ_Product_Discount_Category__c" };
+
+            return query;
+        }
+
         public static async Task<List<ProductDiscountQueryModel>> ExecuteProductDiscountQuery(IDBHelper dBHelper, string market, List<string> discountCategories)
         {
             return await dBHelper.FindAsync<ProductDiscountQueryModel>("Product_Discount__c",
-                                s => (s.Market__c == market) && (discountCategories.Contains(s.Product_Discount_Category__c) || s.Product_Discount_Category__c == null), 
+                                s => (s.Market__c == market) && (discountCategories.Contains(s.Product_Discount_Category__c) || s.Product_Discount_Category__c == null),
                                 new string[] { "Id", "Name", "Product_Discount_Category__c", "Market__c", "Discount__c" });
         }
     }

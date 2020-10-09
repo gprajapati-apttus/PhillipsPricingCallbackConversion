@@ -91,6 +91,9 @@
         public const string Sales_Margin__c = "Sales_Margin__c";
         public const string Item_Type_From_CAT__c = "Item_Type_From_CAT__c";
         public const string NokiaCPQ_IsArcadiaBundle__c = "NokiaCPQ_IsArcadiaBundle__c";
+        public const string NokiaCPQ_Is_CLP_in_PDC__c = "NokiaCPQ_Is_CLP_in_PDC__c";
+        public const string NokiaCPQ_Extended_CNP_Without_LSD__c = "NokiaCPQ_Extended_CNP_Without_LSD__c";
+        public const string NokiaCPQ_Is_Contracted_PLI__c = "NokiaCPQ_Is_Contracted_PLI__c";
 
         public const string Apttus_Config2__ConfigStatus__c = "Apttus_Config2__ConfigStatus__c";
         public const string Apttus_Config2__IsReadOnly__c = "Apttus_Config2__IsReadOnly__c";

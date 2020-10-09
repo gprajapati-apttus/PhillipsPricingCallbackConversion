@@ -58,24 +58,24 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                         batchLineItem.BasePrice = roundedBasePrice;
                     }
 
-                    string partNumber = GetPartNumber(batchLineItem);
+                    //string partNumber = GetPartNumber(batchLineItem);
 
-                    if (partNumber != null && partNumber.equalsIgnoreCase(Constants.MAINTY2CODE))
-                    {
-                        batchLineItem.LineSequence = 997;
-                    }
-                    else if (partNumber != null && partNumber.equalsIgnoreCase(Constants.MAINTY1CODE))
-                    {
-                        batchLineItem.LineSequence = 996;
-                    }
-                    else if (partNumber != null && partNumber.equalsIgnoreCase(Constants.SSPCODE))
-                    {
-                        batchLineItem.LineSequence = 998;
-                    }
-                    else if (partNumber != null && partNumber.equalsIgnoreCase(Constants.SRS))
-                    {
-                        batchLineItem.LineSequence = 999;
-                    }
+                    //if (partNumber != null && partNumber.equalsIgnoreCase(Constants.MAINTY2CODE))
+                    //{
+                    //    batchLineItem.LineSequence = 997;
+                    //}
+                    //else if (partNumber != null && partNumber.equalsIgnoreCase(Constants.MAINTY1CODE))
+                    //{
+                    //    batchLineItem.LineSequence = 996;
+                    //}
+                    //else if (partNumber != null && partNumber.equalsIgnoreCase(Constants.SSPCODE))
+                    //{
+                    //    batchLineItem.LineSequence = 998;
+                    //}
+                    //else if (partNumber != null && partNumber.equalsIgnoreCase(Constants.SRS))
+                    //{
+                    //    batchLineItem.LineSequence = 999;
+                    //}
                 }
             }
 
@@ -201,7 +201,14 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                     }
                 }
 
-                var countryPriceListItems = await dataAccess.GetCountryPriceListItem(productList);
+                //Temporary fix for Currency conversion - September Enterprise Release
+                string currency_code = Constants.EUR_CURR;
+                if(Constants.NOKIA_IP_ROUTING.equalsIgnoreCase(proposal.NokiaCPQ_Portfolio__c) && this.proposal.Quote_Type__c == Constants.QUOTE_TYPE_DIRECTCPQ)
+                {
+                    currency_code = Constants.USDCURRENCY;
+                }
+
+                var countryPriceListItems = await dataAccess.GetCountryPriceListItem(productList, currency_code);
 
                 foreach (CountryPriceListItemQueryModel pli in countryPriceListItems)
                 {
@@ -350,7 +357,8 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                         partNumber != null && !partNumber.Contains(Constants.MAINTY1CODE) &&
                         !partNumber.Contains(Constants.MAINTY2CODE) &&
                         !partNumber.Contains(Constants.SSPCODE) &&
-                        !partNumber.Contains(Constants.SRS))
+                        !partNumber.Contains(Constants.SRS) &&
+                        batchLineItem.NokiaCPQ_Spare__c == false)
                     {
                         if (maintenanceSSPRuleMap_EP != null && maintenanceSSPRuleMap_EP.ContainsKey(proposal.NokiaCPQ_Maintenance_Type__c + Constants.NOKIA_STRING_APPENDER + productDiscountCat) &&
                             maintenanceSSPRuleMap_EP[proposal.NokiaCPQ_Maintenance_Type__c + Constants.NOKIA_STRING_APPENDER + productDiscountCat] != null)
@@ -620,7 +628,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
                                 batchLineItem.Nokia_Maintenance_Level__c = Constants.NOKIA_LEO;
                             }
                             //Heema Change for Defect 14394 start
-                            else if (proposal.NokiaCPQ_Maintenance_Level__c.equalsIgnoreCase(Constants.NOKIA_YES))
+                            else if (Constants.NOKIA_YES.equalsIgnoreCase(proposal.NokiaCPQ_Maintenance_Level__c))
                             {
                                 batchLineItem.Nokia_Maintenance_Level__c = Constants.Nokia_Brand;
                             }
