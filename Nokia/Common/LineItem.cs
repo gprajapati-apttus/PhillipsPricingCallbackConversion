@@ -304,6 +304,8 @@ namespace Apttus.Lightsaber.Nokia.Common
         public bool? NokiaCPQ_Is_CLP_in_PDC__c { get { return lineItemModel.Get<bool?>(LineItemField.NokiaCPQ_Is_CLP_in_PDC__c); } set { lineItemModel.Set(LineItemField.NokiaCPQ_Is_CLP_in_PDC__c, value); } }
         public decimal? NokiaCPQ_Extended_CNP_Without_LSD__c { get { return lineItemModel.Get<decimal?>(LineItemField.NokiaCPQ_Extended_CNP_Without_LSD__c); } set { lineItemModel.Set(LineItemField.NokiaCPQ_Extended_CNP_Without_LSD__c, value); } }
         public bool? NokiaCPQ_Is_Contracted_PLI__c { get { return lineItemModel.Get<bool?>(LineItemField.NokiaCPQ_Is_Contracted_PLI__c); } set { lineItemModel.Set(LineItemField.NokiaCPQ_Is_Contracted_PLI__c, value); } }
+        public decimal? NokiaCPQ_Extended_Floor_Price__c { get { return lineItemModel.Get<decimal?>(LineItemField.NokiaCPQ_Extended_Floor_Price__c); } set { lineItemModel.Set(LineItemField.NokiaCPQ_Extended_Floor_Price__c, value); } }
+
         #endregion
 
         #region Relationship LineItem Fields

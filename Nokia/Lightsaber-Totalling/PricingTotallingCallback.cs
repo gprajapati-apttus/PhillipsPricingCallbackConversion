@@ -2433,44 +2433,99 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     item.NokiaCPQ_Light_Color__c = Constants.GREEN;
                 }
             }
-            //Traffic Light calculations For Enterprise
-            else if (proposal.NokiaCPQ_Portfolio__c != null &&
-        (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_IP_ROUTING)
-        && proposal.Is_List_Price_Only__c == false && !configType.equalsIgnoreCase(Constants.BUNDLE)
-        && item.ChargeType == Constants.STANDARD_PRICE
-        && item.Is_Custom_Product__c == false))
+            // Traffic Light on line item for IP Routing
+            else if (proposal.NokiaCPQ_Portfolio__c != null && proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_IP_ROUTING)
+                        && proposal.Is_List_Price_Only__c == false)
             {
-                //system.debug('Entered guidance for Enterprise');
-                bool? contractedPL = IsCLP(item);
+                string partNumber = GetPartNumber(item);
 
-                if (mapItemCategory.ContainsKey(item.Id) && mapItemCategory[item.Id] != null && mapCategoryPLI.ContainsKey(mapItemCategory[item.Id]))
+                if (!configType.equalsIgnoreCase(Constants.BUNDLE)
+                     && item.ChargeType == Constants.STANDARD_PRICE)
                 {
-                    item.NokiaCPQ_Is_CLP_in_PDC__c = true;
-                    item.NokiaCPQ_Floor_Price__c = item.NokiaCPQ_Extended_IRP__c;
-                }
 
-                if (contractedPL == true && item.NetAdjustmentPercent == 0)
-                {
-                    item.NokiaCPQ_Light_Color__c = Constants.GREEN;
-                }
-                else
-                {
-                    if (item.NokiaCPQ_Floor_Price__c == null || item.NokiaCPQ_Custom_Bid__c == true)
+                    bool? contractedPL = IsCLP(item);
+
+                    if (mapItemCategory.ContainsKey(item.Id) && mapItemCategory[item.Id] != null && mapCategoryPLI.ContainsKey(mapItemCategory[item.Id]))
                     {
-                        item.NokiaCPQ_Light_Color__c = Constants.RED;
+                        item.NokiaCPQ_Is_CLP_in_PDC__c = true;
+                        item.NokiaCPQ_Floor_Price__c = item.NokiaCPQ_Extended_IRP__c;
                     }
-                    else if (item.NetPrice < (item.Quantity * item.NokiaCPQ_Floor_Price__c))
+
+                    //Floor Price -> CLP for Contracted Prices
+                    if (contractedPL == true)
                     {
-                        item.NokiaCPQ_Light_Color__c = Constants.RED;
+                        item.NokiaCPQ_Floor_Price__c = item.NokiaCPQ_Extended_CLP__c;
                     }
-                    else if ((item.NetPrice >= (item.Quantity * item.NokiaCPQ_Floor_Price__c)) &&
-                (item.NetPrice < (item.Quantity * item.NokiaCPQ_Floor_Price__c * ((100 + pricingGuidanceSettingThresold) / 100))))
+
+                    //Extended Floor Price 
+                    if (item.Total_Option_Quantity__c == null && item.NokiaCPQ_Floor_Price__c != null)
                     {
-                        item.NokiaCPQ_Light_Color__c = Constants.YELLOW;
+                        item.NokiaCPQ_Extended_Floor_Price__c = item.Quantity * item.NokiaCPQ_Floor_Price__c;
                     }
+                    else if (item.NokiaCPQ_Floor_Price__c != null)
+                    {
+                        item.NokiaCPQ_Extended_Floor_Price__c = item.Total_Option_Quantity__c * item.NokiaCPQ_Floor_Price__c;
+                    }
+
+                    //Traffic light calculation if contracted price list is associated
+                    if (contractedPL == true || item.NokiaCPQ_Is_CLP_in_PDC__c == true)
+                    {
+                        if (item.NokiaCPQ_Extended_CNP_Without_LSD__c != item.NokiaCPQ_ExtendedPrice_CUP__c || (item.AdjustmentAmount != 0 && item.AdjustmentAmount != null))
+                        {
+                            item.NokiaCPQ_Light_Color__c = Constants.RED;
+                        }
+                        else
+                        {
+                            item.NokiaCPQ_Light_Color__c = Constants.YELLOW;
+                        }
+                    }
+                    //Traffic light calculation if non contracted price list is associated
                     else
                     {
-                        item.NokiaCPQ_Light_Color__c = Constants.GREEN;
+
+                        //Red Traffic Light for Custom Product
+                        if (item.Is_Custom_Product__c == true || item.NokiaCPQ_Floor_Price__c == null || item.NokiaCPQ_Custom_Bid__c == true)
+                        {
+                            item.NokiaCPQ_Light_Color__c = Constants.RED;
+                        }
+                        //Traffic light calculation if non contracted price list is associated
+                        else if (contractedPL == false)
+                        {
+                            //item.NokiaCPQ_Extended_CNP_Non_Contracted__c = item.NokiaCPQ_ExtendedPrice_CNP__c;	
+
+                            if (item.NokiaCPQ_Extended_CNP_Without_LSD__c < (item.Quantity * item.NokiaCPQ_Floor_Price__c))
+                            {
+                                item.NokiaCPQ_Light_Color__c = Constants.RED;
+                            }
+                            else if ((item.NokiaCPQ_Extended_CNP_Without_LSD__c >= (item.Quantity * item.NokiaCPQ_Floor_Price__c)) &&
+                              (item.NokiaCPQ_Extended_CNP_Without_LSD__c < (item.Quantity * item.NokiaCPQ_Floor_Price__c) * ((100 + pricingGuidanceSettingThresold) / 100)))
+                            {
+                                item.NokiaCPQ_Light_Color__c = Constants.YELLOW;
+                            }
+                            else
+                            {
+                                item.NokiaCPQ_Light_Color__c = Constants.GREEN;
+                            }
+                        }
+                    }
+                }
+                else if (partNumber != null)
+                {
+                    if (partNumber == Constants.MAINTY1CODE)
+                    {
+                        item.NokiaCPQ_Light_Color__c = GetTrafficLight(proposal.Maintenance_Y1__c);
+                    }
+                    else if (partNumber == Constants.MAINTY2CODE)
+                    {
+                        item.NokiaCPQ_Light_Color__c = GetTrafficLight(proposal.Maintenance_Y2__c);
+                    }
+                    else if (partNumber == Constants.SSPCODE)
+                    {
+                        item.NokiaCPQ_Light_Color__c = GetTrafficLight(proposal.SSP__c);
+                    }
+                    else if (partNumber == Constants.SRS)
+                    {
+                        item.NokiaCPQ_Light_Color__c = GetTrafficLight(proposal.SRS__c);
                     }
                 }
             }
