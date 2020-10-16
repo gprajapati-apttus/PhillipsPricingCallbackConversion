@@ -561,13 +561,14 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         if (maintenanceLinesMap_EP.ContainsKey("Year1"))
                         {
                             lineItemVarSO = maintenanceLinesMap_EP["Year1"];
+                            lineItemVarSO.LineSequence = 996;
 
                             // Start of addition for September 2020 release - Enterprise
                             if (proposal.Maintenance_Y1__c != null)
                             {
                                 lineItemVarSO.BasePriceOverride = proposal.Maintenance_Y1__c;
                                 lineItemVarSO.NokiaCPQ_Unitary_IRP__c = proposal.Maintenance_Y1__c;
-                                lineItemVarSO.LineSequence = 996;
+                                //lineItemVarSO.LineSequence = 996;
                                 isUpdate = true;
                             }
                             else if (Constants.NOKIA_NO.equalsIgnoreCase(isIONExistingContract_EP) && minMaintPrice_EP != null && minMaintPrice_EP > totalExtendedMaintY1Price)
@@ -576,7 +577,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                                 {
                                     lineItemVarSO.BasePriceOverride = minMaintPrice_EP;
                                     lineItemVarSO.NokiaCPQ_Unitary_IRP__c = minMaintPrice_EP;
-                                    lineItemVarSO.LineSequence = 996;
+                                    //lineItemVarSO.LineSequence = 996;
                                     isUpdate = true;
                                 }
                             }
@@ -586,7 +587,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                                 {
                                     lineItemVarSO.BasePriceOverride = totalExtendedMaintY1Price;
                                     lineItemVarSO.NokiaCPQ_Unitary_IRP__c = totalExtendedMaintY1Price;
-                                    lineItemVarSO.LineSequence = 996;
+                                    //lineItemVarSO.LineSequence = 996;
                                     isUpdate = true;
                                 }
                             }
@@ -600,13 +601,14 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         if (maintenanceLinesMap_EP.ContainsKey("Year2"))
                         {
                             lineItemVarSO = maintenanceLinesMap_EP["Year2"];
+                            lineItemVarSO.LineSequence = 997;
 
                             // Start of addition for September 2020 release - Enterprise
                             if (proposal.Maintenance_Y2__c != null)
                             {
                                 lineItemVarSO.BasePriceOverride = proposal.Maintenance_Y2__c;
                                 lineItemVarSO.NokiaCPQ_Unitary_IRP__c = proposal.Maintenance_Y2__c;
-                                lineItemVarSO.LineSequence = 997;
+                                //lineItemVarSO.LineSequence = 997;
                                 isUpdate = true;
                             }
                             //End of addition
@@ -614,7 +616,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                             {
                                 lineItemVarSO.BasePriceOverride = totalExtendedMaintY2Price;
                                 lineItemVarSO.NokiaCPQ_Unitary_IRP__c = totalExtendedMaintY2Price;
-                                lineItemVarSO.LineSequence = 997;
+                                //lineItemVarSO.LineSequence = 997;
                                 isUpdate = true;
                             }
 
@@ -1608,20 +1610,21 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         if (ssp_srsLinesMap_EP.ContainsKey("SSP"))
                         {
                             lineItemVarSO = ssp_srsLinesMap_EP["SSP"];
+                            lineItemVarSO.LineSequence = 998;
 
                             //September Enterprise - 2020
                             if (proposal.SSP__c != null)
                             {
                                 lineItemVarSO.BasePriceOverride = proposal.SSP__c;
                                 lineItemVarSO.NokiaCPQ_Unitary_IRP__c = proposal.SSP__c;
-                                lineItemVarSO.LineSequence = 998;
+                                //lineItemVarSO.LineSequence = 998;
                                 isUpdateSSP = true;
                             }
                             else if (lineItemVarSO.BasePriceOverride != totalExtendedSSPPrice)
                             {
                                 lineItemVarSO.BasePriceOverride = totalExtendedSSPPrice;
                                 lineItemVarSO.NokiaCPQ_Unitary_IRP__c = totalExtendedSSPPrice;
-                                lineItemVarSO.LineSequence = 998;
+                                //lineItemVarSO.LineSequence = 998;
                                 isUpdateSSP = true;
                             }
 
@@ -1634,20 +1637,21 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         if (ssp_srsLinesMap_EP.ContainsKey("SRS"))
                         {
                             lineItemVarSO = ssp_srsLinesMap_EP["SRS"];
+                            lineItemVarSO.LineSequence = 999;
 
                             // Override - Enterprise September 2020
                             if (proposal.SRS__c != null)
                             {
                                 lineItemVarSO.BasePriceOverride = proposal.SRS__c;
                                 lineItemVarSO.NokiaCPQ_Unitary_IRP__c = proposal.SRS__c;
-                                lineItemVarSO.LineSequence = 999;
+                                //lineItemVarSO.LineSequence = 999;
                                 isUpdateSSP = true;
                             }
                             else if (lineItemVarSO.BasePriceOverride != totalExtendedSRSPrice)
                             {
                                 lineItemVarSO.BasePriceOverride = totalExtendedSRSPrice;
                                 lineItemVarSO.NokiaCPQ_Unitary_IRP__c = totalExtendedSRSPrice;
-                                lineItemVarSO.LineSequence = 999;
+                                //lineItemVarSO.LineSequence = 999;
                                 isUpdateSSP = true;
                             }
 
