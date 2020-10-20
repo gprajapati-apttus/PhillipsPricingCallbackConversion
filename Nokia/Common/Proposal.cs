@@ -1,10 +1,10 @@
-﻿using Apttus.Lightsaber.Pricing.Common.Models;
+﻿using Apttus.Lightsaber.Pricing.Common.Callback.Models;
 
 namespace Apttus.Lightsaber.Nokia.Common
 {
     public class Proposal
     {
-        public Proposal(ProductConfigurationModel cart)
+        public Proposal(IProductConfigurationModel cart)
         {
             CurrencyIsoCode = cart.GetLookupValue<string>($"{Constants.PROPOSAL_CONFIG_RELATIONSHIP_NAME}.{ProposalField.CurrencyIsoCode}");
             Price_List__c = cart.GetLookupValue<string>($"{Constants.PROPOSAL_CONFIG_RELATIONSHIP_NAME}.{ProposalField.Price_List__c}");

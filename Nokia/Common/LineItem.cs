@@ -1,162 +1,158 @@
-﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Extension;
-using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
-using Apttus.Lightsaber.Pricing.Common.Constants;
-using Apttus.Lightsaber.Pricing.Common.Entities;
-using Apttus.Lightsaber.Pricing.Common.Formula;
-using Apttus.Lightsaber.Pricing.Common.Models;
+﻿using Apttus.Lightsaber.Extensibility.Library.Extension;
+using Apttus.Lightsaber.Extensibility.Library.Interface;
+using Apttus.Lightsaber.Pricing.Common.Callback.Enums;
+using Apttus.Lightsaber.Pricing.Common.Callback.Models;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Apttus.Lightsaber.Nokia.Common
 {
     public class LineItem
     {
-        private readonly LineItemModel lineItemModel;
+        private readonly ILineItemModel lineItemModel;
 
-        public LineItem(LineItemModel lineItemModel)
+        public LineItem(ILineItemModel lineItemModel)
         {
             this.lineItemModel = lineItemModel;
         }
 
-        public string Id { get { return lineItemModel.Entity.Id; } set { lineItemModel.Entity.Id = value; } }
-        public string Name { get { return lineItemModel.Entity.Name; } set { lineItemModel.Entity.Name = value; } }
-        public string CurrencyIsoCode { get { return lineItemModel.Entity.CurrencyIsoCode; } set { lineItemModel.Entity.CurrencyIsoCode = value; } }
-        public string AdHocGroupId { get { return lineItemModel.Entity.AdHocGroupId; } set { lineItemModel.Entity.AdHocGroupId = value; } }
-        public decimal? AdjustedPrice { get { return lineItemModel.Entity.AdjustedPrice; } set { lineItemModel.Entity.AdjustedPrice = value; } }
-        public decimal? AdjustmentAmount { get { return lineItemModel.Entity.AdjustmentAmount; } set { lineItemModel.Entity.AdjustmentAmount = value; } }
-        public string AdjustmentType { get { return lineItemModel.Entity.AdjustmentType; } set { lineItemModel.Entity.AdjustmentType = value; } }
-        public bool? AllocateGroupAdjustment { get { return lineItemModel.Entity.AllocateGroupAdjustment; } set { lineItemModel.Entity.AllocateGroupAdjustment = value; } }
-        public string AllowableAction { get { return lineItemModel.Entity.AllowableAction; } set { lineItemModel.Entity.AllowableAction = value; } }
-        public bool? AllowManualAdjustment { get { return lineItemModel.Entity.AllowManualAdjustment; } set { lineItemModel.Entity.AllowManualAdjustment = value; } }
-        public bool? AllowProration { get { return lineItemModel.Entity.AllowProration; } set { lineItemModel.Entity.AllowProration = value; } }
-        public string ApprovalStatus { get { return lineItemModel.Entity.ApprovalStatus; } set { lineItemModel.Entity.ApprovalStatus = value; } }
-        public string AssetLineItemId { get { return lineItemModel.Entity.AssetLineItemId; } set { lineItemModel.Entity.AssetLineItemId = value; } }
-        public decimal? AssetQuantity { get { return lineItemModel.Entity.AssetQuantity; } set { lineItemModel.Entity.AssetQuantity = value; } }
-        public string AttributeValueId { get { return lineItemModel.Entity.AttributeValueId; } set { lineItemModel.Entity.AttributeValueId = value; } }
-        public bool? AutoRenew { get { return lineItemModel.Entity.AutoRenew; } set { lineItemModel.Entity.AutoRenew = value; } }
-        public int? AutoRenewalTerm { get { return lineItemModel.Entity.AutoRenewalTerm; } set { lineItemModel.Entity.AutoRenewalTerm = value; } }
-        public string AutoRenewalType { get { return lineItemModel.Entity.AutoRenewalType; } set { lineItemModel.Entity.AutoRenewalType = value; } }
-        public decimal? BaseCost { get { return lineItemModel.Entity.BaseCost; } set { lineItemModel.Entity.BaseCost = value; } }
-        public decimal? BaseCostOverride { get { return lineItemModel.Entity.BaseCostOverride; } set { lineItemModel.Entity.BaseCostOverride = value; } }
-        public decimal? BaseExtendedCost { get { return lineItemModel.Entity.BaseExtendedCost; } set { lineItemModel.Entity.BaseExtendedCost = value; } }
-        public decimal? BaseExtendedPrice { get { return lineItemModel.Entity.BaseExtendedPrice; } set { lineItemModel.Entity.BaseExtendedPrice = value; } }
-        public decimal? BasePrice { get { return lineItemModel.Entity.BasePrice; } set { lineItemModel.Entity.BasePrice = value; } }
-        public decimal? BasePriceOverride { get { return lineItemModel.Entity.BasePriceOverride; } set { lineItemModel.Entity.BasePriceOverride = value; } }
-        public string BasePriceMethod { get { return lineItemModel.Entity.BasePriceMethod; } set { lineItemModel.Entity.BasePriceMethod = value; } }
-        public string BillingFrequency { get { return lineItemModel.Entity.BillingFrequency; } set { lineItemModel.Entity.BillingFrequency = value; } }
-        public string BillingPreferenceId { get { return lineItemModel.Entity.BillingPreferenceId; } set { lineItemModel.Entity.BillingPreferenceId = value; } }
-        public string BillingRule { get { return lineItemModel.Entity.BillingRule; } set { lineItemModel.Entity.BillingRule = value; } }
-        public string BillToAccountId { get { return lineItemModel.Entity.BillToAccountId; } set { lineItemModel.Entity.BillToAccountId = value; } }
-        public string ChargeType { get { return lineItemModel.Entity.ChargeType; } set { lineItemModel.Entity.ChargeType = value; } }
-        public string ClassificationHierarchy { get { return lineItemModel.Entity.ClassificationHierarchy; } set { lineItemModel.Entity.ClassificationHierarchy = value; } }
-        public string ClassificationHierarchyInfo { get { return lineItemModel.Entity.ClassificationHierarchyInfo; } set { lineItemModel.Entity.ClassificationHierarchyInfo = value; } }
-        public string ClassificationId { get { return lineItemModel.Entity.ClassificationId; } set { lineItemModel.Entity.ClassificationId = value; } }
-        public string Comments { get { return lineItemModel.Entity.Comments; } set { lineItemModel.Entity.Comments = value; } }
-        public string ConfigurationId { get { return lineItemModel.Entity.ConfigurationId; } set { lineItemModel.Entity.ConfigurationId = value; } }
-        public string ContractNumbers { get { return lineItemModel.Entity.ContractNumbers; } set { lineItemModel.Entity.ContractNumbers = value; } }
-        public decimal? Cost { get { return lineItemModel.Entity.Cost; } set { lineItemModel.Entity.Cost = value; } }
-        public string CouponCode { get { return lineItemModel.Entity.CouponCode; } set { lineItemModel.Entity.CouponCode = value; } }
-        public bool? Customizable { get { return lineItemModel.Entity.Customizable; } set { lineItemModel.Entity.Customizable = value; } }
-        public decimal? DeltaPrice { get { return lineItemModel.Entity.DeltaPrice; } set { lineItemModel.Entity.DeltaPrice = value; } }
-        public decimal? DeltaQuantity { get { return lineItemModel.Entity.DeltaQuantity; } set { lineItemModel.Entity.DeltaQuantity = value; } }
-        public DateTime? EndDate { get { return lineItemModel.Entity.EndDate; } set { lineItemModel.Entity.EndDate = value; } }
-        public decimal? ExtendedCost { get { return lineItemModel.Entity.ExtendedCost; } set { lineItemModel.Entity.ExtendedCost = value; } }
-        public decimal? ExtendedPrice { get { return lineItemModel.Entity.ExtendedPrice; } set { lineItemModel.Entity.ExtendedPrice = value; } }
-        public decimal? ExtendedQuantity { get { return lineItemModel.Entity.ExtendedQuantity; } set { lineItemModel.Entity.ExtendedQuantity = value; } }
-        public decimal? FlatOptionPrice { get { return lineItemModel.Entity.FlatOptionPrice; } set { lineItemModel.Entity.FlatOptionPrice = value; } }
-        public string Frequency { get { return lineItemModel.Entity.Frequency; } set { lineItemModel.Entity.Frequency = value; } }
-        public decimal? GroupAdjustmentPercent { get { return lineItemModel.Entity.GroupAdjustmentPercent; } set { lineItemModel.Entity.GroupAdjustmentPercent = value; } }
-        public string Guidance { get { return lineItemModel.Entity.Guidance; } set { lineItemModel.Entity.Guidance = value; } }
-        public bool? HasAttributes { get { return lineItemModel.Entity.HasAttributes; } set { lineItemModel.Entity.HasAttributes = value; } }
-        public bool? HasBaseProduct { get { return lineItemModel.Entity.HasBaseProduct; } set { lineItemModel.Entity.HasBaseProduct = value; } }
-        public bool? HasDefaults { get { return lineItemModel.Entity.HasDefaults; } set { lineItemModel.Entity.HasDefaults = value; } }
-        public bool HasIncentives { get { return lineItemModel.Entity.HasIncentives; } set { lineItemModel.Entity.HasIncentives = value; } }
-        public bool? HasOptions { get { return lineItemModel.Entity.HasOptions; } set { lineItemModel.Entity.HasOptions = value; } }
-        public bool? HasTieredPrice { get { return lineItemModel.Entity.HasTieredPrice; } set { lineItemModel.Entity.HasTieredPrice = value; } }
-        public string IncentiveId { get { return lineItemModel.Entity.IncentiveId; } set { lineItemModel.Entity.IncentiveId = value; } }
-        public decimal? IncentiveAdjustmentAmount { get { return lineItemModel.Entity.IncentiveAdjustmentAmount; } set { lineItemModel.Entity.IncentiveAdjustmentAmount = value; } }
-        public decimal? IncentiveBasePrice { get { return lineItemModel.Entity.IncentiveBasePrice; } set { lineItemModel.Entity.IncentiveBasePrice = value; } }
-        public string IncentiveCode { get { return lineItemModel.Entity.IncentiveCode; } set { lineItemModel.Entity.IncentiveCode = value; } }
-        public decimal? IncentiveExtendedPrice { get { return lineItemModel.Entity.IncentiveExtendedPrice; } set { lineItemModel.Entity.IncentiveExtendedPrice = value; } }
-        public string IncentiveType { get { return lineItemModel.Entity.IncentiveType; } set { lineItemModel.Entity.IncentiveType = value; } }
-        public bool? IsAssetPricing { get { return lineItemModel.Entity.IsAssetPricing; } set { lineItemModel.Entity.IsAssetPricing = value; } }
-        public bool? IsCustomPricing { get { return lineItemModel.Entity.IsCustomPricing; } set { lineItemModel.Entity.IsCustomPricing = value; } }
-        public bool? IsOptional { get { return lineItemModel.Entity.IsOptional; } set { lineItemModel.Entity.IsOptional = value; } }
-        public bool? IsOptionRollupLine { get { return lineItemModel.Entity.IsOptionRollupLine; } set { lineItemModel.Entity.IsOptionRollupLine = value; } }
-        public bool? IsPrimaryLine { get { return lineItemModel.Entity.IsPrimaryLine; } set { lineItemModel.Entity.IsPrimaryLine = value; } }
-        public bool? IsPrimaryRampLine { get { return lineItemModel.Entity.IsPrimaryRampLine; } set { lineItemModel.Entity.IsPrimaryRampLine = value; } }
-        public bool? IsQuantityModifiable { get { return lineItemModel.Entity.IsQuantityModifiable; } set { lineItemModel.Entity.IsQuantityModifiable = value; } }
-        public bool? IsSellingTermReadOnly { get { return lineItemModel.Entity.IsSellingTermReadOnly; } set { lineItemModel.Entity.IsSellingTermReadOnly = value; } }
-        public bool? IsUsageTierModifiable { get { return lineItemModel.Entity.IsUsageTierModifiable; } set { lineItemModel.Entity.IsUsageTierModifiable = value; } }
-        public int ItemSequence { get { return lineItemModel.Entity.ItemSequence; } set { lineItemModel.Entity.ItemSequence = value; } }
-        public int LineNumber { get { return lineItemModel.Entity.LineNumber; } set { lineItemModel.Entity.LineNumber = value; } }
-        public int? LineSequence { get { return lineItemModel.Entity.LineSequence; } set { lineItemModel.Entity.LineSequence = value; } }
-        public string LineStatus { get { return lineItemModel.Entity.LineStatus; } set { lineItemModel.Entity.LineStatus = value; } }
-        public string LineType { get { return lineItemModel.Entity.LineType; } set { lineItemModel.Entity.LineType = value; } }
-        public decimal? ListPrice { get { return lineItemModel.Entity.ListPrice; } set { lineItemModel.Entity.ListPrice = value; } }
-        public decimal? MaxPrice { get { return lineItemModel.Entity.MaxPrice; } set { lineItemModel.Entity.MaxPrice = value; } }
-        public decimal? MaxUsageQuantity { get { return lineItemModel.Entity.MaxUsageQuantity; } set { lineItemModel.Entity.MaxUsageQuantity = value; } }
-        public string MinMaxPriceAppliesTo { get { return lineItemModel.Entity.MinMaxPriceAppliesTo; } set { lineItemModel.Entity.MinMaxPriceAppliesTo = value; } }
-        public decimal? MinPrice { get { return lineItemModel.Entity.MinPrice; } set { lineItemModel.Entity.MinPrice = value; } }
-        public decimal? MinUsageQuantity { get { return lineItemModel.Entity.MinUsageQuantity; } set { lineItemModel.Entity.MinUsageQuantity = value; } }
-        public decimal? NetAdjustmentPercent { get { return lineItemModel.Entity.NetAdjustmentPercent; } set { lineItemModel.Entity.NetAdjustmentPercent = value; } }
-        public decimal? NetPrice { get { return lineItemModel.Entity.NetPrice; } set { lineItemModel.Entity.NetPrice = value; } }
-        public decimal? NetUnitPrice { get { return lineItemModel.Entity.NetUnitPrice; } set { lineItemModel.Entity.NetUnitPrice = value; } }
-        public string OptionId { get { return lineItemModel.Entity.OptionId; } set { lineItemModel.Entity.OptionId = value; } }
-        public decimal? OptionCost { get { return lineItemModel.Entity.OptionCost; } set { lineItemModel.Entity.OptionCost = value; } }
-        public decimal? OptionPrice { get { return lineItemModel.Entity.OptionPrice; } set { lineItemModel.Entity.OptionPrice = value; } }
-        public int? OptionSequence { get { return lineItemModel.Entity.OptionSequence; } set { lineItemModel.Entity.OptionSequence = value; } }
-        public int? ParentBundleNumber { get { return lineItemModel.Entity.ParentBundleNumber; } set { lineItemModel.Entity.ParentBundleNumber = value; } }
-        public string PaymentTermId { get { return lineItemModel.Entity.PaymentTermId; } set { lineItemModel.Entity.PaymentTermId = value; } }
-        public decimal? PriceAdjustment { get { return lineItemModel.Entity.PriceAdjustment; } set { lineItemModel.Entity.PriceAdjustment = value; } }
-        public decimal? PriceAdjustmentAmount { get { return lineItemModel.Entity.PriceAdjustmentAmount; } set { lineItemModel.Entity.PriceAdjustmentAmount = value; } }
-        public string PriceAdjustmentAppliesTo { get { return lineItemModel.Entity.PriceAdjustmentAppliesTo; } set { lineItemModel.Entity.PriceAdjustmentAppliesTo = value; } }
-        public string PriceAdjustmentType { get { return lineItemModel.Entity.PriceAdjustmentType; } set { lineItemModel.Entity.PriceAdjustmentType = value; } }
-        public string PriceGroup { get { return lineItemModel.Entity.PriceGroup; } set { lineItemModel.Entity.PriceGroup = value; } }
-        public bool? PriceIncludedInBundle { get { return lineItemModel.Entity.PriceIncludedInBundle; } set { lineItemModel.Entity.PriceIncludedInBundle = value; } }
-        public string PriceListId { get { return lineItemModel.Entity.PriceListId; } set { lineItemModel.Entity.PriceListId = value; } }
-        public string PriceListItemId { get { return lineItemModel.Entity.PriceListItemId; } set { lineItemModel.Entity.PriceListItemId = value; } }
-        public string PriceMethod { get { return lineItemModel.Entity.PriceMethod; } set { lineItemModel.Entity.PriceMethod = value; } }
-        public string PriceType { get { return lineItemModel.Entity.PriceType; } set { lineItemModel.Entity.PriceType = value; } }
-        public string PriceUom { get { return lineItemModel.Entity.PriceUom; } set { lineItemModel.Entity.PriceUom = value; } }
-        public DateTime? PricingDate { get { return lineItemModel.Entity.PricingDate; } set { lineItemModel.Entity.PricingDate = value; } }
-        public string PricingGuidance { get { return lineItemModel.Entity.PricingGuidance; } set { lineItemModel.Entity.PricingGuidance = value; } }
-        public string PricingStatus { get { return lineItemModel.Entity.PricingStatus; } set { lineItemModel.Entity.PricingStatus = value; } }
-        public string PricingSteps { get { return lineItemModel.Entity.PricingSteps; } set { lineItemModel.Entity.PricingSteps = value; } }
-        public string LocationId { get { return lineItemModel.Entity.LocationId; } set { lineItemModel.Entity.LocationId = value; } }
-        public int PrimaryLineNumber { get { return lineItemModel.Entity.PrimaryLineNumber; } set { lineItemModel.Entity.PrimaryLineNumber = value; } }
-        public string ProductId { get { return lineItemModel.Entity.ProductId; } set { lineItemModel.Entity.ProductId = value; } }
-        public string ProductOptionId { get { return lineItemModel.Entity.ProductOptionId; } set { lineItemModel.Entity.ProductOptionId = value; } }
-        public decimal? RelatedAdjustmentAmount { get { return lineItemModel.Entity.RelatedAdjustmentAmount; } set { lineItemModel.Entity.RelatedAdjustmentAmount = value; } }
-        public string RelatedAdjustmentAppliesTo { get { return lineItemModel.Entity.RelatedAdjustmentAppliesTo; } set { lineItemModel.Entity.RelatedAdjustmentAppliesTo = value; } }
-        public string RelatedAdjustmentType { get { return lineItemModel.Entity.RelatedAdjustmentType; } set { lineItemModel.Entity.RelatedAdjustmentType = value; } }
-        public string RelatedItemId { get { return lineItemModel.Entity.RelatedItemId; } set { lineItemModel.Entity.RelatedItemId = value; } }
-        public decimal? RelatedPercent { get { return lineItemModel.Entity.RelatedPercent; } set { lineItemModel.Entity.RelatedPercent = value; } }
-        public string RelatedPercentAppliesTo { get { return lineItemModel.Entity.RelatedPercentAppliesTo; } set { lineItemModel.Entity.RelatedPercentAppliesTo = value; } }
-        public decimal? Quantity { get { return lineItemModel.Entity.Quantity; } set { lineItemModel.Entity.Quantity = value; } }
-        public decimal? RenewalAdjustmentAmount { get { return lineItemModel.Entity.RenewalAdjustmentAmount; } set { lineItemModel.Entity.RenewalAdjustmentAmount = value; } }
-        public string RenewalAdjustmentType { get { return lineItemModel.Entity.RenewalAdjustmentType; } set { lineItemModel.Entity.RenewalAdjustmentType = value; } }
-        public string RollupPriceMethod { get { return lineItemModel.Entity.RollupPriceMethod; } set { lineItemModel.Entity.RollupPriceMethod = value; } }
-        public bool? RollupPriceToBundle { get { return lineItemModel.Entity.RollupPriceToBundle; } set { lineItemModel.Entity.RollupPriceToBundle = value; } }
-        public string ShipToAccountId { get { return lineItemModel.Entity.ShipToAccountId; } set { lineItemModel.Entity.ShipToAccountId = value; } }
-        public DateTime? StartDate { get { return lineItemModel.Entity.StartDate; } set { lineItemModel.Entity.StartDate = value; } }
-        public string SellingFrequency { get { return lineItemModel.Entity.SellingFrequency; } set { lineItemModel.Entity.SellingFrequency = value; } }
-        public decimal? SellingTerm { get { return lineItemModel.Entity.SellingTerm; } set { lineItemModel.Entity.SellingTerm = value; } }
-        public string SellingUom { get { return lineItemModel.Entity.SellingUom; } set { lineItemModel.Entity.SellingUom = value; } }
-        public string SummaryGroupId { get { return lineItemModel.Entity.SummaryGroupId; } set { lineItemModel.Entity.SummaryGroupId = value; } }
-        public bool? Taxable { get { return lineItemModel.Entity.Taxable; } set { lineItemModel.Entity.Taxable = value; } }
-        public string TaxCodeId { get { return lineItemModel.Entity.TaxCodeId; } set { lineItemModel.Entity.TaxCodeId = value; } }
-        public bool? TaxInclusive { get { return lineItemModel.Entity.TaxInclusive; } set { lineItemModel.Entity.TaxInclusive = value; } }
-        public decimal? Term { get { return lineItemModel.Entity.Term; } set { lineItemModel.Entity.Term = value; } }
-        public string TransferPriceLineItemId { get { return lineItemModel.Entity.TransferPriceLineItemId; } set { lineItemModel.Entity.TransferPriceLineItemId = value; } }
-        public decimal? TotalQuantity { get { return lineItemModel.Entity.TotalQuantity; } set { lineItemModel.Entity.TotalQuantity = value; } }
-        public decimal? UnitCostAdjustment { get { return lineItemModel.Entity.UnitCostAdjustment; } set { lineItemModel.Entity.UnitCostAdjustment = value; } }
-        public decimal? UnitPriceAdjustmentAuto { get { return lineItemModel.Entity.UnitPriceAdjustmentAuto; } set { lineItemModel.Entity.UnitPriceAdjustmentAuto = value; } }
-        public decimal? UnitPriceAdjustmentManual { get { return lineItemModel.Entity.UnitPriceAdjustmentManual; } set { lineItemModel.Entity.UnitPriceAdjustmentManual = value; } }
-        public string Uom { get { return lineItemModel.Entity.Uom; } set { lineItemModel.Entity.Uom = value; } }
+        public string Id { get { return lineItemModel.GetEntity().Id; } set { lineItemModel.GetEntity().Id = value; } }
+        public string Name { get { return lineItemModel.GetEntity().Name; } set { lineItemModel.GetEntity().Name = value; } }
+        public string CurrencyIsoCode { get { return lineItemModel.GetEntity().CurrencyIsoCode; } set { lineItemModel.GetEntity().CurrencyIsoCode = value; } }
+        public string AdHocGroupId { get { return lineItemModel.GetEntity().AdHocGroupId; } set { lineItemModel.GetEntity().AdHocGroupId = value; } }
+        public decimal? AdjustedPrice { get { return lineItemModel.GetEntity().AdjustedPrice; } set { lineItemModel.GetEntity().AdjustedPrice = value; } }
+        public decimal? AdjustmentAmount { get { return lineItemModel.GetEntity().AdjustmentAmount; } set { lineItemModel.GetEntity().AdjustmentAmount = value; } }
+        public string AdjustmentType { get { return lineItemModel.GetEntity().AdjustmentType; } set { lineItemModel.GetEntity().AdjustmentType = value; } }
+        public bool? AllocateGroupAdjustment { get { return lineItemModel.GetEntity().AllocateGroupAdjustment; } set { lineItemModel.GetEntity().AllocateGroupAdjustment = value; } }
+        public string AllowableAction { get { return lineItemModel.GetEntity().AllowableAction; } set { lineItemModel.GetEntity().AllowableAction = value; } }
+        public bool? AllowManualAdjustment { get { return lineItemModel.GetEntity().AllowManualAdjustment; } set { lineItemModel.GetEntity().AllowManualAdjustment = value; } }
+        public bool? AllowProration { get { return lineItemModel.GetEntity().AllowProration; } set { lineItemModel.GetEntity().AllowProration = value; } }
+        public string ApprovalStatus { get { return lineItemModel.GetEntity().ApprovalStatus; } set { lineItemModel.GetEntity().ApprovalStatus = value; } }
+        public string AssetLineItemId { get { return lineItemModel.GetEntity().AssetLineItemId; } set { lineItemModel.GetEntity().AssetLineItemId = value; } }
+        public decimal? AssetQuantity { get { return lineItemModel.GetEntity().AssetQuantity; } set { lineItemModel.GetEntity().AssetQuantity = value; } }
+        public string AttributeValueId { get { return lineItemModel.GetEntity().AttributeValueId; } set { lineItemModel.GetEntity().AttributeValueId = value; } }
+        public bool? AutoRenew { get { return lineItemModel.GetEntity().AutoRenew; } set { lineItemModel.GetEntity().AutoRenew = value; } }
+        public int? AutoRenewalTerm { get { return lineItemModel.GetEntity().AutoRenewalTerm; } set { lineItemModel.GetEntity().AutoRenewalTerm = value; } }
+        public string AutoRenewalType { get { return lineItemModel.GetEntity().AutoRenewalType; } set { lineItemModel.GetEntity().AutoRenewalType = value; } }
+        public decimal? BaseCost { get { return lineItemModel.GetEntity().BaseCost; } set { lineItemModel.GetEntity().BaseCost = value; } }
+        public decimal? BaseCostOverride { get { return lineItemModel.GetEntity().BaseCostOverride; } set { lineItemModel.GetEntity().BaseCostOverride = value; } }
+        public decimal? BaseExtendedCost { get { return lineItemModel.GetEntity().BaseExtendedCost; } set { lineItemModel.GetEntity().BaseExtendedCost = value; } }
+        public decimal? BaseExtendedPrice { get { return lineItemModel.GetEntity().BaseExtendedPrice; } set { lineItemModel.GetEntity().BaseExtendedPrice = value; } }
+        public decimal? BasePrice { get { return lineItemModel.GetEntity().BasePrice; } set { lineItemModel.GetEntity().BasePrice = value; } }
+        public decimal? BasePriceOverride { get { return lineItemModel.GetEntity().BasePriceOverride; } set { lineItemModel.GetEntity().BasePriceOverride = value; } }
+        public string BasePriceMethod { get { return lineItemModel.GetEntity().BasePriceMethod; } set { lineItemModel.GetEntity().BasePriceMethod = value; } }
+        public string BillingFrequency { get { return lineItemModel.GetEntity().BillingFrequency; } set { lineItemModel.GetEntity().BillingFrequency = value; } }
+        public string BillingPreferenceId { get { return lineItemModel.GetEntity().BillingPreferenceId; } set { lineItemModel.GetEntity().BillingPreferenceId = value; } }
+        public string BillingRule { get { return lineItemModel.GetEntity().BillingRule; } set { lineItemModel.GetEntity().BillingRule = value; } }
+        public string BillToAccountId { get { return lineItemModel.GetEntity().BillToAccountId; } set { lineItemModel.GetEntity().BillToAccountId = value; } }
+        public string ChargeType { get { return lineItemModel.GetEntity().ChargeType; } set { lineItemModel.GetEntity().ChargeType = value; } }
+        public string ClassificationHierarchy { get { return lineItemModel.GetEntity().ClassificationHierarchy; } set { lineItemModel.GetEntity().ClassificationHierarchy = value; } }
+        public string ClassificationHierarchyInfo { get { return lineItemModel.GetEntity().ClassificationHierarchyInfo; } set { lineItemModel.GetEntity().ClassificationHierarchyInfo = value; } }
+        public string ClassificationId { get { return lineItemModel.GetEntity().ClassificationId; } set { lineItemModel.GetEntity().ClassificationId = value; } }
+        public string Comments { get { return lineItemModel.GetEntity().Comments; } set { lineItemModel.GetEntity().Comments = value; } }
+        public string ConfigurationId { get { return lineItemModel.GetEntity().ConfigurationId; } set { lineItemModel.GetEntity().ConfigurationId = value; } }
+        public string ContractNumbers { get { return lineItemModel.GetEntity().ContractNumbers; } set { lineItemModel.GetEntity().ContractNumbers = value; } }
+        public decimal? Cost { get { return lineItemModel.GetEntity().Cost; } set { lineItemModel.GetEntity().Cost = value; } }
+        public string CouponCode { get { return lineItemModel.GetEntity().CouponCode; } set { lineItemModel.GetEntity().CouponCode = value; } }
+        public bool? Customizable { get { return lineItemModel.GetEntity().Customizable; } set { lineItemModel.GetEntity().Customizable = value; } }
+        public decimal? DeltaPrice { get { return lineItemModel.GetEntity().DeltaPrice; } set { lineItemModel.GetEntity().DeltaPrice = value; } }
+        public decimal? DeltaQuantity { get { return lineItemModel.GetEntity().DeltaQuantity; } set { lineItemModel.GetEntity().DeltaQuantity = value; } }
+        public DateTime? EndDate { get { return lineItemModel.GetEntity().EndDate; } set { lineItemModel.GetEntity().EndDate = value; } }
+        public decimal? ExtendedCost { get { return lineItemModel.GetEntity().ExtendedCost; } set { lineItemModel.GetEntity().ExtendedCost = value; } }
+        public decimal? ExtendedPrice { get { return lineItemModel.GetEntity().ExtendedPrice; } set { lineItemModel.GetEntity().ExtendedPrice = value; } }
+        public decimal? ExtendedQuantity { get { return lineItemModel.GetEntity().ExtendedQuantity; } set { lineItemModel.GetEntity().ExtendedQuantity = value; } }
+        public decimal? FlatOptionPrice { get { return lineItemModel.GetEntity().FlatOptionPrice; } set { lineItemModel.GetEntity().FlatOptionPrice = value; } }
+        public string Frequency { get { return lineItemModel.GetEntity().Frequency; } set { lineItemModel.GetEntity().Frequency = value; } }
+        public decimal? GroupAdjustmentPercent { get { return lineItemModel.GetEntity().GroupAdjustmentPercent; } set { lineItemModel.GetEntity().GroupAdjustmentPercent = value; } }
+        public string Guidance { get { return lineItemModel.GetEntity().Guidance; } set { lineItemModel.GetEntity().Guidance = value; } }
+        public bool? HasAttributes { get { return lineItemModel.GetEntity().HasAttributes; } set { lineItemModel.GetEntity().HasAttributes = value; } }
+        public bool? HasBaseProduct { get { return lineItemModel.GetEntity().HasBaseProduct; } set { lineItemModel.GetEntity().HasBaseProduct = value; } }
+        public bool? HasDefaults { get { return lineItemModel.GetEntity().HasDefaults; } set { lineItemModel.GetEntity().HasDefaults = value; } }
+        public bool HasIncentives { get { return lineItemModel.GetEntity().HasIncentives; } set { lineItemModel.GetEntity().HasIncentives = value; } }
+        public bool? HasOptions { get { return lineItemModel.GetEntity().HasOptions; } set { lineItemModel.GetEntity().HasOptions = value; } }
+        public bool? HasTieredPrice { get { return lineItemModel.GetEntity().HasTieredPrice; } set { lineItemModel.GetEntity().HasTieredPrice = value; } }
+        public string IncentiveId { get { return lineItemModel.GetEntity().IncentiveId; } set { lineItemModel.GetEntity().IncentiveId = value; } }
+        public decimal? IncentiveAdjustmentAmount { get { return lineItemModel.GetEntity().IncentiveAdjustmentAmount; } set { lineItemModel.GetEntity().IncentiveAdjustmentAmount = value; } }
+        public decimal? IncentiveBasePrice { get { return lineItemModel.GetEntity().IncentiveBasePrice; } set { lineItemModel.GetEntity().IncentiveBasePrice = value; } }
+        public string IncentiveCode { get { return lineItemModel.GetEntity().IncentiveCode; } set { lineItemModel.GetEntity().IncentiveCode = value; } }
+        public decimal? IncentiveExtendedPrice { get { return lineItemModel.GetEntity().IncentiveExtendedPrice; } set { lineItemModel.GetEntity().IncentiveExtendedPrice = value; } }
+        public string IncentiveType { get { return lineItemModel.GetEntity().IncentiveType; } set { lineItemModel.GetEntity().IncentiveType = value; } }
+        public bool? IsAssetPricing { get { return lineItemModel.GetEntity().IsAssetPricing; } set { lineItemModel.GetEntity().IsAssetPricing = value; } }
+        public bool? IsCustomPricing { get { return lineItemModel.GetEntity().IsCustomPricing; } set { lineItemModel.GetEntity().IsCustomPricing = value; } }
+        public bool? IsOptional { get { return lineItemModel.GetEntity().IsOptional; } set { lineItemModel.GetEntity().IsOptional = value; } }
+        public bool? IsOptionRollupLine { get { return lineItemModel.GetEntity().IsOptionRollupLine; } set { lineItemModel.GetEntity().IsOptionRollupLine = value; } }
+        public bool? IsPrimaryLine { get { return lineItemModel.GetEntity().IsPrimaryLine; } set { lineItemModel.GetEntity().IsPrimaryLine = value; } }
+        public bool? IsPrimaryRampLine { get { return lineItemModel.GetEntity().IsPrimaryRampLine; } set { lineItemModel.GetEntity().IsPrimaryRampLine = value; } }
+        public bool? IsQuantityModifiable { get { return lineItemModel.GetEntity().IsQuantityModifiable; } set { lineItemModel.GetEntity().IsQuantityModifiable = value; } }
+        public bool? IsSellingTermReadOnly { get { return lineItemModel.GetEntity().IsSellingTermReadOnly; } set { lineItemModel.GetEntity().IsSellingTermReadOnly = value; } }
+        public bool? IsUsageTierModifiable { get { return lineItemModel.GetEntity().IsUsageTierModifiable; } set { lineItemModel.GetEntity().IsUsageTierModifiable = value; } }
+        public int ItemSequence { get { return lineItemModel.GetEntity().ItemSequence; } set { lineItemModel.GetEntity().ItemSequence = value; } }
+        public int LineNumber { get { return lineItemModel.GetEntity().LineNumber; } set { lineItemModel.GetEntity().LineNumber = value; } }
+        public int? LineSequence { get { return lineItemModel.GetEntity().LineSequence; } set { lineItemModel.GetEntity().LineSequence = value; } }
+        public string LineStatus { get { return lineItemModel.GetEntity().LineStatus; } set { lineItemModel.GetEntity().LineStatus = value; } }
+        public string LineType { get { return lineItemModel.GetEntity().LineType; } set { lineItemModel.GetEntity().LineType = value; } }
+        public decimal? ListPrice { get { return lineItemModel.GetEntity().ListPrice; } set { lineItemModel.GetEntity().ListPrice = value; } }
+        public decimal? MaxPrice { get { return lineItemModel.GetEntity().MaxPrice; } set { lineItemModel.GetEntity().MaxPrice = value; } }
+        public decimal? MaxUsageQuantity { get { return lineItemModel.GetEntity().MaxUsageQuantity; } set { lineItemModel.GetEntity().MaxUsageQuantity = value; } }
+        public string MinMaxPriceAppliesTo { get { return lineItemModel.GetEntity().MinMaxPriceAppliesTo; } set { lineItemModel.GetEntity().MinMaxPriceAppliesTo = value; } }
+        public decimal? MinPrice { get { return lineItemModel.GetEntity().MinPrice; } set { lineItemModel.GetEntity().MinPrice = value; } }
+        public decimal? MinUsageQuantity { get { return lineItemModel.GetEntity().MinUsageQuantity; } set { lineItemModel.GetEntity().MinUsageQuantity = value; } }
+        public decimal? NetAdjustmentPercent { get { return lineItemModel.GetEntity().NetAdjustmentPercent; } set { lineItemModel.GetEntity().NetAdjustmentPercent = value; } }
+        public decimal? NetPrice { get { return lineItemModel.GetEntity().NetPrice; } set { lineItemModel.GetEntity().NetPrice = value; } }
+        public decimal? NetUnitPrice { get { return lineItemModel.GetEntity().NetUnitPrice; } set { lineItemModel.GetEntity().NetUnitPrice = value; } }
+        public string OptionId { get { return lineItemModel.GetEntity().OptionId; } set { lineItemModel.GetEntity().OptionId = value; } }
+        public decimal? OptionCost { get { return lineItemModel.GetEntity().OptionCost; } set { lineItemModel.GetEntity().OptionCost = value; } }
+        public decimal? OptionPrice { get { return lineItemModel.GetEntity().OptionPrice; } set { lineItemModel.GetEntity().OptionPrice = value; } }
+        public int? OptionSequence { get { return lineItemModel.GetEntity().OptionSequence; } set { lineItemModel.GetEntity().OptionSequence = value; } }
+        public int? ParentBundleNumber { get { return lineItemModel.GetEntity().ParentBundleNumber; } set { lineItemModel.GetEntity().ParentBundleNumber = value; } }
+        public string PaymentTermId { get { return lineItemModel.GetEntity().PaymentTermId; } set { lineItemModel.GetEntity().PaymentTermId = value; } }
+        public decimal? PriceAdjustment { get { return lineItemModel.GetEntity().PriceAdjustment; } set { lineItemModel.GetEntity().PriceAdjustment = value; } }
+        public decimal? PriceAdjustmentAmount { get { return lineItemModel.GetEntity().PriceAdjustmentAmount; } set { lineItemModel.GetEntity().PriceAdjustmentAmount = value; } }
+        public string PriceAdjustmentAppliesTo { get { return lineItemModel.GetEntity().PriceAdjustmentAppliesTo; } set { lineItemModel.GetEntity().PriceAdjustmentAppliesTo = value; } }
+        public string PriceAdjustmentType { get { return lineItemModel.GetEntity().PriceAdjustmentType; } set { lineItemModel.GetEntity().PriceAdjustmentType = value; } }
+        public string PriceGroup { get { return lineItemModel.GetEntity().PriceGroup; } set { lineItemModel.GetEntity().PriceGroup = value; } }
+        public bool? PriceIncludedInBundle { get { return lineItemModel.GetEntity().PriceIncludedInBundle; } set { lineItemModel.GetEntity().PriceIncludedInBundle = value; } }
+        public string PriceListId { get { return lineItemModel.GetEntity().PriceListId; } set { lineItemModel.GetEntity().PriceListId = value; } }
+        public string PriceListItemId { get { return lineItemModel.GetEntity().PriceListItemId; } set { lineItemModel.GetEntity().PriceListItemId = value; } }
+        public string PriceMethod { get { return lineItemModel.GetEntity().PriceMethod; } set { lineItemModel.GetEntity().PriceMethod = value; } }
+        public string PriceType { get { return lineItemModel.GetEntity().PriceType; } set { lineItemModel.GetEntity().PriceType = value; } }
+        public string PriceUom { get { return lineItemModel.GetEntity().PriceUom; } set { lineItemModel.GetEntity().PriceUom = value; } }
+        public DateTime? PricingDate { get { return lineItemModel.GetEntity().PricingDate; } set { lineItemModel.GetEntity().PricingDate = value; } }
+        public string PricingGuidance { get { return lineItemModel.GetEntity().PricingGuidance; } set { lineItemModel.GetEntity().PricingGuidance = value; } }
+        public string PricingStatus { get { return lineItemModel.GetEntity().PricingStatus; } set { lineItemModel.GetEntity().PricingStatus = value; } }
+        public string PricingSteps { get { return lineItemModel.GetEntity().PricingSteps; } set { lineItemModel.GetEntity().PricingSteps = value; } }
+        public string LocationId { get { return lineItemModel.GetEntity().LocationId; } set { lineItemModel.GetEntity().LocationId = value; } }
+        public int PrimaryLineNumber { get { return lineItemModel.GetEntity().PrimaryLineNumber; } set { lineItemModel.GetEntity().PrimaryLineNumber = value; } }
+        public string ProductId { get { return lineItemModel.GetEntity().ProductId; } set { lineItemModel.GetEntity().ProductId = value; } }
+        public string ProductOptionId { get { return lineItemModel.GetEntity().ProductOptionId; } set { lineItemModel.GetEntity().ProductOptionId = value; } }
+        public decimal? RelatedAdjustmentAmount { get { return lineItemModel.GetEntity().RelatedAdjustmentAmount; } set { lineItemModel.GetEntity().RelatedAdjustmentAmount = value; } }
+        public string RelatedAdjustmentAppliesTo { get { return lineItemModel.GetEntity().RelatedAdjustmentAppliesTo; } set { lineItemModel.GetEntity().RelatedAdjustmentAppliesTo = value; } }
+        public string RelatedAdjustmentType { get { return lineItemModel.GetEntity().RelatedAdjustmentType; } set { lineItemModel.GetEntity().RelatedAdjustmentType = value; } }
+        public string RelatedItemId { get { return lineItemModel.GetEntity().RelatedItemId; } set { lineItemModel.GetEntity().RelatedItemId = value; } }
+        public decimal? RelatedPercent { get { return lineItemModel.GetEntity().RelatedPercent; } set { lineItemModel.GetEntity().RelatedPercent = value; } }
+        public string RelatedPercentAppliesTo { get { return lineItemModel.GetEntity().RelatedPercentAppliesTo; } set { lineItemModel.GetEntity().RelatedPercentAppliesTo = value; } }
+        public decimal? Quantity { get { return lineItemModel.GetEntity().Quantity; } set { lineItemModel.GetEntity().Quantity = value; } }
+        public decimal? RenewalAdjustmentAmount { get { return lineItemModel.GetEntity().RenewalAdjustmentAmount; } set { lineItemModel.GetEntity().RenewalAdjustmentAmount = value; } }
+        public string RenewalAdjustmentType { get { return lineItemModel.GetEntity().RenewalAdjustmentType; } set { lineItemModel.GetEntity().RenewalAdjustmentType = value; } }
+        public string RollupPriceMethod { get { return lineItemModel.GetEntity().RollupPriceMethod; } set { lineItemModel.GetEntity().RollupPriceMethod = value; } }
+        public bool? RollupPriceToBundle { get { return lineItemModel.GetEntity().RollupPriceToBundle; } set { lineItemModel.GetEntity().RollupPriceToBundle = value; } }
+        public string ShipToAccountId { get { return lineItemModel.GetEntity().ShipToAccountId; } set { lineItemModel.GetEntity().ShipToAccountId = value; } }
+        public DateTime? StartDate { get { return lineItemModel.GetEntity().StartDate; } set { lineItemModel.GetEntity().StartDate = value; } }
+        public string SellingFrequency { get { return lineItemModel.GetEntity().SellingFrequency; } set { lineItemModel.GetEntity().SellingFrequency = value; } }
+        public decimal? SellingTerm { get { return lineItemModel.GetEntity().SellingTerm; } set { lineItemModel.GetEntity().SellingTerm = value; } }
+        public string SellingUom { get { return lineItemModel.GetEntity().SellingUom; } set { lineItemModel.GetEntity().SellingUom = value; } }
+        public string SummaryGroupId { get { return lineItemModel.GetEntity().SummaryGroupId; } set { lineItemModel.GetEntity().SummaryGroupId = value; } }
+        public bool? Taxable { get { return lineItemModel.GetEntity().Taxable; } set { lineItemModel.GetEntity().Taxable = value; } }
+        public string TaxCodeId { get { return lineItemModel.GetEntity().TaxCodeId; } set { lineItemModel.GetEntity().TaxCodeId = value; } }
+        public bool? TaxInclusive { get { return lineItemModel.GetEntity().TaxInclusive; } set { lineItemModel.GetEntity().TaxInclusive = value; } }
+        public decimal? Term { get { return lineItemModel.GetEntity().Term; } set { lineItemModel.GetEntity().Term = value; } }
+        public string TransferPriceLineItemId { get { return lineItemModel.GetEntity().TransferPriceLineItemId; } set { lineItemModel.GetEntity().TransferPriceLineItemId = value; } }
+        public decimal? TotalQuantity { get { return lineItemModel.GetEntity().TotalQuantity; } set { lineItemModel.GetEntity().TotalQuantity = value; } }
+        public decimal? UnitCostAdjustment { get { return lineItemModel.GetEntity().UnitCostAdjustment; } set { lineItemModel.GetEntity().UnitCostAdjustment = value; } }
+        public decimal? UnitPriceAdjustmentAuto { get { return lineItemModel.GetEntity().UnitPriceAdjustmentAuto; } set { lineItemModel.GetEntity().UnitPriceAdjustmentAuto = value; } }
+        public decimal? UnitPriceAdjustmentManual { get { return lineItemModel.GetEntity().UnitPriceAdjustmentManual; } set { lineItemModel.GetEntity().UnitPriceAdjustmentManual = value; } }
+        public string Uom { get { return lineItemModel.GetEntity().Uom; } set { lineItemModel.GetEntity().Uom = value; } }
 
-        public PriceListItemModel GetPriceListItem()
+        public IPriceListItemModel GetPriceListItem()
         {
             return lineItemModel.GetPriceListItem();
         }
@@ -171,7 +167,7 @@ namespace Apttus.Lightsaber.Nokia.Common
             return lineItemModel.IsOptionLine();
         }
 
-        public ProductLineItemModel GetRootParentLineItem()
+        public IProductLineItemModel GetRootParentLineItem()
         {
             return lineItemModel.GetRootParentLineItem();
         }
@@ -198,12 +194,12 @@ namespace Apttus.Lightsaber.Nokia.Common
 
         public bool IsOptionLineType()
         {
-            return lineItemModel.GetLineType() == Lightsaber.Pricing.Common.Constants.LineType.Option;
+            return lineItemModel.GetLineType() == Lightsaber.Pricing.Common.Callback.Enums.LineType.Option;
         }
 
         public bool IsProductServiceLineType()
         {
-            return lineItemModel.GetLineType() == Lightsaber.Pricing.Common.Constants.LineType.ProductService;
+            return lineItemModel.GetLineType() == Lightsaber.Pricing.Common.Callback.Enums.LineType.ProductService;
         }
 
         public decimal GetExtendedQuantity()

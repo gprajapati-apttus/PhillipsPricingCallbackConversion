@@ -1,4 +1,4 @@
-﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
+﻿using Apttus.Lightsaber.Extensibility.Library.Interface;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;

@@ -1,4 +1,4 @@
-﻿using Apttus.Lightsaber.Extensibility.Framework.Library.Common;
+﻿using Apttus.Lightsaber.Extensibility.Library.Model;
 using Apttus.Lightsaber.Nokia.Common;
 using System.Collections.Generic;
 

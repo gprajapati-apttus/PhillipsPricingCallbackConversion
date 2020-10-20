@@ -1,11 +1,11 @@
-﻿using Apttus.Lightsaber.Extensibility.Framework.Library;
-using Apttus.Lightsaber.Extensibility.Framework.Library.Interfaces;
+﻿using Apttus.Lightsaber.Extensibility.Library;
+using Apttus.Lightsaber.Extensibility.Library.Interface;
+using Apttus.Lightsaber.Extensibility.Library.Extension;
 using Apttus.Lightsaber.Pricing.Common.Callback;
-using Apttus.Lightsaber.Pricing.Common.Constants;
-using Apttus.Lightsaber.Pricing.Common.Entities;
-using Apttus.Lightsaber.Pricing.Common.Formula;
-using Apttus.Lightsaber.Pricing.Common.Messages;
-using Apttus.Lightsaber.Pricing.Common.Models;
+using Apttus.Lightsaber.Pricing.Common.Callback.Enums;
+using Apttus.Lightsaber.Pricing.Common.Callback.Entities;
+using Apttus.Lightsaber.Pricing.Common.Callback.Messages;
+using Apttus.Lightsaber.Pricing.Common.Callback.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,9 +22,9 @@ namespace Apttus.Lightsaber.Nokia.Pricing
         private DataAccess dataAccess = null;
         private IPricingHelper pricingHelper = null;
 
-        public async Task BeforePricingBatchAsync(BatchPriceRequest batchPriceRequest)
+        public async Task BeforePricingBatchAsync(IBatchPriceRequest batchPriceRequest)
         {
-            var productLineItemModel = batchPriceRequest.LineItems.FirstOrDefault();
+            var productLineItemModel = batchPriceRequest.GetLineItems().FirstOrDefault();
             bool isValidPricingRequest = IsValidPricingRequest(productLineItemModel);
 
             if (isValidPricingRequest)
@@ -35,11 +35,11 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             await Task.CompletedTask;
         }
 
-        public async Task ProcessBeforePricingBatchAsync(BatchPriceRequest batchPriceRequest)
+        public async Task ProcessBeforePricingBatchAsync(IBatchPriceRequest batchPriceRequest)
         {
-            var batchLineItems = batchPriceRequest.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
-            var cartLineItems = batchPriceRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
-            proposal = new Proposal(batchPriceRequest.Cart);
+            var batchLineItems = batchPriceRequest.GetLineItems().SelectMany(x => x.GetChargeLines()).Select(s => new LineItem(s)).ToList();
+            var cartLineItems = batchPriceRequest.GetCartContext().GetLineItems().SelectMany(x => x.GetChargeLines()).Select(s => new LineItem(s)).ToList();
+            proposal = new Proposal(batchPriceRequest.GetCart());
 
             dbHelper = GetDBHelper();
             dataAccess = new DataAccess(dbHelper);
@@ -113,9 +113,9 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             await Task.CompletedTask;
         }
 
-        public async Task OnPricingBatchAsync(BatchPriceRequest batchPriceRequest)
+        public async Task OnPricingBatchAsync(IBatchPriceRequest batchPriceRequest)
         {
-            var productLineItemModel = batchPriceRequest.LineItems.FirstOrDefault();
+            var productLineItemModel = batchPriceRequest.GetLineItems().FirstOrDefault();
             bool isValidPricingRequest = IsValidPricingRequest(productLineItemModel);
 
             if (isValidPricingRequest)
@@ -126,7 +126,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             await Task.CompletedTask;
         }
 
-        public async Task ProcessOnPricingBatchAsync(BatchPriceRequest batchPriceRequest)
+        public async Task ProcessOnPricingBatchAsync(IBatchPriceRequest batchPriceRequest)
         {
             decimal? defaultExchangeRate = null;
             Dictionary<string, LineItem> lineItemObjectMap = new Dictionary<string, LineItem>();
@@ -143,8 +143,8 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             List<SSPSRSDefaultValuesQueryModel> sspSRSDefaultsList = new List<SSPSRSDefaultValuesQueryModel>();
             Dictionary<string, string> mapPliType = new Dictionary<string, string>();
 
-            var batchLineItems = batchPriceRequest.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
-            var cartLineItems = batchPriceRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
+            var batchLineItems = batchPriceRequest.GetLineItems().SelectMany(x => x.GetChargeLines()).Select(s => new LineItem(s)).ToList();
+            var cartLineItems = batchPriceRequest.GetCartContext().GetLineItems().SelectMany(x => x.GetChargeLines()).Select(s => new LineItem(s)).ToList();
 
             foreach (var lineItem in cartLineItems)
             {
@@ -272,8 +272,8 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             //GP: OnPriceItemSet method
             foreach (var batchLineItem in batchLineItems)
             {
-                PriceListItemModel priceListItemModel = batchLineItem.GetPriceListItem();
-                PriceListItem priceListItemEntity = priceListItemModel.Entity;
+                IPriceListItemModel priceListItemModel = batchLineItem.GetPriceListItem();
+                IPriceListItem priceListItemEntity = priceListItemModel.GetEntity();
 
                 string partNumber = GetPartNumber(batchLineItem);
                 string productDiscountCat = GetProductDiscountCategory(batchLineItem);
@@ -983,7 +983,7 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             await Task.CompletedTask;
         }
 
-        public async Task AfterPricingBatchAsync(BatchPriceRequest batchPriceRequest)
+        public async Task AfterPricingBatchAsync(IBatchPriceRequest batchPriceRequest)
         {
             await Task.CompletedTask;
         }
@@ -1072,9 +1072,9 @@ namespace Apttus.Lightsaber.Nokia.Pricing
             return portfolio;
         }
 
-        private bool IsValidPricingRequest(ProductLineItemModel productLineItemModel)
+        private bool IsValidPricingRequest(IProductLineItemModel productLineItemModel)
         {
-            if (productLineItemModel.ChargeLines.Exists(l => l.Entity.ChargeType == null && l.Entity.IsOptional == null))
+            if (productLineItemModel.GetChargeLines().Exists(l => l.GetEntity().ChargeType == null && l.GetEntity().IsOptional == null))
             {
                 return false;
             }
