@@ -118,7 +118,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
             var contractedPriceListItems = await dataAccess.GetContractedPriceListItem(priceListItemIds);
 
-            foreach(var contractedPriceListItem in contractedPriceListItems)
+            foreach (var contractedPriceListItem in contractedPriceListItems)
             {
                 ContractedPriceListItemMap.Add(contractedPriceListItem.Id, contractedPriceListItem);
             }
@@ -639,7 +639,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         string partNumber = GetPartNumber(cartLineItem);
                         string configType = GetConfigType(cartLineItem);
 
-                        if (!configType.equalsIgnoreCase("Bundle") && cartLineItem.IsOptionLineType() && lineItemObjectMapDirect != null && 
+                        if (!configType.equalsIgnoreCase("Bundle") && cartLineItem.IsOptionLineType() && lineItemObjectMapDirect != null &&
                             cartLineItem.Advanced_Pricing_Done__c == false)
                         {
                             var parentBundleNumber = cartLineItem.ParentBundleNumber.Value;
@@ -933,82 +933,9 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     }
                 }
             }
-        }
-
-        public async Task OnCartPricingCompleteAsync(AggregateCartRequest aggregateCartRequest)
-        {
-            var productLineItemModel = aggregateCartRequest.CartContext.LineItems.FirstOrDefault();
-            bool isValidPricingRequest = IsValidPricingRequest(productLineItemModel);
-
-            if (isValidPricingRequest)
-            {
-                await ProcessOnCartPricingCompleteAsync(aggregateCartRequest);
-            }
-
-            await Task.CompletedTask;
-        }
-
-        public async Task ProcessOnCartPricingCompleteAsync(AggregateCartRequest aggregateCartRequest)
-        {
-            Dictionary<string, ProductLineItemModel> lineItemIdToProductLineItemModelMap = new Dictionary<string, ProductLineItemModel>();
-            HashSet<string> discountCategory = new HashSet<string>();
-
-            foreach (var productLineItem in aggregateCartRequest.CartContext.LineItems)
-            {
-                foreach (var lineItemModel in productLineItem.ChargeLines)
-                {
-                    lineItemIdToProductLineItemModelMap.Add(lineItemModel.Entity.Id, productLineItem);
-                    var lineItem = new LineItem(lineItemModel);
-
-                    if(Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c) && 
-                        proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_IP_ROUTING) && proposal.Is_List_Price_Only__c == false)
-                    {
-                        bool? contractedPL = IsCLP(lineItem);
-
-                        if (!contractedPL.Value)
-                        {
-                            string productCatDiscount = GetProductDiscountCategory(lineItem);
-                            discountCategory.Add(productCatDiscount);
-                            if (productCatDiscount != null)
-                            {
-                                mapItemCategory.Add(lineItem.Id, productCatDiscount);
-                            }
-                        }
-                    }
-                }
-            }
-
-            var cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
-
-            decimal? pricingGuidanceSettingThresold = null;
-            List<DirectPortfolioGeneralSettingQueryModel> portfolioSettingList = new List<DirectPortfolioGeneralSettingQueryModel>();
-            List<DirectCareCostPercentageQueryModel> careCostPercentList = new List<DirectCareCostPercentageQueryModel>();
-            Dictionary<string, decimal?> unitaryCostMap = new Dictionary<string, decimal?>();
-
-            if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
-            {
-                if (UsePricingGuidanceSettingThresold())
-                {
-                    pricingGuidanceSettingThresold = await dataAccess.GetPricingGuidanceSetting(proposal.NokiaCPQ_Portfolio__c);
-                }
-
-                portfolioSettingList = await dataAccess.GetDirectPortfolioGeneralSetting(proposal.NokiaCPQ_Portfolio__c);
-                careCostPercentList = await dataAccess.GetDirectCareCostPercentage(proposal.Account_Market__c);
-
-                if(discountCategory.Count != 0)
-                {
-                    var PLI_in_discCategory = await dataAccess.GetDiscountCategoryPriceListItem(discountCategory, proposal.Price_List__c);
-                    if (PLI_in_discCategory.Count != 0)
-                    {
-                        foreach (var pli_contracted in PLI_in_discCategory)
-                        {
-                            mapCategoryPLI.TryAdd(pli_contracted.Apttus_Config2__ProductId__r.NokiaCPQ_Product_Discount_Category__c, true);
-                        }
-                    }
-                }
-            }
 
             //GP:finish method start
+            Dictionary<string, decimal?> unitaryCostMap = new Dictionary<string, decimal?>();
             if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
             {
                 Dictionary<string, List<LineItem>> primaryNoLineItemList1 = new Dictionary<string, List<LineItem>>();
@@ -1187,6 +1114,302 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         }
                     }
 
+                    if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING))
+                    {
+                        if (!item.IsProductServiceLineType())
+                        {
+                            if (primaryNoLineItemList1.ContainsKey(item.ParentBundleNumber + Constants.NOKIA_UNDERSCORE + item.ChargeType))
+                            {
+                                primaryNoLineItemList1[item.ParentBundleNumber + Constants.NOKIA_UNDERSCORE + item.ChargeType].Add(item);
+                            }
+                            else
+                            {
+                                primaryNoLineItemList1.Add(item.ParentBundleNumber + Constants.NOKIA_UNDERSCORE + item.ChargeType, new List<LineItem> { item });
+                            }
+                        }
+                    }
+                }
+
+                if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING))
+                {
+                    foreach (var item in cartLineItems)
+                    {
+                        string configType = GetConfigType(item);
+                        //Piyush Tawari Start
+                        //Req-6228 MN Airscale wifi - Price for the groups to be aggregated from SI
+                        //For Direct MN Airscale Wifi
+                        //checking if its Group
+                        if (item.ChargeType != null && item.IsOptionLineType() && Constants.BUNDLE.equalsIgnoreCase(configType))
+                        {
+                            item.NokiaCPQ_Unitary_Cost__c = 0;
+                            item.NCPQ_Unitary_CLP__c = 0;
+                            item.NokiaCPQ_Unitary_IRP__c = 0;
+                            item.NokiaCPQ_Extended_CUP__c = 0;
+                            item.NokiaCPQ_Extended_CNP__c = 0;
+
+                            var key = item.PrimaryLineNumber + '_' + item.ChargeType;
+                            if (primaryNoLineItemList1.ContainsKey(key))
+                            {
+                                foreach (var optionItem in primaryNoLineItemList1[key])
+                                {
+                                    //Stamping IRP at Group Level
+                                    if (optionItem.NokiaCPQ_Unitary_IRP__c != null && optionItem.Quantity != null)
+                                        item.NokiaCPQ_Unitary_IRP__c = pricingHelper.ApplyRounding((item.NokiaCPQ_Unitary_IRP__c + optionItem.NokiaCPQ_Unitary_IRP__c * optionItem.GetQuantity()), 2, RoundingMode.HALF_UP);
+
+                                    //stamping CLP at Group level
+                                    if (optionItem.BasePriceOverride != null)
+                                    {
+                                        item.NCPQ_Unitary_CLP__c = pricingHelper.ApplyRounding((item.NCPQ_Unitary_CLP__c
+                                            + pricingHelper.ApplyRounding((optionItem.BasePriceOverride), 2, RoundingMode.HALF_UP)
+                                            * optionItem.GetQuantity()), 2, RoundingMode.HALF_UP);
+                                    }
+                                    else if (optionItem.BasePrice != null)
+                                    {
+                                        item.NCPQ_Unitary_CLP__c =
+                                            pricingHelper.ApplyRounding((item.NCPQ_Unitary_CLP__c + pricingHelper.ApplyRounding((optionItem.BasePrice), 2, RoundingMode.HALF_UP) * optionItem.GetQuantity()), 2, RoundingMode.HALF_UP);
+                                    }
+                                    //Stamping CUP at Group level
+                                    item.NokiaCPQ_Extended_CUP__c = item.NokiaCPQ_Extended_CUP__c + optionItem.AdjustedPrice;
+                                    //stamping CNP at Group Level
+                                    item.NokiaCPQ_Extended_CNP__c = item.NokiaCPQ_Extended_CNP__c + optionItem.NetPrice; //This will be overridden in finish method
+                                    item.NokiaCPQ_Unitary_Cost__c = pricingHelper.ApplyRounding((item.NokiaCPQ_Unitary_Cost__c + pricingHelper.ApplyRounding((optionItem.NokiaCPQ_Unitary_Cost__c), 2, RoundingMode.HALF_UP) * optionItem.GetQuantity()), 2, RoundingMode.HALF_UP);
+                                }
+                            }
+
+                            if (item.AdjustmentType == Constants.DISCOUNT_AMOUNT)
+                            {
+                                item.BasePriceOverride = item.AdjustmentAmount;
+                            }
+                            else
+                            {
+                                item.BasePriceOverride = 0;
+                            }
+                        }//Piyush Tawari End
+                         //Logic for calculating Cost for main bundle
+                        if (!item.IsProductServiceLineType() && !IsOptionLineFromSubBundle(item))
+                        {
+                            var key = item.ParentBundleNumber + Constants.NOKIA_UNDERSCORE + item.ChargeType;
+                            if (unitaryCostMap.ContainsKey(key))
+                            {
+                                decimal? itemCost = 0;
+                                if (configType.equalsIgnoreCase("Bundle") && item.NokiaCPQ_Unitary_Cost__c != null)
+                                {
+                                    itemCost = unitaryCostMap[key] + item.NokiaCPQ_Unitary_Cost__c;
+                                    unitaryCostMap[key] = itemCost;
+                                }
+                                else if (item.NokiaCPQ_Unitary_Cost__c != null)
+                                {
+                                    itemCost = unitaryCostMap[key] + pricingHelper.ApplyRounding((item.NokiaCPQ_Unitary_Cost__c * item.GetQuantity()), 2, RoundingMode.HALF_UP);
+                                    unitaryCostMap[key] = itemCost;
+                                }
+                            }
+                            else
+                            {
+                                if (configType.equalsIgnoreCase("Bundle") && item.NokiaCPQ_Unitary_Cost__c != null)
+                                {
+                                    unitaryCostMap.Add(key, item.NokiaCPQ_Unitary_Cost__c);
+                                }
+                                else if (item.NokiaCPQ_Unitary_Cost__c != null)
+                                {
+                                    unitaryCostMap.Add(key, pricingHelper.ApplyRounding((item.NokiaCPQ_Unitary_Cost__c * item.GetQuantity()), 2, RoundingMode.HALF_UP));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Dictionary<decimal?, decimal?> linenumberCareDisPercentage = new Dictionary<decimal?, decimal?>();
+                Dictionary<decimal?, decimal?> linenumberSRSDisPercentage = new Dictionary<decimal?, decimal?>();
+                Dictionary<decimal?, decimal?> linenumberCarePrice = new Dictionary<decimal?, decimal?>();
+                Dictionary<decimal?, decimal?> linenumberSRSPrice = new Dictionary<decimal?, decimal?>();
+                Dictionary<decimal?, List<decimal?>> linenumberCareCLPCNP = new Dictionary<decimal?, List<decimal?>>();
+                Dictionary<decimal?, List<decimal?>> linenumberSRSCLPCNP = new Dictionary<decimal?, List<decimal?>>();
+
+                //Start: creating map to limit for loop iterations
+                Dictionary<string, LineItem> mainBundleMap = new Dictionary<string, LineItem>();
+                //Stop
+
+                Dictionary<decimal?, decimal?> mainBundleToGroupIRPMap = new Dictionary<decimal?, decimal?>();
+                Dictionary<decimal?, decimal?> mainBundleToGroupCLPMap = new Dictionary<decimal?, decimal?>();
+                Dictionary<decimal?, decimal?> mainBundleToGroupCUPMap = new Dictionary<decimal?, decimal?>();
+                foreach (var item in cartLineItems)
+                {
+                    string configType = GetConfigType(item);
+                    //Map for Stamping IRP,CLP,CUP for main bundle Airscale wifi Direct MN
+                    if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING) && item.IsOptionLineType() &&
+                        Constants.BUNDLE.equalsIgnoreCase(configType))
+                    {
+                        if (mainBundleToGroupIRPMap.ContainsKey(item.LineNumber))
+                        {
+                            if (item.NokiaCPQ_Unitary_IRP__c != null)
+                                mainBundleToGroupIRPMap[item.LineNumber] = pricingHelper.ApplyRounding((mainBundleToGroupIRPMap[item.LineNumber] + item.NokiaCPQ_Unitary_IRP__c * item.Quantity), 2, RoundingMode.HALF_UP);
+                        }
+                        else
+                        {
+                            if (item.NokiaCPQ_Unitary_IRP__c != null)
+                                mainBundleToGroupIRPMap.Add(item.LineNumber, pricingHelper.ApplyRounding((item.NokiaCPQ_Unitary_IRP__c * item.Quantity), 2, RoundingMode.HALF_UP));
+                        }
+
+                        if (mainBundleToGroupCLPMap.ContainsKey(item.LineNumber))
+                        {
+                            if (item.NCPQ_Unitary_CLP__c != null)
+                                mainBundleToGroupCLPMap[item.LineNumber] = pricingHelper.ApplyRounding((mainBundleToGroupCLPMap[item.LineNumber] + item.NCPQ_Unitary_CLP__c * item.Quantity), 2, RoundingMode.HALF_UP);
+                        }
+                        else
+                        {
+                            if (item.NCPQ_Unitary_CLP__c != null)
+                                mainBundleToGroupCLPMap.Add(item.LineNumber, pricingHelper.ApplyRounding((item.NCPQ_Unitary_CLP__c * item.Quantity), 2, RoundingMode.HALF_UP));
+                        }
+
+                        if (mainBundleToGroupCUPMap.ContainsKey(item.LineNumber))
+                        {
+                            if (item.NokiaCPQ_Extended_CUP__c != null)
+                                mainBundleToGroupCUPMap[item.LineNumber] = pricingHelper.ApplyRounding((mainBundleToGroupCUPMap[item.LineNumber] + item.NokiaCPQ_Extended_CUP__c), 2, RoundingMode.HALF_UP);
+                        }
+                        else
+                        {
+                            if (item.NokiaCPQ_Extended_CUP__c != null)
+                                mainBundleToGroupCUPMap.Add(item.LineNumber, pricingHelper.ApplyRounding((item.NokiaCPQ_Extended_CUP__c), 2, RoundingMode.HALF_UP));
+                        }
+
+                        //Start: create map to limit for loop iterations
+                        if (item.ChargeType != null && item.IsProductServiceLineType())
+                        {
+                            mainBundleMap.Add(item.Id, item);
+                        }
+                        //Stop
+                    }
+                }
+
+                foreach (var item in mainBundleMap.Values)
+                {
+                    string configType = GetConfigType(item);
+                    string partNumber = GetPartNumber(item);
+                    //Stamping at main bundle
+                    if (unitaryCostMap.ContainsKey(item.PrimaryLineNumber + Constants.NOKIA_UNDERSCORE + item.ChargeType))
+                    {
+                        item.NokiaCPQ_Unitary_Cost__c = unitaryCostMap[item.PrimaryLineNumber + Constants.NOKIA_UNDERSCORE + item.ChargeType];
+                    }
+                    //Stamping at main IRP, CLP, CUP bundle for Airscale wifi
+                    if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING) && Constants.BUNDLE.equalsIgnoreCase(configType))
+                    {
+                        if (mainBundleToGroupIRPMap.Count > 0 && mainBundleToGroupIRPMap.ContainsKey(item.LineNumber))
+                        {
+                            item.NokiaCPQ_Unitary_IRP__c = mainBundleToGroupIRPMap[item.LineNumber];
+                        }
+                        if (mainBundleToGroupCLPMap.Count > 0 && mainBundleToGroupCLPMap.ContainsKey(item.LineNumber))
+                        {
+                            item.NCPQ_Unitary_CLP__c = mainBundleToGroupCLPMap[item.LineNumber];
+                        }
+                        if (mainBundleToGroupCUPMap.Count > 0 && mainBundleToGroupCUPMap.ContainsKey(item.LineNumber))
+                        {
+                            item.NokiaCPQ_Extended_CUP__c = mainBundleToGroupCUPMap[item.LineNumber];
+                        }
+                        if (item.NokiaCPQ_Unitary_IRP__c != null && item.Quantity != null)
+                            item.NokiaCPQ_Extended_IRP2__c = pricingHelper.ApplyRounding((item.NokiaCPQ_Unitary_IRP__c * item.Quantity), 2, RoundingMode.HALF_UP);
+                        if (item.NCPQ_Unitary_CLP__c != null && item.Quantity != null)
+                            item.NokiaCPQ_Extended_CLP_2__c = pricingHelper.ApplyRounding((item.NCPQ_Unitary_CLP__c * item.Quantity), 2, RoundingMode.HALF_UP);
+                        if (item.NokiaCPQ_Extended_CUP__c != null && item.Quantity != null)
+                            item.NokiaCPQ_Extended_CUP_2__c = pricingHelper.ApplyRounding((item.NokiaCPQ_Extended_CUP__c * item.Quantity), 2, RoundingMode.HALF_UP);
+                    }
+                }
+            }
+        }
+
+        public async Task OnCartPricingCompleteAsync(AggregateCartRequest aggregateCartRequest)
+        {
+            var productLineItemModel = aggregateCartRequest.CartContext.LineItems.FirstOrDefault();
+            bool isValidPricingRequest = IsValidPricingRequest(productLineItemModel);
+
+            if (isValidPricingRequest)
+            {
+                await ProcessOnCartPricingCompleteAsync(aggregateCartRequest);
+            }
+
+            await Task.CompletedTask;
+        }
+
+        public async Task ProcessOnCartPricingCompleteAsync(AggregateCartRequest aggregateCartRequest)
+        {
+            Dictionary<string, ProductLineItemModel> lineItemIdToProductLineItemModelMap = new Dictionary<string, ProductLineItemModel>();
+            HashSet<string> discountCategory = new HashSet<string>();
+
+            foreach (var productLineItem in aggregateCartRequest.CartContext.LineItems)
+            {
+                foreach (var lineItemModel in productLineItem.ChargeLines)
+                {
+                    lineItemIdToProductLineItemModelMap.Add(lineItemModel.Entity.Id, productLineItem);
+                    var lineItem = new LineItem(lineItemModel);
+
+                    if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c) &&
+                        proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.NOKIA_IP_ROUTING) && proposal.Is_List_Price_Only__c == false)
+                    {
+                        bool? contractedPL = IsCLP(lineItem);
+
+                        if (!contractedPL.Value)
+                        {
+                            string productCatDiscount = GetProductDiscountCategory(lineItem);
+                            discountCategory.Add(productCatDiscount);
+                            if (productCatDiscount != null)
+                            {
+                                mapItemCategory.Add(lineItem.Id, productCatDiscount);
+                            }
+                        }
+                    }
+                }
+            }
+
+            var cartLineItems = aggregateCartRequest.CartContext.LineItems.SelectMany(x => x.ChargeLines).Select(s => new LineItem(s)).ToList();
+
+            decimal? pricingGuidanceSettingThresold = null;
+            List<DirectPortfolioGeneralSettingQueryModel> portfolioSettingList = new List<DirectPortfolioGeneralSettingQueryModel>();
+            List<DirectCareCostPercentageQueryModel> careCostPercentList = new List<DirectCareCostPercentageQueryModel>();
+            Dictionary<string, decimal?> unitaryCostMap = new Dictionary<string, decimal?>();
+
+            if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
+            {
+                if (UsePricingGuidanceSettingThresold())
+                {
+                    pricingGuidanceSettingThresold = await dataAccess.GetPricingGuidanceSetting(proposal.NokiaCPQ_Portfolio__c);
+                }
+
+                portfolioSettingList = await dataAccess.GetDirectPortfolioGeneralSetting(proposal.NokiaCPQ_Portfolio__c);
+                careCostPercentList = await dataAccess.GetDirectCareCostPercentage(proposal.Account_Market__c);
+
+                if (discountCategory.Count != 0)
+                {
+                    var PLI_in_discCategory = await dataAccess.GetDiscountCategoryPriceListItem(discountCategory, proposal.Price_List__c);
+                    if (PLI_in_discCategory.Count != 0)
+                    {
+                        foreach (var pli_contracted in PLI_in_discCategory)
+                        {
+                            mapCategoryPLI.TryAdd(pli_contracted.Apttus_Config2__ProductId__r.NokiaCPQ_Product_Discount_Category__c, true);
+                        }
+                    }
+                }
+            }
+
+            //GP:finish method start
+            if (Constants.QUOTE_TYPE_DIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
+            {
+                Dictionary<string, List<LineItem>> primaryNoLineItemList1 = new Dictionary<string, List<LineItem>>();
+                foreach (var item in cartLineItems)
+                {
+                    string partNumber = GetPartNumber(item);
+                    string configType = GetConfigType(item);
+
+                    if (configType.equalsIgnoreCase(Constants.BUNDLE) && !proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING))
+                    {
+                        var key = item.PrimaryLineNumber + Constants.NOKIA_UNDERSCORE + item.ChargeType;
+                        if (primaryNoLineItemList.ContainsKey(key))
+                        {
+                            if (!item.IsProductServiceLineType())
+                            {
+                                item.NokiaCPQ_Extended_CNP__c = item.NetPrice;
+                            }
+                        }
+                    }
+
                     //added by priyanka to calculate sales margin
                     //IN Rolldown mode Extended CNP value is incorrect so using Net Price
                     if (item.NokiaCPQ_AdvancePricing_NP__c > 0 && item.NokiaCPQ_Extended_Cost__c != null)
@@ -1247,14 +1470,14 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                             else if (item.IsOptionLineType() && configType == Constants.NOKIA_STANDALONE && item.AllowManualAdjustment == true)
                             {
                                 var key = Constants.NOKIA_PRODUCT_SERVICES + Constants.NOKIA_UNDERSCORE + item.LineNumber;
-                                if (lineItemObjectMap.ContainsKey(key) && lineItemObjectMap[key] != null && 
+                                if (lineItemObjectMap.ContainsKey(key) && lineItemObjectMap[key] != null &&
                                     lineItemObjectMap[key].AdjustmentAmount != null && lineItemObjectMap[key].AdjustmentType == Constants.DISCOUNT_PERCENT)
                                 {
                                     pricingHelper.ApplyRounding(item.BasePrice, 2, RoundingMode.HALF_UP);
                                     item.NokiaCPQ_Extended_CNP_Without_LSD__c = pricingHelper.ApplyRounding(item.AdjustedPrice * (1 - (lineItemObjectMap[key].AdjustmentAmount / 100)), 2, RoundingMode.HALF_UP);
                                 }
                                 else if (lineItemObjectMap.ContainsKey(key) && lineItemObjectMap[key] != null &&
-                                    lineItemObjectMap[key].AdjustmentAmount != null && lineItemObjectMap[key].ExtendedPrice != null && 
+                                    lineItemObjectMap[key].AdjustmentAmount != null && lineItemObjectMap[key].ExtendedPrice != null &&
                                     lineItemObjectMap[key].ExtendedPrice != 0 && lineItemObjectMap[key].AdjustmentType == Constants.DISCOUNT_AMOUNT)
                                 {
                                     decimal? disPer = 0;
@@ -1262,7 +1485,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                                     item.NokiaCPQ_Extended_CNP_Without_LSD__c = pricingHelper.ApplyRounding(item.AdjustedPrice * (1 - (disPer / 100)), 2, RoundingMode.HALF_UP);
                                 }
                                 else if (lineItemObjectMap.ContainsKey(key) && lineItemObjectMap[key] != null &&
-                                    lineItemObjectMap[key].AdjustmentAmount != null && lineItemObjectMap[key].ExtendedPrice != null && 
+                                    lineItemObjectMap[key].AdjustmentAmount != null && lineItemObjectMap[key].ExtendedPrice != null &&
                                     lineItemObjectMap[key].ExtendedPrice != 0 && lineItemObjectMap[key].AdjustmentType == Constants.PRICE_OVEERIDE)
                                 {
                                     decimal? disPer = 0;
@@ -1294,7 +1517,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     DealGuidanceCalculator(item, configType, pricingGuidanceSettingThresold);
 
                     //Care Cost
-                    if (item.Advanced_Pricing_Done__c == false && !portfolioSettingList.isEmpty() && portfolioSettingList[0].Cost_Calculation_In_PCB__c == false && 
+                    if (item.Advanced_Pricing_Done__c == false && !portfolioSettingList.isEmpty() && portfolioSettingList[0].Cost_Calculation_In_PCB__c == false &&
                         item.ChargeType != null && item.ChargeType.equalsIgnoreCase(Constants.NOKIA_YEAR1_MAINTENANCE) && !item.IsProductServiceLineType())
                     {
                         if (!careCostPercentList.isEmpty() && careCostPercentList[0].Care_Cost__c != null && item.NokiaCPQ_ExtendedPrice_CNP__c != null)
@@ -1330,10 +1553,6 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         //checking if its Group
                         if (item.ChargeType != null && item.IsOptionLineType() && Constants.BUNDLE.equalsIgnoreCase(configType))
                         {
-                            item.NokiaCPQ_Unitary_Cost__c = 0;
-                            item.NCPQ_Unitary_CLP__c = 0;
-                            item.NokiaCPQ_Unitary_IRP__c = 0;
-                            item.NokiaCPQ_Extended_CUP__c = 0;
                             item.NokiaCPQ_Extended_CNP__c = 0;
 
                             var key = item.PrimaryLineNumber + '_' + item.ChargeType;
@@ -1341,69 +1560,12 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                             {
                                 foreach (var optionItem in primaryNoLineItemList1[key])
                                 {
-                                    //Stamping IRP at Group Level
-                                    if (optionItem.NokiaCPQ_Unitary_IRP__c != null && optionItem.Quantity != null)
-                                        item.NokiaCPQ_Unitary_IRP__c = pricingHelper.ApplyRounding((item.NokiaCPQ_Unitary_IRP__c + optionItem.NokiaCPQ_Unitary_IRP__c * optionItem.GetQuantity()), 2, RoundingMode.HALF_UP);
-
-                                    //stamping CLP at Group level
-                                    if (optionItem.BasePriceOverride != null)
-                                    {
-                                        item.NCPQ_Unitary_CLP__c = pricingHelper.ApplyRounding((item.NCPQ_Unitary_CLP__c
-                                            + pricingHelper.ApplyRounding((optionItem.BasePriceOverride), 2, RoundingMode.HALF_UP)
-                                            * optionItem.GetQuantity()), 2, RoundingMode.HALF_UP);
-                                    }
-                                    else if (optionItem.BasePrice != null)
-                                    {
-                                        item.NCPQ_Unitary_CLP__c =
-                                            pricingHelper.ApplyRounding((item.NCPQ_Unitary_CLP__c + pricingHelper.ApplyRounding((optionItem.BasePrice), 2, RoundingMode.HALF_UP) * optionItem.GetQuantity()), 2, RoundingMode.HALF_UP);
-                                    }
-                                    //Stamping CUP at Group level
-                                    item.NokiaCPQ_Extended_CUP__c = item.NokiaCPQ_Extended_CUP__c + optionItem.AdjustedPrice;
                                     //stamping CNP at Group Level
                                     item.NokiaCPQ_Extended_CNP__c = item.NokiaCPQ_Extended_CNP__c + optionItem.NetPrice;
-                                    item.NokiaCPQ_Unitary_Cost__c = pricingHelper.ApplyRounding((item.NokiaCPQ_Unitary_Cost__c + pricingHelper.ApplyRounding((optionItem.NokiaCPQ_Unitary_Cost__c), 2, RoundingMode.HALF_UP) * optionItem.GetQuantity()), 2, RoundingMode.HALF_UP);
                                 }
                             }
 
-                            if (item.AdjustmentType == Constants.DISCOUNT_AMOUNT)
-                            {
-                                item.BasePriceOverride = item.AdjustmentAmount;
-                            }
-                            else
-                            {
-                                item.BasePriceOverride = 0;
-                            }
                         }//Piyush Tawari End
-                         //Logic for calculating Cost for main bundle
-                        if (!item.IsProductServiceLineType() && !IsOptionLineFromSubBundle(item))
-                        {
-                            var key = item.ParentBundleNumber + Constants.NOKIA_UNDERSCORE + item.ChargeType;
-                            if (unitaryCostMap.ContainsKey(key))
-                            {
-                                decimal? itemCost = 0;
-                                if (configType.equalsIgnoreCase("Bundle") && item.NokiaCPQ_Unitary_Cost__c != null)
-                                {
-                                    itemCost = unitaryCostMap[key] + item.NokiaCPQ_Unitary_Cost__c;
-                                    unitaryCostMap[key] = itemCost;
-                                }
-                                else if (item.NokiaCPQ_Unitary_Cost__c != null)
-                                {
-                                    itemCost = unitaryCostMap[key] + pricingHelper.ApplyRounding((item.NokiaCPQ_Unitary_Cost__c * item.GetQuantity()), 2, RoundingMode.HALF_UP);
-                                    unitaryCostMap[key] = itemCost;
-                                }
-                            }
-                            else
-                            {
-                                if (configType.equalsIgnoreCase("Bundle") && item.NokiaCPQ_Unitary_Cost__c != null)
-                                {
-                                    unitaryCostMap.Add(key, item.NokiaCPQ_Unitary_Cost__c);
-                                }
-                                else if (item.NokiaCPQ_Unitary_Cost__c != null)
-                                {
-                                    unitaryCostMap.Add(key, pricingHelper.ApplyRounding((item.NokiaCPQ_Unitary_Cost__c * item.GetQuantity()), 2, RoundingMode.HALF_UP));
-                                }
-                            }
-                        }
                     }
                 }
 
@@ -1671,7 +1833,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                 foreach (var item in cartLineItems)
                 {
                     string configType = GetConfigType(item);
-                    if (item.ChargeType != null && item.ChargeType.equalsIgnoreCase(Constants.NOKIA_YEAR1_MAINTENANCE) && !item.IsProductServiceLineType() && 
+                    if (item.ChargeType != null && item.ChargeType.equalsIgnoreCase(Constants.NOKIA_YEAR1_MAINTENANCE) && !item.IsProductServiceLineType() &&
                         proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase("Nokia Software"))
                     {
                         if (linenumberCareDisPercentage.Count > 0 && linenumberCareDisPercentage.ContainsKey(item.LineNumber))
@@ -1703,43 +1865,6 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                             }
 
                             linenumberSRSPrice.Add(item.LineNumber, pricingHelper.ApplyRounding(item.BasePriceOverride, 2, RoundingMode.HALF_UP));
-                        }
-                    }
-                    //Map for Stamping IRP,CLP,CUP for main bundle Airscale wifi Direct MN
-                    if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING) && item.IsOptionLineType() &&
-                        Constants.BUNDLE.equalsIgnoreCase(configType))
-                    {
-                        if (mainBundleToGroupIRPMap.ContainsKey(item.LineNumber))
-                        {
-                            if (item.NokiaCPQ_Unitary_IRP__c != null)
-                                mainBundleToGroupIRPMap[item.LineNumber] = pricingHelper.ApplyRounding((mainBundleToGroupIRPMap[item.LineNumber] + item.NokiaCPQ_Unitary_IRP__c * item.Quantity), 2, RoundingMode.HALF_UP);
-                        }
-                        else
-                        {
-                            if (item.NokiaCPQ_Unitary_IRP__c != null)
-                                mainBundleToGroupIRPMap.Add(item.LineNumber, pricingHelper.ApplyRounding((item.NokiaCPQ_Unitary_IRP__c * item.Quantity), 2, RoundingMode.HALF_UP));
-                        }
-
-                        if (mainBundleToGroupCLPMap.ContainsKey(item.LineNumber))
-                        {
-                            if (item.NCPQ_Unitary_CLP__c != null)
-                                mainBundleToGroupCLPMap[item.LineNumber] = pricingHelper.ApplyRounding((mainBundleToGroupCLPMap[item.LineNumber] + item.NCPQ_Unitary_CLP__c * item.Quantity), 2, RoundingMode.HALF_UP);
-                        }
-                        else
-                        {
-                            if (item.NCPQ_Unitary_CLP__c != null)
-                                mainBundleToGroupCLPMap.Add(item.LineNumber, pricingHelper.ApplyRounding((item.NCPQ_Unitary_CLP__c * item.Quantity), 2, RoundingMode.HALF_UP));
-                        }
-
-                        if (mainBundleToGroupCUPMap.ContainsKey(item.LineNumber))
-                        {
-                            if (item.NokiaCPQ_Extended_CUP__c != null)
-                                mainBundleToGroupCUPMap[item.LineNumber] = pricingHelper.ApplyRounding((mainBundleToGroupCUPMap[item.LineNumber] + item.NokiaCPQ_Extended_CUP__c), 2, RoundingMode.HALF_UP);
-                        }
-                        else
-                        {
-                            if (item.NokiaCPQ_Extended_CUP__c != null)
-                                mainBundleToGroupCUPMap.Add(item.LineNumber, pricingHelper.ApplyRounding((item.NokiaCPQ_Extended_CUP__c), 2, RoundingMode.HALF_UP));
                         }
                     }
                     //Start: create map to limit for loop iterations
@@ -1777,28 +1902,6 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     if (unitaryCostMap.ContainsKey(item.PrimaryLineNumber + Constants.NOKIA_UNDERSCORE + item.ChargeType))
                     {
                         item.NokiaCPQ_Unitary_Cost__c = unitaryCostMap[item.PrimaryLineNumber + Constants.NOKIA_UNDERSCORE + item.ChargeType];
-                    }
-                    //Stamping at main IRP, CLP, CUP bundle for Airscale wifi
-                    if (proposal.NokiaCPQ_Portfolio__c.equalsIgnoreCase(Constants.AIRSCALE_WIFI_STRING) && Constants.BUNDLE.equalsIgnoreCase(configType))
-                    {
-                        if (mainBundleToGroupIRPMap.Count > 0 && mainBundleToGroupIRPMap.ContainsKey(item.LineNumber))
-                        {
-                            item.NokiaCPQ_Unitary_IRP__c = mainBundleToGroupIRPMap[item.LineNumber];
-                        }
-                        if (mainBundleToGroupCLPMap.Count > 0 && mainBundleToGroupCLPMap.ContainsKey(item.LineNumber))
-                        {
-                            item.NCPQ_Unitary_CLP__c = mainBundleToGroupCLPMap[item.LineNumber];
-                        }
-                        if (mainBundleToGroupCUPMap.Count > 0 && mainBundleToGroupCUPMap.ContainsKey(item.LineNumber))
-                        {
-                            item.NokiaCPQ_Extended_CUP__c = mainBundleToGroupCUPMap[item.LineNumber];
-                        }
-                        if (item.NokiaCPQ_Unitary_IRP__c != null && item.Quantity != null)
-                            item.NokiaCPQ_Extended_IRP2__c = pricingHelper.ApplyRounding((item.NokiaCPQ_Unitary_IRP__c * item.Quantity), 2, RoundingMode.HALF_UP);
-                        if (item.NCPQ_Unitary_CLP__c != null && item.Quantity != null)
-                            item.NokiaCPQ_Extended_CLP_2__c = pricingHelper.ApplyRounding((item.NCPQ_Unitary_CLP__c * item.Quantity), 2, RoundingMode.HALF_UP);
-                        if (item.NokiaCPQ_Extended_CUP__c != null && item.Quantity != null)
-                            item.NokiaCPQ_Extended_CUP_2__c = pricingHelper.ApplyRounding((item.NokiaCPQ_Extended_CUP__c * item.Quantity), 2, RoundingMode.HALF_UP);
                     }
 
                     //For Enterprise
@@ -1966,8 +2069,8 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                             if (no_of_years == 1)
                             {
                                 basicYear1 = pricingHelper.ApplyRounding((item.NokiaCPQ_Extended_IRP__c * 0.25m), 2, RoundingMode.HALF_UP);
-                            } 
-                            else if(no_of_years > 1)
+                            }
+                            else if (no_of_years > 1)
                             {
                                 var multiplyingFactor = (no_of_years == 2 || no_of_years == 3) ? 0.85m : 0.70m;
 
@@ -1978,7 +2081,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                             item.NokiaCPQ_Maint_Yr1_Extended_Price__c = basicYear1;
                             item.NokiaCPQ_Maint_Yr2_Extended_Price__c = basicYear2;
                         }
-                        
+
                         if (proposal.NokiaCPQ_Maintenance_Type__c?.equalsIgnoreCase("MN GS TSS Enhanced") == true ||
                             proposal.NokiaCPQ_Maintenance_Type__c?.equalsIgnoreCase("MN GS TSS Enhanced Emergency") == true)
                         {
@@ -1997,7 +2100,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                             item.NokiaCPQ_Maint_Yr1_Extended_Price__c = enhanceYear1;
                             item.NokiaCPQ_Maint_Yr2_Extended_Price__c = enhanceYear2;
                         }
-                        
+
                         if (proposal.NokiaCPQ_Maintenance_Type__c?.equalsIgnoreCase("MN GS TSS Enhanced Emergency") == true)
                         {
                             if (no_of_years == 1)
@@ -2044,7 +2147,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         var extendedIRP = item.NokiaCPQ_Extended_IRP__c;
                         item.NokiaCPQ_Maint_Yr2_Extended_Price__c = 0;
 
-                        if(no_of_years == 1)
+                        if (no_of_years == 1)
                         {
                             item.NokiaCPQ_Maint_Yr1_Extended_Price__c = pricingHelper.ApplyRounding(extendedIRP * 0.02m, 2, RoundingMode.HALF_UP);
                         }
@@ -2083,7 +2186,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
         private string GetItemType(LineItem item)
         {
-            string itemType = item.IsProductServiceLineType() ? 
+            string itemType = item.IsProductServiceLineType() ?
                 item.Apttus_Config2__ProductId__r_NokiaCPQ_Item_Type__c : item.Apttus_Config2__OptionId__r_NokiaCPQ_Item_Type__c;
 
             return itemType;
@@ -2443,8 +2546,8 @@ namespace Apttus.Lightsaber.Nokia.Totalling
             {
                 string partNumber = GetPartNumber(item);
 
-                if (!configType.equalsIgnoreCase(Constants.BUNDLE)
-                     && item.ChargeType == Constants.STANDARD_PRICE)
+                if (configType != null && (!configType.equalsIgnoreCase(Constants.BUNDLE)
+                     && item.ChargeType == Constants.STANDARD_PRICE))
                 {
 
                     bool? contractedPL = IsCLP(item);
@@ -2560,7 +2663,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
 
         private decimal? GetMaximumIRPDiscount(LineItem item)
         {
-            decimal? maximumIRPDiscount = item.IsProductServiceLineType() ? 
+            decimal? maximumIRPDiscount = item.IsProductServiceLineType() ?
                     item.Apttus_Config2__ProductId__r_NokiaCPQ_Maximum_IRP_Discount__c : item.Apttus_Config2__OptionId__r_NokiaCPQ_Maximum_IRP_Discount__c;
 
             return maximumIRPDiscount ?? 0;
