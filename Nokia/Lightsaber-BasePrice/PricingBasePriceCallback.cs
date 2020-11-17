@@ -985,6 +985,39 @@ namespace Apttus.Lightsaber.Nokia.Pricing
 
         public async Task AfterPricingBatchAsync(IBatchPriceRequest batchPriceRequest)
         {
+            var productLineItemModel = batchPriceRequest.GetLineItems().FirstOrDefault();
+            bool isValidPricingRequest = IsValidPricingRequest(productLineItemModel);
+
+            if (isValidPricingRequest)
+            {
+                await ProcessAfterPricingBatchAsync(batchPriceRequest);
+            }
+
+            await Task.CompletedTask;
+        }
+
+        public async Task ProcessAfterPricingBatchAsync(IBatchPriceRequest batchPriceRequest)
+        {
+            if (Constants.QUOTE_TYPE_INDIRECTCPQ.equalsIgnoreCase(proposal.Quote_Type__c))
+            {
+                var batchLineItems = batchPriceRequest.GetLineItems().SelectMany(x => x.GetChargeLines()).Select(s => new LineItem(s)).ToList();
+                foreach (var batchLineItem in batchLineItems)
+                {
+                    if (batchLineItem.Is_Custom_Product__c == true)
+                    {
+                        string[] arrbasrValues = batchLineItem.CustomProductValue__c.split(";");
+                        if (arrbasrValues.size() > 0)
+                        {
+                            batchLineItem.BasePriceOverride = Convert.ToDecimal(arrbasrValues[2]);
+                            batchLineItem.BasePrice = Convert.ToDecimal(arrbasrValues[1]);
+                            batchLineItem.ListPrice = Convert.ToDecimal(arrbasrValues[0]);
+
+                            batchLineItem.UpdatePrice(pricingHelper);
+                        }
+                    }
+                }
+            }
+
             await Task.CompletedTask;
         }
 

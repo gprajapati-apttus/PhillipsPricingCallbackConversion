@@ -566,6 +566,7 @@ namespace Apttus.Lightsaber.Nokia.Common
 
     class Labels
     {
+        //"NFM-P IPR;5620 SAM IPR"
         public static List<string> SRSPDC = new List<string>() { "NFM - P IPR", "5620 SAM IPR" };
         public static List<string> FN_SSP_Product = new List<string>() { "301049607", "3FE30998BA" };
         public static List<string> NokiaCPQ_Care_Proactive = new List<string>() { "785500098210", "784600098210", "784800098210" };

@@ -477,7 +477,7 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                     if (cartLineItem.BasePrice != null && cartLineItem.BasePrice > 0 && cartLineItem.ChargeType.equalsIgnoreCase("Standard Price") &&
                         !(cartLineItem.Source__c == "BOMXAE" && proposal.NokiaCPQ_Portfolio__c == "QTC"))
                     {
-
+                        
                         decimal? convertedBasePriceTwoDecimal = pricingHelper.ApplyRounding((cartLineItem.BasePrice) * (proposal.Exchange_Rate__c), 2, RoundingMode.HALF_UP);
                         decimal? convertedBasePriceFiveDecimal = pricingHelper.ApplyRounding((cartLineItem.BasePrice) * (proposal.Exchange_Rate__c), 5, RoundingMode.HALF_UP);
 
@@ -1349,9 +1349,10 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                         if (!contractedPL.Value)
                         {
                             string productCatDiscount = GetProductDiscountCategory(lineItem);
-                            discountCategory.Add(productCatDiscount);
+                            //discountCategory.Add(productCatDiscount);
                             if (productCatDiscount != null)
                             {
+                                discountCategory.Add(productCatDiscount);
                                 mapItemCategory.Add(lineItem.Id, productCatDiscount);
                             }
                         }
@@ -1706,14 +1707,14 @@ namespace Apttus.Lightsaber.Nokia.Totalling
                                     }
                                 }
 
-                                if (item.NetPrice != null && item.NokiaCPQ_SSP_Rate__c != null && item.Apttus_Config2__ProductId__r_IsSSP__c == false)
+                                if (item.NokiaCPQ_Extended_CLP__c != null && item.NokiaCPQ_SSP_Rate__c != null && item.Apttus_Config2__ProductId__r_IsSSP__c == false)
                                 {
-                                    item.Nokia_SSP_Base_Extended_Price__c = pricingHelper.ApplyRounding((item.NetPrice * item.NokiaCPQ_SSP_Rate__c * 0.01m), 2, RoundingMode.HALF_UP) * quantityBundle;
+                                    item.Nokia_SSP_Base_Extended_Price__c = pricingHelper.ApplyRounding((item.NokiaCPQ_Extended_CLP__c * item.NokiaCPQ_SSP_Rate__c * 0.01m), 2, RoundingMode.HALF_UP) * quantityBundle;
                                 }
 
-                                if (item.NetPrice != null && item.NokiaCPQ_SRS_Rate__c != null && item.Apttus_Config2__ProductId__r_IsSSP__c == true)
+                                if (item.NokiaCPQ_Extended_CLP__c != null && item.NokiaCPQ_SRS_Rate__c != null && item.Apttus_Config2__ProductId__r_IsSSP__c == true)
                                 {
-                                    item.Nokia_SRS_Base_Extended_Price__c = pricingHelper.ApplyRounding((item.NetPrice * item.NokiaCPQ_SRS_Rate__c * 0.01m), 2, RoundingMode.HALF_UP) * quantityBundle;
+                                    item.Nokia_SRS_Base_Extended_Price__c = pricingHelper.ApplyRounding((item.NokiaCPQ_Extended_CLP__c * item.NokiaCPQ_SRS_Rate__c * 0.01m), 2, RoundingMode.HALF_UP) * quantityBundle;
                                 }
 
                                 totalExtendedSSPPrice = totalExtendedSSPPrice + pricingHelper.ApplyRounding((item.Nokia_SSP_Base_Extended_Price__c), 2, RoundingMode.HALF_UP);
